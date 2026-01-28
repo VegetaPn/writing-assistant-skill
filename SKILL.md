@@ -110,7 +110,7 @@ Output: Generated images
 ```
 
 **Image Guidelines:**
-- Images should be appropriately spaced (not too dense)
+- Images should be appropriately spaced (not too dense, usually 3~5 images)
 - Select key points that benefit from visual illustration
 - Maintain balance between text and visuals
 

@@ -273,11 +273,12 @@ MIT License
 ## Changelog
 
 ### Version 1.1.0 (2026-01-31)
-- **Bundled Dependencies**: All required skills now included in the repository
+- **Bundled Dependencies**: All required skills now included in the repository, including generate-image for actual image generation
 - **Automatic Dependency Installation**: Skill automatically checks and installs missing dependencies to project directory
 - **Improved User Experience**: Users no longer need to manually hunt down and install dependencies
-- **Enhanced Documentation**: Comprehensive installation guide with multiple options
+- **Enhanced Documentation**: Comprehensive installation guide with multiple options, including OPENROUTER configuration instructions
 - **Project-Local Installation**: Dependencies installed to `.claude/skills/` for project-specific setup
+- **Image Generation Support**: Added generate-image skill and configuration guide for generating actual images
 
 ### Version 1.0.0
 - Initial release

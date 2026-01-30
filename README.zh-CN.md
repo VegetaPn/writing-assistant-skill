@@ -51,6 +51,43 @@ rm writing-assistant-skill.zip
 2. 下载并解压 ZIP 文件
 3. 将解压后的文件夹移动到项目目录下的 `.claude/skills/writing-assistant/`
 
+## 配置
+
+### 图片生成环境设置
+
+**重要说明**：`baoyu-xhs-images` 技能生成图片描述和布局。要将这些描述转换为实际图片，你需要配合使用 `generate-image` 技能和 OPENROUTER API。
+
+**如果你想生成实际图片**（而不仅仅是描述），请按照以下步骤操作：
+
+1. **获取 OPENROUTER API 密钥**：
+   - 访问 [OpenRouter](https://openrouter.ai/)
+   - 注册或登录你的账户
+   - 从仪表板生成 API 密钥
+
+2. **在项目根目录创建 `.env` 文件**：
+   ```bash
+   # 创建 .env 文件
+   touch .env
+   ```
+
+3. **将 OPENROUTER API 密钥添加到 `.env` 文件**：
+   ```bash
+   OPENROUTER_API_KEY=你的API密钥
+   ```
+
+4. **验证配置**：
+   ```bash
+   # 检查 .env 文件是否存在并包含密钥
+   cat .env
+   ```
+
+**安全提示**：将 `.env` 添加到你的 `.gitignore` 以保护 API 密钥安全：
+```bash
+echo ".env" >> .gitignore
+```
+
+**如果跳过此配置**：工作流程仍然可以运行，但第四步（插图生成）只会生成图片的文字描述。你需要手动创建实际图片或使用其他工具。
+
 ## 使用方法
 
 在 Claude Code 中调用技能：
@@ -131,12 +168,21 @@ rm writing-assistant-skill.zip
 ### 必需技能
 
 - **content-research-writer** - 以专业写作质量润色和精炼内容
-- **baoyu-xhs-images** - 生成小红书风格的插图和信息图
+- **baoyu-xhs-images** - 生成小红书风格的插图描述和布局
 
 ### 可选技能
 
+- **generate-image** - 使用 AI 模型从描述生成实际图片（需要 OPENROUTER API 密钥）。**重要**：如果没有此技能，`baoyu-xhs-images` 只会生成图片的文字描述，而不是实际的图片文件。
 - **baoyu-post-to-wechat** - 发布到微信公众号
 - **baoyu-post-to-x** - 发布到 X/Twitter
+
+### 图片生成要求
+
+要生成**实际图片**（而不仅仅是描述）：
+1. 安装 `generate-image` 技能（已包含在 dependencies 中）
+2. 配置 OPENROUTER API 密钥（参见上面的配置部分）
+
+如果没有 `generate-image`，工作流程仍然可以运行，但第四步只会生成图片描述，你需要手动创建图片。
 
 ### 手动安装
 
@@ -207,6 +253,7 @@ writing-assistant-skill/
 └── dependencies/            # 打包的依赖技能
     ├── content-research-writer/
     ├── baoyu-xhs-images/
+    ├── generate-image/
     ├── baoyu-post-to-wechat/
     └── baoyu-post-to-x/
 ```
@@ -226,11 +273,12 @@ MIT License
 ## 更新日志
 
 ### 版本 1.1.0 (2026-01-31)
-- **打包依赖项**：所有必需技能现在都包含在仓库中
+- **打包依赖项**：所有必需技能现在都包含在仓库中，包括 generate-image 用于实际图片生成
 - **自动依赖安装**：技能自动检查并将缺失的依赖项安装到项目目录
 - **改进用户体验**：用户不再需要手动查找和安装依赖项
-- **增强文档**：提供多种选项的全面安装指南
+- **增强文档**：提供多种选项的全面安装指南，包括 OPENROUTER 配置说明
 - **项目本地安装**：依赖项安装到 `.claude/skills/` 以实现特定项目的设置
+- **图片生成支持**：添加了 generate-image 技能和配置指南，支持生成实际图片
 
 ### 版本 1.0.0
 - 初始发布

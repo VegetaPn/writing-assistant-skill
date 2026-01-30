@@ -26,11 +26,14 @@ Before starting the workflow, verify that all required skills are installed.
 
 **Required dependencies:**
 - `content-research-writer` - For polishing content (Step 4)
-- `baoyu-xhs-images` - For generating illustrations (Step 5)
+- `baoyu-xhs-images` - For generating illustration descriptions and layouts (Step 5)
 
 **Optional dependencies:**
+- `generate-image` - For actually generating images from descriptions (requires OPENROUTER API key). Without this, `baoyu-xhs-images` will only produce image descriptions.
 - `baoyu-post-to-wechat` - For WeChat publishing (Step 8)
 - `baoyu-post-to-x` OR `x-article-publisher` - For X/Twitter publishing (Step 8)
+
+**Note**: To generate actual images (not just descriptions), you must install `generate-image` AND configure OPENROUTER API key in `.env` file.
 
 **Dependency check process:**
 

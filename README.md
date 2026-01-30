@@ -1,5 +1,7 @@
 # Writing Assistant Skill
 
+English | [简体中文](README.zh-CN.md)
+
 A comprehensive end-to-end writing workflow skill for Claude Code that transforms ideas, materials, or rough drafts into polished, illustrated articles ready for publication.
 
 ## Overview
@@ -48,6 +50,43 @@ Alternatively, download manually:
 1. Visit https://github.com/VegetaPn/writing-assistant-skill/archive/refs/heads/main.zip
 2. Download and extract the ZIP file
 3. Move the extracted folder to `.claude/skills/writing-assistant/` in your project directory
+
+## Configuration
+
+### Environment Setup for Image Generation
+
+**Important**: The `baoyu-xhs-images` skill generates image descriptions and layouts. To convert these descriptions into actual images, you need the `generate-image` skill with OPENROUTER API access.
+
+**If you want to generate actual images** (not just descriptions), follow these steps:
+
+1. **Get an OPENROUTER API key**:
+   - Visit [OpenRouter](https://openrouter.ai/)
+   - Sign up or log in to your account
+   - Generate an API key from your dashboard
+
+2. **Create a `.env` file** in your project root:
+   ```bash
+   # Create .env file
+   touch .env
+   ```
+
+3. **Add your OPENROUTER API key** to the `.env` file:
+   ```bash
+   OPENROUTER_API_KEY=your_api_key_here
+   ```
+
+4. **Verify the configuration**:
+   ```bash
+   # Check that .env exists and contains the key
+   cat .env
+   ```
+
+**Security Note**: Add `.env` to your `.gitignore` to keep your API key secure:
+```bash
+echo ".env" >> .gitignore
+```
+
+**If you skip this configuration**: The workflow will still work, but Step 5 (illustration generation) will only produce text descriptions of images. You'll need to create the actual images manually or using other tools.
 
 ## Usage
 
@@ -129,12 +168,21 @@ This ensures a seamless experience without needing to manually hunt down and ins
 ### Required Skills
 
 - **content-research-writer** - Polishes and refines content with professional writing quality
-- **baoyu-xhs-images** - Generates illustrations and infographics in Xiaohongshu style
+- **baoyu-xhs-images** - Generates illustration descriptions and layouts in Xiaohongshu style
 
 ### Optional Skills
 
+- **generate-image** - Generates actual images from descriptions using AI models (requires OPENROUTER API key). **Important**: Without this skill, `baoyu-xhs-images` will only produce text descriptions of images, not actual image files.
 - **baoyu-post-to-wechat** - Publishes to WeChat Official Account (微信公众号)
 - **baoyu-post-to-x** - Publishes to X/Twitter
+
+### Image Generation Requirements
+
+To generate **actual images** (not just descriptions):
+1. Install the `generate-image` skill (bundled in dependencies)
+2. Configure OPENROUTER API key (see Configuration section above)
+
+Without `generate-image`, the workflow will still work but Step 5 will only produce image descriptions that you'll need to create manually.
 
 ### Manual Installation
 
@@ -198,12 +246,14 @@ Skill: [Directly proceeds to polishing and enhancement]
 
 ```
 writing-assistant-skill/
-├── README.md                # User documentation
+├── README.md                # User documentation (English)
+├── README.zh-CN.md          # User documentation (Chinese)
 ├── SKILL.md                 # Skill definition for Claude Code
 ├── writing-assistant.skill  # Packaged skill file
 └── dependencies/            # Bundled dependency skills
     ├── content-research-writer/
     ├── baoyu-xhs-images/
+    ├── generate-image/
     ├── baoyu-post-to-wechat/
     └── baoyu-post-to-x/
 ```

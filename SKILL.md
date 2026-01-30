@@ -20,6 +20,53 @@ This skill orchestrates a multi-step writing process:
 
 ## Workflow
 
+### Initial Setup: Check Dependencies
+
+Before starting the workflow, verify that all required skills are installed.
+
+**Required dependencies:**
+- `content-research-writer` - For polishing content (Step 4)
+- `baoyu-xhs-images` - For generating illustrations (Step 5)
+
+**Optional dependencies:**
+- `baoyu-post-to-wechat` - For WeChat publishing (Step 8)
+- `baoyu-post-to-x` OR `x-article-publisher` - For X/Twitter publishing (Step 8)
+
+**Dependency check process:**
+
+This skill bundles all dependencies in the `dependencies/` directory for convenient automatic installation.
+
+1. **Check installed skills** using:
+   ```bash
+   claude skill list
+   ```
+
+2. **Identify missing dependencies**:
+   - Compare installed skills against the required and optional dependencies listed above
+   - Note which dependencies are missing
+
+3. **For each missing dependency**:
+   - Check if bundled version exists in `dependencies/<skill-name>/`
+   - If found, ask user: "The skill `<skill-name>` is required for [purpose]. Install it to your project's `.claude/skills/` directory?"
+   - If user confirms, copy to project:
+     ```bash
+     mkdir -p .claude/skills
+     cp -r dependencies/<skill-name> .claude/skills/
+     ```
+   - Verify the skill is now available
+
+4. **Handle installation outcomes**:
+   - **Required dependencies missing and user declines**: Explain that workflow cannot proceed without these skills. Offer to pause until user installs them manually.
+   - **Optional dependencies missing**: Note that publishing features (Step 8) will be unavailable. Continue with the workflow.
+   - **Installation failed**: Provide manual instructions:
+     ```bash
+     # Manual installation from bundled dependencies
+     cp -r dependencies/content-research-writer .claude/skills/
+     cp -r dependencies/baoyu-xhs-images .claude/skills/
+     ```
+
+5. **Proceed to Step 1** once required dependencies are installed
+
 ### Step 1: Choose Starting Mode
 
 Ask the user to select one of three modes:

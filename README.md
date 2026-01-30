@@ -17,21 +17,37 @@ Writing Assistant orchestrates a complete multi-step writing process from ideati
 
 ## Installation
 
-### For Claude Code
+### Option 1: Ask Claude Code to Install (Recommended)
 
-1. Download the `writing-assistant.skill` file
-2. Install the skill:
-   ```bash
-   claude skill install writing-assistant.skill
-   ```
+Simply ask Claude Code to install this skill for you:
 
-### Manual Installation
+```
+Install the writing-assistant skill from https://github.com/VegetaPn/writing-assistant-skill to my project directory
+```
 
-1. Clone this repository or download the files
-2. Copy `SKILL.md` to your Claude Code skills directory:
-   ```bash
-   cp SKILL.md ~/.claude/skills/writing-assistant/
-   ```
+Claude will automatically download and set up the skill with all bundled dependencies.
+
+### Option 2: Manual Installation
+
+Download and extract the skill to your project:
+
+```bash
+# Download the latest version
+curl -L https://github.com/VegetaPn/writing-assistant-skill/archive/refs/heads/main.zip -o writing-assistant-skill.zip
+
+# Extract to your project's .claude/skills directory
+mkdir -p .claude/skills
+unzip writing-assistant-skill.zip -d .claude/skills/
+mv .claude/skills/writing-assistant-skill-main .claude/skills/writing-assistant
+
+# Clean up
+rm writing-assistant-skill.zip
+```
+
+Alternatively, download manually:
+1. Visit https://github.com/VegetaPn/writing-assistant-skill/archive/refs/heads/main.zip
+2. Download and extract the ZIP file
+3. Move the extracted folder to `.claude/skills/writing-assistant/` in your project directory
 
 ## Usage
 
@@ -99,12 +115,42 @@ Direct publishing support for:
 
 ## Dependencies
 
-This skill integrates with the following Claude Code skills:
+This skill requires several other skills to function. These dependencies are **bundled in the repository** for your convenience and will be automatically installed when needed.
 
-- `content-research-writer` - For content polishing and refinement
-- `baoyu-xhs-images` - For generating illustrations
-- `baoyu-post-to-wechat` - For WeChat publishing (optional)
-- `baoyu-post-to-x` or `x-article-publisher` - For X/Twitter publishing (optional)
+### Automatic Installation
+
+When you run `/writing-assistant`, the skill will automatically:
+1. Check which dependencies are installed
+2. Offer to install missing dependencies from bundled versions
+3. Copy them to your project's `.claude/skills/` directory with your permission
+
+This ensures a seamless experience without needing to manually hunt down and install each dependency.
+
+### Required Skills
+
+- **content-research-writer** - Polishes and refines content with professional writing quality
+- **baoyu-xhs-images** - Generates illustrations and infographics in Xiaohongshu style
+
+### Optional Skills
+
+- **baoyu-post-to-wechat** - Publishes to WeChat Official Account (微信公众号)
+- **baoyu-post-to-x** - Publishes to X/Twitter
+
+### Manual Installation
+
+If automatic installation doesn't work or you prefer manual control, you can copy skills directly:
+
+```bash
+# From the writing-assistant repository root
+# For project-local installation
+mkdir -p .claude/skills
+cp -r dependencies/content-research-writer .claude/skills/
+cp -r dependencies/baoyu-xhs-images .claude/skills/
+
+# Or for global installation (available to all projects)
+cp -r dependencies/content-research-writer ~/.claude/skills/
+cp -r dependencies/baoyu-xhs-images ~/.claude/skills/
+```
 
 ## File Naming Convention
 
@@ -152,9 +198,14 @@ Skill: [Directly proceeds to polishing and enhancement]
 
 ```
 writing-assistant-skill/
-├── README.md           # This file
-├── SKILL.md            # Skill definition for Claude Code
-└── writing-assistant.skill  # Packaged skill file
+├── README.md                # User documentation
+├── SKILL.md                 # Skill definition for Claude Code
+├── writing-assistant.skill  # Packaged skill file
+└── dependencies/            # Bundled dependency skills
+    ├── content-research-writer/
+    ├── baoyu-xhs-images/
+    ├── baoyu-post-to-wechat/
+    └── baoyu-post-to-x/
 ```
 
 ## Contributing
@@ -170,6 +221,13 @@ MIT License
 [VegetaPn GitHub](https://github.com/VegetaPn)
 
 ## Changelog
+
+### Version 1.1.0 (2026-01-31)
+- **Bundled Dependencies**: All required skills now included in the repository
+- **Automatic Dependency Installation**: Skill automatically checks and installs missing dependencies to project directory
+- **Improved User Experience**: Users no longer need to manually hunt down and install dependencies
+- **Enhanced Documentation**: Comprehensive installation guide with multiple options
+- **Project-Local Installation**: Dependencies installed to `.claude/skills/` for project-specific setup
 
 ### Version 1.0.0
 - Initial release

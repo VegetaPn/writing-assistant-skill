@@ -174,57 +174,64 @@ Step 8: 发布
 
 ## 四、实施路径
 
-### 步骤 1：建立参考库基础
+### 步骤 1：建立参考库基础 ✅ 已完成
 
 **目标：快速验证参考库价值**
 
-**行动：**
+**完成情况：**
 
-1. **创建目录结构**
-   ```bash
-   mkdir -p references/authors/{dontbesilent,dan-koe}/articles
-   mkdir -p references/by-element/{titles,openings,structures,hooks}
-   mkdir -p references/by-topic
+1. ✅ **创建目录结构**
+   ```
+   references/
+   ├── authors/dan-koe/
+   │   ├── profile.md
+   │   └── articles/
+   ├── by-element/
+   │   ├── titles/
+   │   ├── openings/
+   │   ├── structures/
+   │   └── hooks/
+   └── by-topic/
    ```
 
-2. **手动导入种子内容**
-   - 用户提供 2-3 篇 dontbesilent 文章（链接或文本）
-   - 用户提供 2-3 篇 Dan Koe 文章
-   - AI 帮助分析并归档
+2. ✅ **导入种子内容**
+   - 导入 2 篇 Dan Koe 文章（使用 bird CLI 抓取）
+   - "The future of work when work is meaningless"
+   - "The most important skill to learn in the next 10 years"
 
-3. **提取写作元素**
-   - 从文章中提取优秀标题
-   - 提取吸引人的开头
-   - 分析内容结构模板
+3. ✅ **提取写作元素**
+   - `titles/titles-index.md` - 2 个标题分析 + 套路模板
+   - `openings/openings-index.md` - 2 个开头分析 + 技巧拆解
+   - `structures/structure-templates.md` - 文章结构模板
+   - `hooks/hook-examples.md` - 17 个钩子案例
 
-4. **生成作者风格档案**
-   - 分析 dontbesilent 的写作风格
-   - 分析 Dan Koe 的写作风格
-   - 创建 profile.md 文档
+4. ✅ **生成作者风格档案**
+   - `authors/dan-koe/profile.md` - 7 个维度的深度分析
 
-### 步骤 2：改造 Workflow
+### 步骤 2：改造 Workflow ✅ 已完成
 
 **目标：在写作流程中集成参考库**
 
-**行动：**
+**完成情况：**
 
-1. **修改 SKILL.md**
-   - 增加 Step 1.5：检索参考库
-   - 增强 Step 2.5：特定元素参考
+1. ✅ **修改 SKILL.md**
+   - 新增 Step 1.5：检索参考库
+   - 新增 Step 2.5：特定元素参考（标题、开头、结构、钩子）
+   - 更新 Step 3：Draft 模式也经过元素参考
+   - 更新 Best Practices：增加参考库使用建议
 
-2. **实现检索逻辑**
-   - 主题匹配：根据用户选题检索相关文章
-   - 元素检索：根据当前环节检索对应元素库
+2. ✅ **实现检索逻辑**
+   - Workflow 中定义了检索流程
+   - 明确了参考库目录结构
 
-3. **测试完整流程**
-   - 用真实选题测试新 workflow
-   - 验证参考环节是否有价值
+3. ⏳ **测试完整流程**
+   - 待用真实选题测试新 workflow
 
 ### 步骤 3：完善参考库功能
 
 **功能清单：**
 - [ ] 实现半自动抓取（方式 B）
-- [ ] 增加更多作者和文章
+- [ ] 增加更多作者和文章（如 dontbesilent）
 - [ ] 标题/开头的数据标注（点击率、完播率等）
 - [ ] 参考库搜索和过滤功能
 
@@ -247,9 +254,17 @@ Step 8: 发布
 
 ## 六、下一步行动
 
-1. **创建 references/ 目录结构**
-2. **用户提供 2-3 篇优秀文章**（dontbesilent 或 Dan Koe）
-3. **AI 分析并归档第一批内容**
+### 已完成 ✅
+1. ✅ 创建 references/ 目录结构
+2. ✅ 导入 Dan Koe 2 篇文章并分析
+3. ✅ 提取写作元素（标题、开头、结构、钩子）
+4. ✅ 生成 Dan Koe 风格档案
+5. ✅ 改造 SKILL.md 集成参考库
+
+### 待完成
+1. **测试新 workflow** - 用真实选题验证参考库价值
+2. **补充更多参考内容** - 添加 dontbesilent 或其他作者
+3. **根据使用反馈优化** - 调整参考库结构和 workflow
 
 ## 七、参考资料
 

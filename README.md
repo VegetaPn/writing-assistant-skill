@@ -144,14 +144,27 @@ references/
 │       ├── profile.md          # Writing style analysis
 │       └── articles/           # Sample articles
 │
-├── by-element/                 # Writing elements
+├── by-element/                 # Writing elements (case-driven)
 │   ├── titles/                 # Title patterns
 │   ├── openings/               # Opening techniques
 │   ├── structures/             # Article structures
 │   └── hooks/                  # Engaging hooks
 │
-└── by-topic/                   # Topic-based examples
+├── by-topic/                   # Topic-based examples
+│
+└── techniques/                 # Methodology-level guidance (principle-driven)
+    └── psychology/             # Psychology-based methodologies
+        ├── psychology-index.md # Methodology index (structured summary)
+        ├── content-funnel.md   # Raw source material
+        └── content-funnel.png  # Diagram
 ```
+
+**Case Library vs Methodology Library:**
+- `by-element/` (Case Library): What is this article's title, and why is it good
+- `techniques/` (Methodology Library): What are the underlying principles of a good title, and how to systematically create great content
+
+**Methodology Entry Format:**
+Each methodology includes: Core Framework → Psychology Mechanism → Why It Works → Application Scenarios → Practice Guide → Case Study
 
 ## Dependencies
 
@@ -254,7 +267,10 @@ writing-assistant-skill/
 ├── references/              # Reference library for style guidance
 │   ├── authors/             # Author profiles and writing styles
 │   ├── by-element/          # Writing elements (titles, openings, structures, hooks)
-│   └── by-topic/            # Topic-based article examples
+│   ├── by-topic/            # Topic-based article examples
+│   └── techniques/          # Methodology-level guidance
+│       └── psychology/      # Psychology-based methodologies
+│           └── psychology-index.md  # Methodology index
 └── dependencies/            # Bundled dependency skills
     ├── content-research-writer/
     ├── baoyu-xhs-images/

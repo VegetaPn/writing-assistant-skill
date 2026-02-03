@@ -11,7 +11,9 @@ Writing Assistant orchestrates a complete multi-step writing process from ideati
 ## Features
 
 - **Multi-Mode Support**: Start from a topic idea, organized materials, or an existing draft
+- **Reference Library System**: Built-in library of writing styles, title patterns, opening techniques, and article structures for inspiration
 - **Interactive Clarification**: Intelligent questioning system to understand user intent and gather necessary details
+- **Element-Level Refinement**: Title, opening paragraph, and structure suggestions based on proven patterns
 - **Research Integration**: Automatic web research to supplement content with credible sources
 - **Content Polishing**: Integration with content-research-writer for professional-grade refinement
 - **Visual Enhancement**: Automatic illustration generation using baoyu-xhs-images
@@ -101,56 +103,55 @@ Or ask Claude to help with writing tasks:
 - "Help me polish this draft..."
 - "I have some materials I want to turn into a blog post..."
 
-## Workflow
+## Reference Library
 
-### Step 1: Choose Your Starting Point
+The Reference Library (`references/`) provides style guidance, writing patterns, and inspiration. You can build and use it through natural conversation with Claude Code.
 
-The skill supports three modes:
+### Building Your Reference Library
 
-**Mode 1: Topic-Based**
-- Start with just a topic or theme
-- Best for brainstorming from scratch
+Simply tell Claude Code what you want to add:
 
-**Mode 2: Materials-Based**
-- Provide loosely organized notes, references, or research
-- Ideal for organizing existing materials into coherent content
+**Adding an author's writing style:**
+- "Analyze Dan Koe's writing style and add it to my reference library"
+- "Add this article to my references and extract the writing patterns"
+- "Create a profile for {author name} based on these articles: {URLs or file paths}"
 
-**Mode 3: Draft-Based**
-- Start with an unpolished initial draft
-- Perfect for refining and improving existing content
+**Adding writing elements:**
+- "Extract the title pattern from this article and add it to my titles reference"
+- "Analyze this opening paragraph and save it as a reference"
+- "Add this article structure as a template to my references"
 
-### Step 2: Interactive Clarification (Modes 1 & 2)
+**Organizing by topic:**
+- "Save this article under the AI topic in my reference library"
+- "Create a new topic folder for productivity articles"
 
-The skill will:
-1. Analyze your provided content
-2. Ask tailored, content-specific questions
-3. Conduct supplementary research if needed
-4. Organize everything into an initial draft
+### Using the Reference Library
 
-### Step 3: Polish & Refine
+During the writing workflow, the skill automatically searches your reference library. You can also explicitly request styles:
 
-Uses the `content-research-writer` skill to:
-- Improve structure and flow
-- Enhance hooks and engagement
-- Add citations and research
-- Elevate writing quality
+- "Write this article in Dan Koe's style"
+- "Use the hypothesis-subversion title pattern from my references"
+- "Apply the anxiety-resonance opening technique"
+- "Show me what author styles I have available"
+- "What title patterns do I have in my reference library?"
 
-### Step 4: Add Illustrations
+### Reference Library Structure
 
-Uses the `baoyu-xhs-images` skill to:
-- Generate appropriate visuals
-- Create infographic-style images
-- Enhance key points with visual elements
-
-### Step 5: Final Assembly
-
-Combines polished content with generated images into a publication-ready article.
-
-### Step 6: Publish (Optional)
-
-Direct publishing support for:
-- **WeChat Official Account** (微信公众号) via `baoyu-post-to-wechat`
-- **X/Twitter** via `baoyu-post-to-x` or `x-article-publisher`
+```
+references/
+├── authors/                    # Author profiles and articles
+│   └── {author-name}/
+│       ├── profile.md          # Writing style analysis
+│       └── articles/           # Sample articles
+│
+├── by-element/                 # Writing elements
+│   ├── titles/                 # Title patterns
+│   ├── openings/               # Opening techniques
+│   ├── structures/             # Article structures
+│   └── hooks/                  # Engaging hooks
+│
+└── by-topic/                   # Topic-based examples
+```
 
 ## Dependencies
 
@@ -250,6 +251,10 @@ writing-assistant-skill/
 ├── README.zh-CN.md          # User documentation (Chinese)
 ├── SKILL.md                 # Skill definition for Claude Code
 ├── writing-assistant.skill  # Packaged skill file
+├── references/              # Reference library for style guidance
+│   ├── authors/             # Author profiles and writing styles
+│   ├── by-element/          # Writing elements (titles, openings, structures, hooks)
+│   └── by-topic/            # Topic-based article examples
 └── dependencies/            # Bundled dependency skills
     ├── content-research-writer/
     ├── baoyu-xhs-images/
@@ -271,6 +276,12 @@ MIT License
 [VegetaPn GitHub](https://github.com/VegetaPn)
 
 ## Changelog
+
+### Version 1.2.0 (2026-02-04)
+- **Reference Library System**: Added `references/` directory with author profiles, writing elements, and topic examples
+- **Style Guidance**: Search and apply writing styles from reference authors
+- **Element-Level Refinement**: Refine titles, openings, and article structure based on proven patterns
+- **Hook Integration**: Plan and integrate engaging hooks throughout the article
 
 ### Version 1.1.0 (2026-01-31)
 - **Bundled Dependencies**: All required skills now included in the repository, including generate-image for actual image generation

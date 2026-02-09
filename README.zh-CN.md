@@ -144,14 +144,27 @@ references/
 │       ├── profile.md          # 写作风格分析
 │       └── articles/           # 示例文章
 │
-├── by-element/                 # 写作元素
+├── by-element/                 # 写作元素（案例驱动）
 │   ├── titles/                 # 标题模式
 │   ├── openings/               # 开头技巧
 │   ├── structures/             # 文章结构
 │   └── hooks/                  # 吸引读者的钩子
 │
-└── by-topic/                   # 按主题分类的示例
+├── by-topic/                   # 按主题分类的示例
+│
+└── techniques/                 # 方法论层面的技巧说明（原理驱动）
+    └── psychology/             # 心理学方法论
+        ├── psychology-index.md # 方法论索引（结构化汇总）
+        ├── content-funnel.md   # 原始素材
+        └── content-funnel.png  # 配图
 ```
+
+**案例库 vs 方法论库的区别：**
+- `by-element/`（案例库）：这篇文章的标题是什么，为什么好
+- `techniques/`（方法论库）：什么是好标题的底层原理，如何系统性地创造好内容
+
+**方法论条目格式：**
+每个方法论包含：核心框架 → 心理学机制 → 为什么有效 → 应用场景 → 实践指南 → 案例分析
 
 ## 依赖项
 
@@ -254,7 +267,10 @@ writing-assistant-skill/
 ├── references/              # 风格指导的引用库
 │   ├── authors/             # 作者档案和写作风格
 │   ├── by-element/          # 写作元素（标题、开头、结构、钩子）
-│   └── by-topic/            # 按主题分类的文章示例
+│   ├── by-topic/            # 按主题分类的文章示例
+│   └── techniques/          # 方法论层面的技巧说明
+│       └── psychology/      # 心理学方法论
+│           └── psychology-index.md  # 方法论索引
 └── dependencies/            # 打包的依赖技能
     ├── content-research-writer/
     ├── baoyu-xhs-images/

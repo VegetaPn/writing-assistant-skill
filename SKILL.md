@@ -10,14 +10,29 @@ A complete end-to-end writing workflow that transforms ideas, materials, or roug
 ## Overview
 
 This skill orchestrates a multi-step writing process:
-1. Collect initial content (topic, materials, or draft)
-2. **Search reference library for style guidance and similar cases**
-3. Clarify and enrich through interactive questioning (with element-level references)
-4. Generate or refine the initial draft
-5. Polish the content using content-research-writer
-6. Add appropriate illustrations using baoyu-xhs-images
-7. Combine content and images into final article
-8. Optionally publish to WeChat or X platforms
+1. **Choose starting mode** — load from topic pipeline or start fresh
+2. **Search references and benchmarks** — find styles, patterns, viral cases
+3. **Collect and clarify** — interactive questioning (Modes 1 & 2)
+4. **Element-level reference** — title (via title-generator), opening, structure
+5. **Process draft** — Mode 3 only
+6. **Polish** — using content-research-writer
+7. **Generate illustrations** — using baoyu-xhs-images
+8. **Create final article** — combine content + images
+9. **Next steps** — review and confirm
+10. **Publish** — optional, to WeChat or X
+
+**Note:** This skill focuses on **writing**. For topic management (recording ideas, analyzing viral content, monitoring trends), use `skills/topic-manager.md`. For standalone title generation, use `skills/title-generator.md`.
+
+## Companion Skills (project-local, no installation needed)
+
+These skills live in the `skills/` directory and can be invoked directly:
+- `skills/title-generator.md` — Platform-optimized title generation (called in Step 4, or independently)
+- `skills/topic-manager.md` — Topic lifecycle management + viral benchmarking
+- `skills/experience-tracker.md` — Records user corrections, distills lessons learned
+
+## Experience Check
+
+**Before every step**, check `assets/experiences/lessons.md` if it exists. Apply any relevant lessons to avoid repeating past mistakes. When the user corrects your output during the workflow, trigger `skills/experience-tracker.md` to record the case.
 
 ## Workflow
 
@@ -26,13 +41,13 @@ This skill orchestrates a multi-step writing process:
 Before starting the workflow, verify that all required skills are installed.
 
 **Required dependencies:**
-- `content-research-writer` - For polishing content (Step 4)
-- `baoyu-xhs-images` - For generating illustration descriptions and layouts (Step 5)
+- `content-research-writer` - For polishing content (Step 6)
+- `baoyu-xhs-images` - For generating illustration descriptions and layouts (Step 7)
 
 **Optional dependencies:**
 - `generate-image` - For actually generating images from descriptions (requires OPENROUTER API key). Without this, `baoyu-xhs-images` will only produce image descriptions.
-- `baoyu-post-to-wechat` - For WeChat publishing (Step 8)
-- `baoyu-post-to-x` OR `x-article-publisher` - For X/Twitter publishing (Step 8)
+- `baoyu-post-to-wechat` - For WeChat publishing (Step 10)
+- `baoyu-post-to-x` OR `x-article-publisher` - For X/Twitter publishing (Step 10)
 
 **Note**: To generate actual images (not just descriptions), you must install `generate-image` AND configure OPENROUTER API key in `.env` file.
 
@@ -61,7 +76,7 @@ This skill bundles all dependencies in the `dependencies/` directory for conveni
 
 4. **Handle installation outcomes**:
    - **Required dependencies missing and user declines**: Explain that workflow cannot proceed without these skills. Offer to pause until user installs them manually.
-   - **Optional dependencies missing**: Note that publishing features (Step 8) will be unavailable. Continue with the workflow.
+   - **Optional dependencies missing**: Note that publishing features (Step 10) will be unavailable. Continue with the workflow.
    - **Installation failed**: Provide manual instructions:
      ```bash
      # Manual installation from bundled dependencies
@@ -73,7 +88,12 @@ This skill bundles all dependencies in the `dependencies/` directory for conveni
 
 ### Step 1: Choose Starting Mode
 
-Ask the user to select one of three modes:
+First, check if there are developed topics ready to write:
+- Look in `assets/topics/developing/` for existing topic files
+- If topics exist, present them: "You have N developed topics. Would you like to continue with one?"
+- If user picks a topic, load its file (outline, benchmark references, title candidates) and proceed to Step 2 with this context
+
+If no developed topics, or user wants to start fresh, ask for one of three modes:
 
 **Mode 1: Topic-Based**
 - User provides a topic or theme they want to write about
@@ -89,9 +109,9 @@ Ask the user to select one of three modes:
 - Suitable when the user has already written a rough version
 - Ask for file path if draft is in a file
 
-### Step 1.5: Search Reference Library
+### Step 2: Search Reference Library and Benchmarks
 
-After understanding the user's topic/theme, search the reference library (`references/`) to provide style guidance and inspiration.
+After understanding the user's topic/theme, search the reference library (`references/`) and viral benchmarks to provide style guidance and inspiration.
 
 **Reference Library Structure:**
 ```
@@ -114,7 +134,7 @@ references/
 
 1. **Check if reference library exists**:
    - Look for `references/` directory in the project root
-   - If not found, skip this step and proceed to Step 2
+   - If not found, skip this step and proceed to Step 3
 
 2. **Search for relevant author styles**:
    - Read available `references/authors/*/profile.md` files
@@ -128,14 +148,19 @@ references/
 4. **Present reference options**:
    - If user wants to reference a style, note the chosen author's profile for use in later steps
    - The style guidance will influence:
-     - Title suggestions (Step 2)
-     - Opening paragraph style (Step 2)
-     - Overall article structure (Step 2)
-     - Tone and voice during polishing (Step 4)
+     - Title suggestions (Step 4)
+     - Opening paragraph style (Step 4)
+     - Overall article structure (Step 4)
+     - Tone and voice during polishing (Step 6)
 
-5. **Proceed to Step 2** with or without style reference
+5. **Search viral benchmarks** (if `assets/topics/benchmarks/` exists):
+   - Check for benchmark analyses on similar topics
+   - If found, present: "I found N benchmark analyses on related topics that might inform our approach."
+   - Note relevant title patterns, hooks, and structures from benchmarks
 
-### Step 2: Collect and Clarify (Modes 1 & 2 Only)
+6. **Proceed to Step 3** with or without style reference
+
+### Step 3: Collect and Clarify (Modes 1 & 2 Only)
 
 For Modes 1 and 2, use an interactive questioning approach:
 
@@ -162,7 +187,7 @@ For Modes 1 and 2, use an interactive questioning approach:
    - Researched supplementary materials
    - Logical article structure
 
-6. **Proceed to Step 2.5** for element-level refinement
+6. **Proceed to Step 4** for element-level refinement
 
 **Question Strategy:**
 - Ask 2-4 questions at a time (avoid overwhelming the user)
@@ -176,7 +201,7 @@ For Modes 1 and 2, use an interactive questioning approach:
   - Are there particular examples or stories to include?
 - Let the content guide the questions - if something is already clear, don't ask about it
 
-### Step 2.5: Element-Level Reference (Title, Opening, Structure)
+### Step 4: Element-Level Reference (Title, Opening, Structure)
 
 Before finalizing the initial draft, use the reference library to refine key writing elements.
 
@@ -185,12 +210,8 @@ Before finalizing the initial draft, use the reference library to refine key wri
 **Process:**
 
 1. **Title Refinement**:
-   - Read `references/by-element/titles/titles-index.md` if available
-   - Based on the article's theme, suggest 2-3 title options
-   - Show relevant title patterns from the reference library
-   - Example: "Based on Dan Koe's title patterns, here are some options:
-     - Pattern A (hypothesis subversion): '[Topic] when [assumption is overturned]'
-     - Pattern B (single optimal answer): 'The most important [X] for [Y]'"
+   - Read and invoke `skills/title-generator.md` for platform-optimized title generation
+   - The title-generator will search references, apply platform rules, and generate 5 candidates
    - Let user choose or customize
 
 2. **Opening Paragraph Refinement**:
@@ -217,9 +238,9 @@ Before finalizing the initial draft, use the reference library to refine key wri
    - Note effective hook techniques to use within the article
    - Plan where to place engaging hooks in the draft
 
-5. **Proceed to Step 3 or Step 4** with the refined elements
+5. **Proceed to Step 5 or Step 6** with the refined elements
 
-### Step 3: Process Draft (Mode 3 Only)
+### Step 5: Process Draft (Mode 3 Only)
 
 For Mode 3 (Draft-Based):
 
@@ -228,14 +249,14 @@ For Mode 3 (Draft-Based):
    - Identify the main theme and structure
    - Note areas that could be improved
 
-2. **Apply Step 2.5 (Element-Level Reference)**:
+2. **Apply Step 4 (Element-Level Reference)**:
    - Even with an existing draft, offer to refine title, opening, and structure
    - Suggest improvements based on reference library patterns
    - Let user decide what to keep vs. what to change
 
-3. **Proceed to Step 4** with the (optionally refined) draft
+3. **Proceed to Step 6** with the (optionally refined) draft
 
-### Step 4: Polish the Draft
+### Step 6: Polish the Draft
 
 Use the **@content-research-writer** skill to refine and polish the draft:
 
@@ -251,7 +272,7 @@ The polished version will have:
 - Citations and research integration
 - Professional writing quality
 
-### Step 5: Generate Illustrations
+### Step 7: Generate Illustrations
 
 Use the **@baoyu-xhs-images** skill to create appropriate images:
 
@@ -266,7 +287,7 @@ Output: Generated images
 - Select key points that benefit from visual illustration
 - Maintain balance between text and visuals
 
-### Step 6: Create Final Article
+### Step 8: Create Final Article
 
 Combine the polished content with generated images:
 
@@ -281,7 +302,7 @@ Combine the polished content with generated images:
 - Use consistent formatting
 - Ensure images enhance rather than disrupt reading
 
-### Step 7: Next Steps
+### Step 9: Next Steps
 
 After creating the final article, summarize the work completed and ask the user about publication:
 
@@ -290,7 +311,7 @@ After creating the final article, summarize the work completed and ask the user 
 - "Which platform would you prefer: WeChat Official Account (微信公众号) or X (Twitter)?"
 - "Or would you like to make any revisions first?"
 
-### Step 8: Publish (Optional)
+### Step 10: Publish (Optional)
 
 If the user wants to publish, invoke the appropriate skill:
 
@@ -310,7 +331,7 @@ Follow the publishing skill's workflow for platform-specific requirements.
 
 ## Best Practices
 
-1. **Be Patient with Questions**: Take time in Step 2 to thoroughly understand the user's vision
+1. **Be Patient with Questions**: Take time in Step 3 to thoroughly understand the user's vision
 2. **Research Thoughtfully**: Supplement user input with credible sources when gaps exist
 3. **Preserve User Voice**: While polishing, maintain the user's intended tone and style
 4. **Image Selection**: Be selective with images - quality and relevance over quantity

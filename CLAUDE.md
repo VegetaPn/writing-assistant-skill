@@ -10,8 +10,33 @@ This is **Writing Assistant Skill** - a Claude Code skill that orchestrates end-
 
 ### Core Files
 
-- `SKILL.md` - Main skill definition with 8-step workflow (the "brain" of this system)
-- `writing-assistant.skill` - Packaged skill file for distribution
+- `SKILL.md` - Main writing workflow (the "brain" — focuses on writing, from draft to publish)
+
+### Sub-Skills (`skills/`)
+
+Project-local skills, no installation needed. Directly readable by the main workflow.
+
+- `skills/title-generator.md` - Platform-optimized title generation (小红书/公众号/抖音), anti-AI-flavor rules, title type distribution
+- `skills/topic-manager.md` - Topic lifecycle (inbox → developing) + viral benchmarking (分析爆款/监控爆款/后台监控)
+- `skills/experience-tracker.md` - Auto-records user corrections as cases, distills lessons learned
+
+### Content Assets (`assets/`)
+
+User-owned data that grows over time.
+
+```
+assets/
+├── topics/                       # Topic management + viral benchmarks
+│   ├── inbox.md                  # Idea capture (append-only)
+│   ├── developing/               # Researched topics ready to write
+│   └── benchmarks/               # Viral content analyses
+│       ├── benchmarks-index.md   # Quick-lookup index
+│       └── monitor-config.md     # Background monitoring config
+│
+└── experiences/                  # Experience/case library
+    ├── cases/                    # Individual correction records
+    └── lessons.md                # Distilled rules from cases
+```
 
 ### Reference Library System (`references/`)
 
@@ -49,16 +74,28 @@ Bundled skills for auto-installation:
 - `iteration-plan.md` - Project roadmap and design decisions
 - `dev_reference_materials/` - Source materials for reference library
 
-## Workflow (8 Steps)
+## Workflow
 
-1. **Choose Mode** - Topic/Materials/Draft
-2. **Search References** - Find relevant author styles and cases
+**Topic System** (skills/topic-manager.md) — decides WHAT to write:
+1. 记录选题 → inbox.md
+2. 监控/分析爆款 → benchmarks/
+3. 深化选题 → developing/ (with benchmarks, outline, title candidates)
+
+**Writing System** (SKILL.md) — does the WRITING:
+1. **Choose Starting Mode** - Load from `assets/topics/developing/` or start fresh
+2. **Search References + Benchmarks** - Find styles, patterns, viral cases
 3. **Collect & Clarify** - Interactive questioning (Modes 1 & 2)
-4. **Element-Level Reference** - Title, opening, structure suggestions from library
+4. **Element-Level Reference** - Title (via title-generator), opening, structure
 5. **Process Draft** - Mode 3 only
 6. **Polish** - Using content-research-writer skill
 7. **Generate Illustrations** - Using baoyu-xhs-images skill
-8. **Create Final & Publish** - Combine content + images, optional publish
+8. **Create Final Article** - Combine content + images
+9. **Next Steps** - Review and confirm with user
+10. **Publish** - Optional, to WeChat or X
+
+**Experience System** (skills/experience-tracker.md) — learns from corrections:
+- Auto-records when user corrects AI output
+- Distills lessons → all skills check before executing
 
 ## Key Patterns
 

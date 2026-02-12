@@ -23,6 +23,10 @@ assets/experiences/
 └── lessons.md                  # 从 cases 中提炼的经验总结
 ```
 
+## Initialize Workspace
+
+Before executing any command, ensure required directories and files exist. Create any that are missing; never overwrite existing files.
+
 ---
 
 ## Commands

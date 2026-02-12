@@ -36,6 +36,30 @@ These skills live in the `skills/` directory and can be invoked directly:
 
 ## Workflow
 
+### Initial Setup: Initialize Workspace
+
+Before starting the workflow, check the user's working directory and ensure required directories and template files exist.
+
+**Required directory structure:**
+```
+assets/
+├── topics/
+│   ├── inbox.md
+│   ├── developing/
+│   └── benchmarks/
+│       ├── benchmarks-index.md
+│       └── monitor-config.md
+└── experiences/
+    ├── cases/
+    └── lessons.md
+```
+
+**Process:**
+1. Check if the above directories and files exist
+2. Create any missing directories and template files silently
+3. Do NOT overwrite existing files — only create if absent
+4. Proceed to dependency check
+
 ### Initial Setup: Check Dependencies
 
 Before starting the workflow, verify that all required skills are installed.

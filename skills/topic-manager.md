@@ -36,6 +36,19 @@ assets/topics/
 
 - **bird skill** — Required for X/Twitter timeline reading and content fetching. Should be installed in the user's `.claude/skills/bird/` directory. If not available, "分析爆款" can still work with URLs via `WebFetch` or pasted content, but timeline-based commands (监控爆款/启动爆款监控) will be unavailable.
 
+## Initialize Workspace
+
+Before executing any command, ensure required directories and files exist. Create any that are missing; never overwrite existing files.
+
+```
+assets/topics/
+├── inbox.md
+├── developing/
+└── benchmarks/
+    ├── benchmarks-index.md
+    └── monitor-config.md
+```
+
 ---
 
 ## 选题管理

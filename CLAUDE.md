@@ -65,9 +65,11 @@ references/
 Bundled skills for auto-installation:
 - `content-research-writer` - Content polishing (required)
 - `baoyu-xhs-images` - Illustration generation (required)
-- `generate-image` - Actual image generation (optional, needs OPENROUTER API)
-- `baoyu-post-to-wechat` - WeChat publishing (optional)
-- `baoyu-post-to-x` - X/Twitter publishing (optional)
+- `xiaohongshu-mcp` - Xiaohongshu search, analysis, and publishing (required, needs local MCP server)
+- `wechat-article-search` - WeChat article searching (required)
+- `generate-image` - Actual image generation (required, needs OPENROUTER API)
+- `baoyu-post-to-wechat` - WeChat publishing (required)
+- `baoyu-post-to-x` - X/Twitter publishing (required)
 
 ### Development (`dev/`)
 
@@ -82,19 +84,21 @@ Bundled skills for auto-installation:
 3. 深化选题 → developing/ (with benchmarks, outline, title candidates)
 
 **Writing System** (SKILL.md) — does the WRITING:
-1. **Choose Starting Mode** - Load from `assets/topics/developing/` or start fresh
-2. **Search References + Benchmarks** - Find styles, patterns, viral cases
-3. **Collect & Clarify** - Interactive questioning (Modes 1 & 2)
-4. **Element-Level Reference** - Title (via title-generator), opening, structure
-5. **Process Draft** - Mode 3 only
-6. **Polish** - Using content-research-writer skill
+0. **Create Progress Tracker** - Initialize per-session tracking file
+1. **Choose Starting Mode + Select Platform** - Load from `assets/topics/developing/` or start fresh; determine target platform upfront
+2. **Search References + Benchmarks + Techniques** - Find styles, patterns, viral cases, and writing methodologies from `references/techniques/`
+3. **Collect & Clarify** - Interactive questioning (Modes 1 & 2), apply selected techniques
+4. **Element-Level Reference** - Title (via title-generator), opening, structure, with technique cross-reference
+5. **Process Draft** - Mode 3 only, apply techniques throughout body
+6. **Polish** - Using content-research-writer with technique-aware instructions
 7. **Generate Illustrations** - Using baoyu-xhs-images skill
 8. **Create Final Article** - Combine content + images
-9. **Next Steps** - Review and confirm with user
+9. **Review + Platform Adaptation** - Review, optional multi-platform adaptation with technique re-application
 10. **Publish** - Optional, to WeChat or X
 
 **Experience System** (skills/experience-tracker.md) — learns from corrections:
-- Auto-records when user corrects AI output
+- Auto-records when user corrects AI output (enforced via Experience Checkpoints after every interactive step)
+- Progress tracker logs all corrections in a Corrections Log table
 - Distills lessons → all skills check before executing
 
 ## Key Patterns
@@ -109,9 +113,11 @@ Each entry follows: Core Framework → Psychology Mechanism → Why It Works →
 
 ### File Naming Convention
 
+- Progress tracker: `{topic}-progress.md`
 - Initial draft: `{topic}.md`
 - Polished: `{topic}-polished.md`
 - Final: `{topic}-final.md`
+- Platform adaptation: `{topic}-{platform}.md`
 
 ## Language
 

@@ -36,6 +36,25 @@ assets/topics/
 
 - **bird skill** — Required for X/Twitter timeline reading and content fetching. Should be installed in the user's `.claude/skills/bird/` directory. If not available, "分析爆款" can still work with URLs via `WebFetch` or pasted content, but timeline-based commands (监控爆款/启动爆款监控) will be unavailable.
 
+**bird command reference (important distinctions):**
+- `bird home` — Read your own X timeline feed (for trend monitoring)
+- `bird read <url>` — Read a specific tweet or thread (for analyzing individual content)
+- `bird thread <url>` — Read a full thread (for analyzing thread-format content)
+- `bird search <query>` — Search for tweets by keyword (NOT for timeline reading)
+
+> **IMPORTANT:** When reading the user's timeline for trend monitoring (Commands 5 and 6), always use `bird home`, NOT `bird search`. `bird search` returns keyword-based search results and will miss organic timeline trends.
+
+- **xiaohongshu-mcp skill** — Required for Xiaohongshu (小红书) content searching and analysis. Requires local MCP server running. Commands:
+  - `python scripts/xhs_client.py search "{keyword}"` — Search notes by keyword
+  - `python scripts/xhs_client.py detail "{feed_id}" "{xsec_token}"` — Get full content and comments
+  - `python scripts/xhs_client.py feeds` — Get recommended feed
+  - `python scripts/xhs_client.py publish "{title}" "{content}" "{images}"` — Publish a note
+
+- **wechat-article-search skill** — Required for WeChat Official Account (微信公众号) article searching. Commands:
+  - `node scripts/search_wechat.js "{keyword}"` — Search articles (default 10 results)
+  - `node scripts/search_wechat.js "{keyword}" -n 15` — Search with custom result count
+  - `node scripts/search_wechat.js "{keyword}" -n 5 -r` — Search with real URL resolution
+
 ## Initialize Workspace
 
 Before executing any command, ensure required directories and files exist. Create any that are missing; never overwrite existing files.
@@ -129,6 +148,8 @@ assets/topics/
 **Action:**
 1. Fetch content:
    - X/Twitter URL → `bird read <url>` or `bird thread <url>`
+   - 小红书 note → Use `xiaohongshu-mcp`: `python scripts/xhs_client.py detail "{feed_id}" "{xsec_token}"` to get full content and comments. If user provides a search keyword instead of ID, first search with `python scripts/xhs_client.py search "{keyword}"` then detail the target note.
+   - 微信公众号 article → Use `wechat-article-search`: `node scripts/search_wechat.js "{keyword}" -n 5 -r` to find the article, then `WebFetch` to read the full content from the resolved URL.
    - Other URL → `WebFetch`
    - Pasted content → use directly
 2. Create `assets/topics/benchmarks/{platform}-{slug}.md`:
@@ -188,9 +209,13 @@ assets/topics/
 
 像一个人刷 timeline 一样——需要大量阅读才能感知到什么在流行。不是看 10 条就够的，而是持续积累。
 
-1. Read user's X timeline via `bird` — 大量读取（至少 20 条以上）
-2. Optionally `WebFetch` analysis sites from `monitor-config.md`
-3. **积累式分析**：不是立即判断哪条是爆款，而是：
+**Multi-platform scanning:**
+
+1. **X/Twitter**: Read user's X timeline via `bird home` — 大量读取（至少 20 条以上，可多次执行 `bird home` 以获取更多内容）
+2. **小红书**: Use `xiaohongshu-mcp` — `python scripts/xhs_client.py search "{relevant keywords}"` to search for trending content, and `python scripts/xhs_client.py feeds` to browse recommended feed
+3. **微信公众号**: Use `wechat-article-search` — `node scripts/search_wechat.js "{relevant keywords}" -n 20` to search for recent popular articles
+4. Optionally `WebFetch` analysis sites from `monitor-config.md`
+5. **积累式分析**：不是立即判断哪条是爆款，而是：
    - 将所有内容记录下来（标题、互动数据、主题标签）
    - 识别出现频率高的话题/关键词（大家都在聊什么）
    - 找出互动数据明显高于平均的内容
@@ -212,7 +237,9 @@ assets/topics/
 
 1. Read `assets/topics/benchmarks/monitor-config.md`
 2. Start background process, periodically:
-   - Read user's X timeline via `bird`（每次大量读取）
+   - **X/Twitter**: Read user's X timeline via `bird home`（每次大量读取，多次执行以积累数据）
+   - **小红书**: Search trending content via `xiaohongshu-mcp` (`python scripts/xhs_client.py search` and `feeds`)
+   - **微信公众号**: Search recent articles via `wechat-article-search`
    - Fetch configured analysis sites
    - **持续积累数据**到内存/临时文件中，跨多次抓取识别趋势
    - 当某个话题/内容的互动数据持续走高，或同一话题被多人讨论时，判定为潜在爆款

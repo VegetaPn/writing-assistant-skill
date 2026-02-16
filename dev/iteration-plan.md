@@ -501,6 +501,21 @@ topics/
 6. ✅ 测试新 workflow（选题：注意力资产，已发布到微信公众号）
 7. ✅ 添加心理学方法论参考（`techniques/psychology/`）
 
+### Phase 9: 流程可靠性修复 (2026-02-16)
+
+**触发事件**: ai-solopreneur-paradox 完整流程暴露多个系统性问题
+
+**修复内容**:
+1. 进度文件优先原则 — 强制为第一个动作
+2. 初始化只做一次 — 增加标记，避免重复
+3. 环境预检 — Step 0 中一次性检查所有依赖和 API key
+4. 输出目录规范 — outputs/{topic-slug}/ 统一存放
+5. Step 2 热门搜索必做 — 搜索+拆解+沉淀不可跳过
+6. Step 9 适配增加对标 — 新平台必须先搜索热门再适配
+7. Experience Check 当场闭环 — 禁止 Pending，立即创建 case
+8. Bird CLI chrome 配置 — 记录到 lessons.md
+9. 补录 5 条 Pending corrections 为 case 文件并总结经验
+
 ## 八、参考资料
 
 - dontbesilent 系统架构：`dev/dev_reference_materials/dontbesilent/best_practice_reference.md`

@@ -113,11 +113,14 @@ Each entry follows: Core Framework → Psychology Mechanism → Why It Works →
 
 ### File Naming Convention
 
-- Progress tracker: `{topic}-progress.md`
-- Initial draft: `{topic}.md`
-- Polished: `{topic}-polished.md`
-- Final: `{topic}-final.md`
-- Platform adaptation: `{topic}-{platform}.md`
+All output files are stored under `outputs/{topic-slug}/`:
+
+- Progress tracker: `outputs/{topic-slug}/{topic-slug}-progress.md`
+- Initial draft: `outputs/{topic-slug}/{topic-slug}.md`
+- Polished: `outputs/{topic-slug}/{topic-slug}-polished.md`
+- Final: `outputs/{topic-slug}/{topic-slug}-final.md`
+- Platform adaptation: `outputs/{topic-slug}/{topic-slug}-{platform}.md`
+- Illustrations: `outputs/{topic-slug}/xhs-images/`
 
 ## Language
 

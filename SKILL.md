@@ -24,6 +24,12 @@ This skill orchestrates a multi-step writing process:
 
 **Note:** This skill focuses on **writing**. For topic management (recording ideas, analyzing viral content, monitoring trends), use `skills/topic-manager.md`. For standalone title generation, use `skills/title-generator.md`.
 
+## Execution Principles (MUST NOT skip)
+
+1. **Progress file first**: After entering the writing workflow, the very first action must be creating the progress file (Step 0). No other steps may execute before the progress file is created. The progress file is the "roadmap" for this session — all subsequent operations strictly follow the step order in the progress file.
+2. **Initialize only once**: Dependency checks, API key validation, and environment pre-checks are performed only once in Step 0, never repeated. Subsequent steps skip initialization when they see the `Initialization: ✅ completed` marker in the progress file.
+3. **Output directory convention**: All output files are stored under `outputs/{topic-slug}/`.
+
 ## Companion Skills (project-local, no installation needed)
 
 These skills live in the `skills/` directory and can be invoked directly:
@@ -50,10 +56,13 @@ These skills live in the `skills/` directory and can be invoked directly:
 > - Rewrite your output instead of accepting it?
 >
 > **If ANY of the above occurred:**
-> 1. Immediately invoke `skills/experience-tracker.md` to record the case
-> 2. Log the correction in the progress tracker's Corrections Log
-> 3. Confirm to user: "已记录这条经验。"
-> 4. Then proceed to the next step
+> 1. **Immediately** create a case file in `assets/experiences/cases/` (format: `{YYYY-MM-DD}-{slug}.md`, see `skills/experience-tracker.md`)
+> 2. Log the correction in the progress tracker's Corrections Log with `Case Recorded? = Yes` and fill in the Case File path
+> 3. If it's a universal rule (applies to all articles), also update `assets/experiences/lessons.md`
+> 4. Confirm to user: "已记录这条经验。"
+> 5. Then proceed to the next step
+>
+> **NEVER** leave a correction as "Pending" in the Corrections Log without creating a case file. Every correction must be closed out on the spot.
 >
 > **If none occurred:** Note "No corrections" in the progress tracker and proceed.
 
@@ -139,19 +148,33 @@ Before starting the writing workflow, create a session progress tracker file. Th
 
 **Process:**
 1. Determine a topic slug (use a short English slug for the filename, e.g., "attention-economy", "ai-writing-tips")
-2. Create the progress tracker file alongside article files: `{topic-slug}-progress.md`
-3. Initialize the file with the template below
-4. Proceed to Step 1
+2. Create the output directory: `outputs/{topic-slug}/`
+3. Create the progress tracker file: `outputs/{topic-slug}/{topic-slug}-progress.md`
+4. Initialize the file with the template below
+5. **Environment pre-check (only in Step 0, once):**
+   1. Check if `.env` file exists and contains `OPENROUTER_API_KEY` (needed for image generation)
+   2. Check if bird CLI is available (`bird whoami`), record available cookie source
+   3. Check if baoyu-post-to-wechat dependencies are fully installed (`front-matter`, `marked`, `highlight.js`, `reading-time`, `fflate`)
+   4. Record pre-check results in the progress file's Session Metadata (update Environment fields)
+   5. If anything is missing, fix on the spot or prompt user — do not leave for later steps
+6. Proceed to Step 1
 
 **Progress Tracker Template:**
 
 ```markdown
 # Progress Tracker: {topic-slug}
 
+## Session Metadata
 **Session Started:** YYYY-MM-DD HH:MM
 **Platform:** (pending - determined in Step 1)
 **Mode:** (pending - determined in Step 1)
 **Topic:** (pending - determined in Step 1)
+**Initialization:** ✅ completed (不需要重复)
+**Output Directory:** outputs/{topic-slug}/
+**Environment:**
+- OPENROUTER_API_KEY: ✅ / ❌
+- bird CLI: ✅ (cookie-source: chrome) / ❌
+- wechat dependencies: ✅ / ❌
 
 ## Applied References & Techniques
 - **Author Style:** (pending)
@@ -161,7 +184,9 @@ Before starting the writing workflow, create a session progress tracker file. Th
 ## Step Checklist
 
 ### Step 0: Create Progress Tracker
+- [x] Created output directory: outputs/{topic-slug}/
 - [x] Created progress tracker file
+- [x] Environment pre-check completed (results recorded above)
 
 ### Step 1: Choose Starting Mode + Platform
 - [ ] Determined target platform
@@ -208,7 +233,7 @@ Before starting the writing workflow, create a session progress tracker file. Th
 - [ ] Compiled technique-aware instructions for polishing
 - [ ] Invoked content-research-writer
 - [ ] Verified platform-specific style applied
-- [ ] Output: {filename}-polished.md
+- [ ] Output: outputs/{topic-slug}/{topic-slug}-polished.md
 - [ ] **Experience Check** completed
 
 ### Step 7: Generate Illustrations
@@ -219,7 +244,7 @@ Before starting the writing workflow, create a session progress tracker file. Th
 ### Step 8: Create Final Article
 - [ ] Combined polished content + images
 - [ ] Verified layout and formatting
-- [ ] Output: {filename}-final.md
+- [ ] Output: outputs/{topic-slug}/{topic-slug}-final.md
 - [ ] **Experience Check** completed
 
 ### Step 9: Review & Platform Adaptation
@@ -361,22 +386,21 @@ references/
    - Note relevant title patterns, hooks, and structures from benchmarks
    - Record key benchmarks in the progress tracker
 
-6. **Search target platform for popular content on the same topic**:
-   - Based on the user's topic keywords and target platform (from Step 1), search externally for popular/viral content on the same or similar topics
-   - **Search methods by platform**:
+6. **【必做】Search target platform for popular content on the same topic**:
+
+   This step MUST NOT be skipped. Even if the local reference library is rich, you must search the target platform for current popular content.
+
+   Process:
+   a. Search by platform using corresponding tools:
      - **小红书**: Use `xiaohongshu-mcp` skill — `python scripts/xhs_client.py search "{topic keywords}"`. Returns notes with feed_id and xsec_token. Use `python scripts/xhs_client.py detail "{feed_id}" "{xsec_token}"` to get full content and comments for promising results.
      - **微信公众号**: Use `wechat-article-search` skill — `node scripts/search_wechat.js "{topic keywords}" -n 15`. Returns titles, summaries, publish time, source accounts, and links. Use `-r` flag for real URLs.
      - **抖音**: `WebSearch` with queries like "抖音 {topic keywords} 热门"
      - **X/Twitter**: `bird search "{topic keywords}"` (here `bird search` IS correct — searching by topic, not reading timeline)
-   - **Analyze found content** (lightweight, focus on extractable patterns):
-     - Title: what type, what tension elements, why it works
-     - Opening: what hook technique, why it grabs attention
-     - Structure: what format, how content is organized
-     - Engagement signals: comments/likes if visible, what resonated with audience
-   - **Present top 3-5 findings** to user: "I found these popular posts on {platform} about similar topics: [list with brief analysis]"
-   - Ask user: "Would you like to reference any of these as benchmarks?"
-   - **If user selects any**: optionally run the full "分析爆款" analysis (from `skills/topic-manager.md` Command 4) to save as a benchmark file for future reuse
-   - Even without saving, note the extracted patterns (title formulas, opening techniques, structural patterns) for use in Steps 3-6
+   b. Select 3-5 high-engagement results
+   c. For each, briefly analyze: title type, opening technique, structure patterns, engagement reasons
+   d. Ask user if they want deep analysis on any (invoke topic-manager's "分析爆款")
+   e. **Accumulate**: If valuable patterns are found, append to corresponding files in `references/by-element/`
+   f. Record search results summary in the progress tracker's Session Notes
 
    > **Why this step matters**: The local reference library may be sparse. Searching the target platform for what's currently working on the same topic provides real, proven patterns to learn from — not generic writing advice, but specific examples of what resonates with the actual audience on that platform.
 
@@ -623,7 +647,12 @@ Ask: "Would you like to adapt this article for another platform?"
 
 If yes:
 1. **Determine the new target platform** (小红书, 微信公众号, 抖音, X/Twitter)
-2. **Re-apply writing techniques with new platform rules**:
+2. **【NEW】Search the new platform for popular content**:
+   - Use the corresponding platform tool (same as Step 2, point 6) to search for popular content on the same/similar topic on the new platform
+   - Quickly analyze 2-3 results: title patterns, content density, tone/voice, engagement style
+   - Extract currently effective patterns on this platform and apply them to the adaptation
+3. **Re-evaluate funnel stage** (小红书 is typically TOFU, 微信公众号 MOFU — re-determine based on the new platform)
+4. **Re-apply writing techniques with new platform rules**:
    - Re-read the selected techniques from Step 2
    - Apply the technique's guidance for the new platform's content type:
      - 小红书: TOFU — short (≤1000 words), casual, emotional, image-heavy
@@ -631,9 +660,9 @@ If yes:
      - 抖音: TOFU — very short paragraphs, first 5 seconds critical, data-driven
      - X/Twitter: Varies — thread format, concise, hook-heavy
    - Adapt the article body, not just the title/opening
-3. **Re-generate title** for the new platform (invoke `skills/title-generator.md` with new platform)
-4. **Re-adapt opening and structure** for the new platform's conventions
-5. **Save the adapted version** as `{topic-slug}-{platform}.md`
+5. **Re-generate title** for the new platform (invoke `skills/title-generator.md` with new platform)
+6. **Re-adapt opening and structure** for the new platform's conventions
+7. **Save the adapted version** as `outputs/{topic-slug}/{topic-slug}-{platform}.md`
 
 **9c. Publishing Decision:**
 
@@ -687,11 +716,21 @@ Follow the publishing skill's workflow for platform-specific requirements.
 9. **Apply Techniques Throughout, Not Just to Elements**: Writing techniques from `references/techniques/` should influence the entire article body — paragraph structure, language choices, emotional arc, example selection — not just the title and opening. Check the technique's Practice Guide at the paragraph level.
 10. **Track Everything in the Progress File**: The progress tracker is your session memory. Read it before each step, update it after. This prevents skipped sub-steps and ensures corrections are captured.
 
-## File Naming Convention
+## Output Directory Convention
 
-Use consistent naming throughout the workflow:
-- Progress tracker: `{topic-or-title}-progress.md`
-- Initial draft: `{topic-or-title}.md`
-- Polished version: `{topic-or-title}-polished.md`
-- Final version: `{topic-or-title}-final.md`
-- Platform adaptation: `{topic-or-title}-{platform}.md`
+All output files are stored under `outputs/{topic-slug}/`:
+
+```
+outputs/{topic-slug}/
+├── {topic-slug}-progress.md      # Progress tracker
+├── {topic-slug}.md               # Initial draft
+├── {topic-slug}-polished.md      # Polished draft
+├── {topic-slug}-final.md         # Final version
+├── {topic-slug}-{platform}.md    # Platform adaptation
+└── xhs-images/                   # Illustrations
+    ├── outline.md
+    ├── prompts/
+    └── *.png
+```
+
+Use consistent naming throughout the workflow. All files use the topic slug as prefix and reside in the same output directory.

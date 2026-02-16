@@ -20,9 +20,20 @@ Project-local skills, no installation needed. Directly readable by the main work
 - `skills/topic-manager.md` - Topic lifecycle (inbox → developing) + viral benchmarking (分析爆款/监控爆款/后台监控)
 - `skills/experience-tracker.md` - Auto-records user corrections as cases, distills lessons learned
 
-### Content Assets (`assets/`)
+### Three-Level Content System
 
-User-owned data that grows over time.
+Assets (`assets/`) and references (`references/`) follow a three-level hierarchy. Each level has the same directory structure. Content merges on read (system → user → project); lower levels override higher levels on conflict.
+
+| Level | Location | Purpose |
+|-------|----------|---------|
+| **System** | `{skill-dir}/assets/`, `{skill-dir}/references/` | Skill 自带默认值，不可修改 |
+| **User** | `{project-root}/assets/`, `{project-root}/references/` | 用户积累（经验、选题、对标、参考） |
+| **Project** | `outputs/{topic-slug}/assets/`, `outputs/{topic-slug}/references/` | 单篇文章 override（按需创建） |
+
+**Read (`READ:3L`):** Check all three levels, merge content, annotate source. Conflict → project > user > system.
+**Write:** Each operation targets a level — `WRITE:user` (default) or `WRITE:project` (article-specific).
+
+**Directory structure (same at each level):**
 
 ```
 assets/
@@ -32,31 +43,22 @@ assets/
 │   └── benchmarks/               # Viral content analyses
 │       ├── benchmarks-index.md   # Quick-lookup index
 │       └── monitor-config.md     # Background monitoring config
-│
 └── experiences/                  # Experience/case library
     ├── cases/                    # Individual correction records
     └── lessons.md                # Distilled rules from cases
-```
 
-### Reference Library System (`references/`)
-
-The reference library is the core innovation - a structured knowledge base that reduces "AI-flavored" writing by providing style guidance and proven patterns.
-
-**Three organizational approaches:**
-
-```
 references/
-├── authors/{name}/           # By author: profile.md + articles/
-├── by-element/               # By writing element (case-driven)
+├── authors/{name}/               # By author: profile.md + articles/
+├── by-element/                   # By writing element (case-driven)
 │   ├── titles/titles-index.md
 │   ├── openings/openings-index.md
 │   ├── structures/structure-templates.md
 │   └── hooks/hook-examples.md
-└── techniques/               # By methodology (principle-driven)
+└── techniques/                   # By methodology (principle-driven)
     └── psychology/psychology-index.md
 ```
 
-**Key distinction:**
+**Key distinction in references/:**
 - `by-element/` = "What is this title, why is it good" (cases)
 - `techniques/` = "What makes a good title" (underlying principles)
 

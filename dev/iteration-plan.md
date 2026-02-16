@@ -500,6 +500,7 @@ topics/
 5. ✅ 改造 SKILL.md 集成参考库
 6. ✅ 测试新 workflow（选题：注意力资产，已发布到微信公众号）
 7. ✅ 添加心理学方法论参考（`techniques/psychology/`）
+8. ✅ 三层内容层级系统（system / user / project），SKILL.md + 三个 sub-skill + CLAUDE.md 全部更新
 
 ### Phase 9: 流程可靠性修复 (2026-02-16)
 
@@ -515,6 +516,23 @@ topics/
 7. Experience Check 当场闭环 — 禁止 Pending，立即创建 case
 8. Bird CLI chrome 配置 — 记录到 lessons.md
 9. 补录 5 条 Pending corrections 为 case 文件并总结经验
+
+### Phase 10: 三层内容层级系统 (2026-02-16)
+
+**目标**: 将 assets/ 和 references/ 从扁平结构改为 system / user / project 三层层级
+
+**变更内容**:
+1. 定义三层位置：system（skill 目录）、user（项目根目录）、project（文章输出目录）
+2. 定义 READ 协议（`READ:3L`）：读取时三层合并，冲突时 project > user > system
+3. 定义 WRITE 协议：每个写操作指定目标层级，默认 WRITE:user
+4. SKILL.md 新增 "Three-Level Reference System" section
+5. SKILL.md 所有 assets/ 和 references/ 路径引用标注层级（~30 处）
+6. 三个 sub-skill 添加协议说明并更新路径引用
+7. CLAUDE.md 替换 Content Assets + Reference Library 为 Three-Level Content System
+8. assets/experiences/ 保留作为 system-level 默认值
+9. 当前 references/ 全部保留为 system-level seed content
+
+**修改文件**: SKILL.md, skills/title-generator.md, skills/topic-manager.md, skills/experience-tracker.md, CLAUDE.md, dev/iteration-plan.md
 
 ## 八、参考资料
 

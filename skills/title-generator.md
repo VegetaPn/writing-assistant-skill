@@ -7,6 +7,8 @@ description: Generate platform-optimized titles for Chinese social media (小红
 
 Generate platform-optimized titles for Chinese social media content. Independently callable — does not require the full writing-assistant workflow.
 
+> **Three-Level Protocol:** This skill follows the three-level reference system (system / user / project). All `assets/` and `references/` reads use `READ:3L` — check system, user, and project levels, merge content. See SKILL.md "Three-Level Reference System" for details.
+
 ## When to Use
 
 - User says "生成标题" / "帮我起标题" / "优化标题"
@@ -17,7 +19,7 @@ Generate platform-optimized titles for Chinese social media content. Independent
 
 ### Step 0: Check Experience Library
 
-Before generating, read `assets/experiences/lessons.md` if it exists. Note any title-related lessons and apply them throughout this workflow.
+Before generating, read `assets/experiences/lessons.md` (`READ:3L`) if it exists. Note any title-related lessons and apply them throughout this workflow.
 
 ### Step 1: Understand the Content
 
@@ -34,7 +36,7 @@ Ask the user which platform, or infer from context. Apply the corresponding rule
 
 ### Step 3: Search References
 
-Before generating, check available references for inspiration:
+Before generating, check available references for inspiration (`READ:3L` for all):
 1. `references/by-element/titles/` — existing title patterns and analysis
 2. `assets/topics/benchmarks/` — proven viral title patterns from benchmark analyses
 3. `references/authors/` — author-specific title style (if user chose a style reference)

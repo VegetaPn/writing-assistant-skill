@@ -30,6 +30,61 @@ This skill orchestrates a multi-step writing process:
 2. **Initialize only once**: Dependency checks, API key validation, and environment pre-checks are performed only once in Step 0, never repeated. Subsequent steps skip initialization when they see the `Initialization: ✅ completed` marker in the progress file.
 3. **Output directory convention**: All output files are stored under `outputs/{topic-slug}/`.
 
+## Three-Level Reference System
+
+Assets (`assets/`) and references (`references/`) follow a three-level hierarchy. Each level has the same directory structure; content merges on read, with lower levels overriding higher levels on conflict.
+
+### Level Definitions
+
+| Level | Location | Purpose |
+|-------|----------|---------|
+| **System** | `{skill-dir}/assets/`, `{skill-dir}/references/` | Skill 自带默认值。安装到 `.claude/skills/` 后原封不动，不修改 |
+| **User** | `{project-root}/assets/`, `{project-root}/references/` | 用户个人积累（经验、选题、对标、自己添加的参考） |
+| **Project** | `outputs/{topic-slug}/assets/`, `outputs/{topic-slug}/references/` | 单篇文章特定的 override（按需创建） |
+
+- `{skill-dir}` = skill 安装路径，即 `.claude/skills/writing-assistant/`（或开发时的仓库根目录）
+- `{project-root}` = 用户的项目工作目录
+
+### READ Protocol (`READ:3L`)
+
+Every time you read a file under `assets/` or `references/`, check **all three levels** in order:
+
+1. **System** — `{skill-dir}/assets/...` or `{skill-dir}/references/...`
+2. **User** — `{project-root}/assets/...` or `{project-root}/references/...`
+3. **Project** — `outputs/{topic-slug}/assets/...` or `outputs/{topic-slug}/references/...`
+
+**Merge rules:**
+- Concatenate content from all levels that exist, annotating each section with its source level: `[system]`, `[user]`, `[project]`
+- On conflict (same key/entry), lower level wins: **project > user > system**
+- If a level doesn't exist for that path, skip it silently
+
+Shorthand: **`READ:3L`** means "apply the three-level read protocol."
+
+### WRITE Protocol
+
+Each write operation targets a specific level. Default is user-level unless specified otherwise.
+
+| Write Target | Shorthand | When to Use |
+|-------------|-----------|-------------|
+| User level | `WRITE:user` | General accumulation — experiences, topics, benchmarks, new reference patterns |
+| Project level | `WRITE:project` | Article-specific overrides — corrections that only apply to this article |
+| System level | (never at runtime) | Only during skill development |
+
+Shorthand: **`WRITE:user`** or **`WRITE:project`** after each write path.
+
+### Quick Reference Table
+
+| Path | Read | Default Write |
+|------|------|---------------|
+| `assets/experiences/lessons.md` | `READ:3L` | `WRITE:user` (universal) or `WRITE:project` (article-specific) |
+| `assets/experiences/cases/` | `READ:3L` | `WRITE:user` |
+| `assets/topics/inbox.md` | `READ:user` | `WRITE:user` |
+| `assets/topics/developing/` | `READ:user` | `WRITE:user` |
+| `assets/topics/benchmarks/` | `READ:3L` | `WRITE:user` |
+| `references/authors/` | `READ:3L` | `WRITE:user` |
+| `references/by-element/` | `READ:3L` | `WRITE:user` |
+| `references/techniques/` | `READ:3L` | `WRITE:user` |
+
 ## Companion Skills (project-local, no installation needed)
 
 These skills live in the `skills/` directory and can be invoked directly:
@@ -42,7 +97,7 @@ These skills live in the `skills/` directory and can be invoked directly:
 **Two mechanisms work together to ensure corrections are captured:**
 
 ### Mechanism 1: Pre-step lesson check
-**Before every step**, check `assets/experiences/lessons.md` if it exists. Apply any relevant lessons to avoid repeating past mistakes.
+**Before every step**, check `assets/experiences/lessons.md` (`READ:3L`) if it exists. Apply any relevant lessons to avoid repeating past mistakes.
 
 ### Mechanism 2: Post-interaction correction checkpoint
 **After every step that involves user interaction** (Steps 1, 3, 4, 5, 8, 9), perform this checkpoint:
@@ -56,9 +111,11 @@ These skills live in the `skills/` directory and can be invoked directly:
 > - Rewrite your output instead of accepting it?
 >
 > **If ANY of the above occurred:**
-> 1. **Immediately** create a case file in `assets/experiences/cases/` (format: `{YYYY-MM-DD}-{slug}.md`, see `skills/experience-tracker.md`)
+> 1. **Immediately** create a case file in `assets/experiences/cases/` (`WRITE:user`) (format: `{YYYY-MM-DD}-{slug}.md`, see `skills/experience-tracker.md`)
 > 2. Log the correction in the progress tracker's Corrections Log with `Case Recorded? = Yes` and fill in the Case File path
-> 3. If it's a universal rule (applies to all articles), also update `assets/experiences/lessons.md`
+> 3. Ask user: "这条经验是通用的还是仅针对本文？"
+>    - 通用 → update `assets/experiences/lessons.md` (`WRITE:user`)
+>    - 仅本文 → update `outputs/{topic-slug}/assets/experiences/lessons.md` (`WRITE:project`)
 > 4. Confirm to user: "已记录这条经验。"
 > 5. Then proceed to the next step
 >
@@ -72,27 +129,30 @@ This checkpoint is marked as **"Experience Check"** in every applicable step bel
 
 ### Initial Setup: Initialize Workspace
 
-Before starting the workflow, check the user's working directory and ensure required directories and template files exist.
+Before starting the workflow, check the user's working directory and ensure the **user-level** directory structure exists. The system-level directories ship with the skill and are always available.
 
-**Required directory structure:**
+**User-level directory structure (create if absent):**
 ```
-assets/
-├── topics/
-│   ├── inbox.md
-│   ├── developing/
-│   └── benchmarks/
-│       ├── benchmarks-index.md
-│       └── monitor-config.md
-└── experiences/
-    ├── cases/
-    └── lessons.md
+{project-root}/
+├── assets/
+│   ├── topics/
+│   │   ├── inbox.md
+│   │   ├── developing/
+│   │   └── benchmarks/
+│   │       ├── benchmarks-index.md
+│   │       └── monitor-config.md
+│   └── experiences/
+│       ├── cases/
+│       └── lessons.md
+└── references/              # (optional — user-level references grow over time)
 ```
 
 **Process:**
-1. Check if the above directories and files exist
-2. Create any missing directories and template files silently
-3. Do NOT overwrite existing files — only create if absent
-4. Proceed to dependency check
+1. Verify system-level assets exist (in skill directory)
+2. Check if user-level directories and files exist in `{project-root}`
+3. Create any missing user-level directories and template files silently
+4. Do NOT overwrite existing files — only create if absent
+5. Proceed to dependency check
 
 ### Initial Setup: Check Dependencies
 
@@ -176,6 +236,11 @@ Before starting the writing workflow, create a session progress tracker file. Th
 - bird CLI: ✅ (cookie-source: chrome) / ❌
 - wechat dependencies: ✅ / ❌
 
+**Reference Levels:**
+- System: {skill-dir path} ✅ / ❌
+- User: {project-root path} ✅ / ❌
+- Project: outputs/{topic-slug}/ (created on demand)
+
 ## Applied References & Techniques
 - **Author Style:** (pending)
 - **Selected Techniques:** (pending)
@@ -190,22 +255,22 @@ Before starting the writing workflow, create a session progress tracker file. Th
 
 ### Step 1: Choose Starting Mode + Platform
 - [ ] Determined target platform
-- [ ] Checked `assets/topics/developing/` for ready topics
+- [ ] Checked `assets/topics/developing/` (`READ:user`) for ready topics
 - [ ] Selected starting mode
 - [ ] Updated session metadata above
 - [ ] **Experience Check** completed
 
 ### Step 2: Search References & Techniques
-- [ ] Checked lessons.md
-- [ ] Searched `references/authors/` for style matches
-- [ ] Searched `references/by-element/` for element patterns
-- [ ] Searched `references/techniques/` for writing methodologies
-- [ ] Searched `assets/topics/benchmarks/` for viral cases
+- [ ] Checked lessons.md (`READ:3L`)
+- [ ] Searched `references/authors/` (`READ:3L`) for style matches
+- [ ] Searched `references/by-element/` (`READ:3L`) for element patterns
+- [ ] Searched `references/techniques/` (`READ:3L`) for writing methodologies
+- [ ] Searched `assets/topics/benchmarks/` (`READ:3L`) for viral cases
 - [ ] Searched target platform for popular content on the same topic
 - [ ] Recorded matched techniques in "Applied References & Techniques" above
 
 ### Step 3: Collect & Clarify (Modes 1 & 2)
-- [ ] Checked lessons.md
+- [ ] Checked lessons.md (`READ:3L`)
 - [ ] Analyzed provided content
 - [ ] Asked clarifying questions
 - [ ] Supplemented with research if needed
@@ -214,7 +279,7 @@ Before starting the writing workflow, create a session progress tracker file. Th
 - [ ] **Experience Check** completed
 
 ### Step 4: Element-Level Reference
-- [ ] Checked lessons.md
+- [ ] Checked lessons.md (`READ:3L`)
 - [ ] Title: invoked title-generator with platform rules
 - [ ] Opening: referenced openings-index.md + techniques
 - [ ] Structure: referenced structure-templates.md + techniques
@@ -222,14 +287,14 @@ Before starting the writing workflow, create a session progress tracker file. Th
 - [ ] **Experience Check** completed
 
 ### Step 5: Process Draft (Mode 3 only)
-- [ ] Checked lessons.md
+- [ ] Checked lessons.md (`READ:3L`)
 - [ ] Analyzed existing draft
 - [ ] Applied element refinements (Step 4)
 - [ ] Applied selected techniques throughout article body
 - [ ] **Experience Check** completed
 
 ### Step 6: Polish
-- [ ] Checked lessons.md
+- [ ] Checked lessons.md (`READ:3L`)
 - [ ] Compiled technique-aware instructions for polishing
 - [ ] Invoked content-research-writer
 - [ ] Verified platform-specific style applied
@@ -297,7 +362,7 @@ If user is unsure, default to the most common platform they use, or proceed with
 
 **1b. Check for Developed Topics:**
 
-- Look in `assets/topics/developing/` for existing topic files
+- Look in `assets/topics/developing/` (`READ:user`) for existing topic files
 - If topics exist, present them: "You have N developed topics. Would you like to continue with one?"
 - If user picks a topic, load its file (outline, benchmark references, title candidates) and proceed to Step 2 with this context
 
@@ -333,44 +398,48 @@ Update the progress tracker metadata (Platform, Mode, Topic) and mark Step 1 che
 
 After understanding the user's topic/theme and target platform, search all reference sources.
 
-**Reference Library Structure:**
+**Reference Library Structure (three-level — `READ:3L`):**
+
+All paths below are searched across system, user, and project levels.
+
 ```
-references/
-├── authors/                    # Author profiles and articles
-│   └── {author-name}/
-│       ├── profile.md          # Writing style analysis
-│       └── articles/           # Collected articles
+references/                         # Exists at each level:
+├── authors/                        #   {skill-dir}/references/  (system)
+│   └── {author-name}/              #   {project-root}/references/  (user)
+│       ├── profile.md              #   outputs/{slug}/references/  (project)
+│       └── articles/
 │
-├── by-element/                 # Writing elements (cases)
-│   ├── titles/                 # Title examples and patterns
-│   ├── openings/               # Opening paragraph techniques
-│   ├── structures/             # Article structure templates
-│   └── hooks/                  # Engaging hooks and techniques
+├── by-element/
+│   ├── titles/
+│   ├── openings/
+│   ├── structures/
+│   └── hooks/
 │
-└── techniques/                 # Writing methodologies (principles)
-    └── psychology/             # Psychology-based techniques
-        ├── psychology-index.md # Index of all methodologies
-        └── content-funnel.md   # Content marketing funnel methodology
+└── techniques/
+    └── psychology/
+        ├── psychology-index.md
+        └── content-funnel.md
 ```
 
 **Search Process:**
 
 1. **Check if reference library exists**:
-   - Look for `references/` directory in the project root
-   - If not found, skip this step and proceed to Step 3
+   - System-level references (in skill directory) always exist
+   - Check user-level and project-level for additional content
+   - If only system-level exists, proceed with system defaults
 
-2. **Search for relevant author styles**:
-   - Read available `references/authors/*/profile.md` files
+2. **Search for relevant author styles** (`READ:3L`):
+   - Read available `references/authors/*/profile.md` files across all levels
    - Present a brief summary of available writing styles
    - Ask: "Would you like to reference a specific author's style for this article?"
 
-3. **Search for writing element patterns**:
-   - Check `references/by-element/` for relevant patterns
+3. **Search for writing element patterns** (`READ:3L`):
+   - Check `references/by-element/` across all levels for relevant patterns
    - Note relevant title patterns, opening techniques, structure templates, and hooks
    - These will be used in Step 4
 
-4. **Search for writing techniques and methodologies**:
-   - Read `references/techniques/psychology/psychology-index.md`
+4. **Search for writing techniques and methodologies** (`READ:3L`):
+   - Read `references/techniques/psychology/psychology-index.md` across all levels
    - For each technique listed, evaluate relevance to the current topic and platform:
      - **Content Marketing Funnel (内容营销漏斗)**: Relevant for all content creation. Determine which funnel stage this article targets (TOFU/MOFU/BOFU) based on the topic and platform. For example:
        - 小红书 content is typically TOFU (broad audience, easy to understand, emotional)
@@ -380,7 +449,7 @@ references/
    - **Record selected techniques** in the progress tracker under "Applied References & Techniques"
    - Present to user: "Based on your topic and platform, I recommend applying these writing techniques: [list]. Here's why: [brief explanation]."
 
-5. **Search viral benchmarks** (if `assets/topics/benchmarks/` exists):
+5. **Search viral benchmarks** (`READ:3L`, if `assets/topics/benchmarks/` exists at any level):
    - Check for benchmark analyses on similar topics
    - If found, present: "I found N benchmark analyses on related topics that might inform our approach."
    - Note relevant title patterns, hooks, and structures from benchmarks
@@ -399,7 +468,7 @@ references/
    b. Select 3-5 high-engagement results
    c. For each, briefly analyze: title type, opening technique, structure patterns, engagement reasons
    d. Ask user if they want deep analysis on any (invoke topic-manager's "分析爆款")
-   e. **Accumulate**: If valuable patterns are found, append to corresponding files in `references/by-element/`
+   e. **Accumulate**: If valuable patterns are found, append to corresponding files in `references/by-element/` (`WRITE:user`)
    f. Record search results summary in the progress tracker's Session Notes
 
    > **Why this step matters**: The local reference library may be sparse. Searching the target platform for what's currently working on the same topic provides real, proven patterns to learn from — not generic writing advice, but specific examples of what resonates with the actual audience on that platform.
@@ -491,7 +560,7 @@ Before finalizing the initial draft, use the reference library AND selected writ
    - Let user choose or customize
 
 2. **Opening Paragraph Refinement**:
-   - Read `references/by-element/openings/openings-index.md` if available
+   - Read `references/by-element/openings/openings-index.md` (`READ:3L`) if available
    - Suggest an opening approach based on reference techniques
    - **Technique cross-reference**: Apply selected techniques to opening choice:
      - Content Funnel TOFU: opening should trigger universal emotions (anxiety, curiosity, empathy), be instantly understandable, and relate to the reader
@@ -502,7 +571,7 @@ Before finalizing the initial draft, use the reference library AND selected writ
    - Draft 1-2 opening paragraph options for user to choose
 
 3. **Structure Planning**:
-   - Read `references/by-element/structures/structure-templates.md` if available
+   - Read `references/by-element/structures/structure-templates.md` (`READ:3L`) if available
    - Propose an article structure based on successful patterns
    - **Technique cross-reference**: Align structure with selected techniques:
      - Content Funnel: structure should match the funnel stage — TOFU favors shorter, punchier structures; MOFU favors deeper, more layered structures
@@ -510,7 +579,7 @@ Before finalizing the initial draft, use the reference library AND selected writ
    - Adjust based on user's content, preferences, and **target platform** constraints
 
 4. **Hook Integration**:
-   - Read `references/by-element/hooks/hook-examples.md` if available
+   - Read `references/by-element/hooks/hook-examples.md` (`READ:3L`) if available
    - Note effective hook techniques to use within the article
    - Plan where to place engaging hooks in the draft
    - **Technique cross-reference**: Ensure hooks align with the article's funnel stage and platform expectations
@@ -562,7 +631,7 @@ Use the **@content-research-writer** skill to refine and polish the draft.
    - If Content Funnel (TOFU): "Ensure every paragraph passes the 'give it to your parents to read' test. Remove jargon. Strengthen emotional hooks. Make every section relatable."
    - If Content Funnel (MOFU): "Maintain depth and credibility. Add supporting evidence. Build trust through expertise demonstration."
 4. **Author style reference** (if one was chosen in Step 2): key style characteristics to maintain
-5. **Lessons from experience library**: any relevant rules from `assets/experiences/lessons.md`
+5. **Lessons from experience library**: any relevant rules from `assets/experiences/lessons.md` (`READ:3L`)
 
 ```
 Invoke: content-research-writer skill
@@ -715,6 +784,7 @@ Follow the publishing skill's workflow for platform-specific requirements.
 8. **Style Consistency**: If a user chooses to reference a specific author's style, maintain that influence throughout the article for consistency.
 9. **Apply Techniques Throughout, Not Just to Elements**: Writing techniques from `references/techniques/` should influence the entire article body — paragraph structure, language choices, emotional arc, example selection — not just the title and opening. Check the technique's Practice Guide at the paragraph level.
 10. **Track Everything in the Progress File**: The progress tracker is your session memory. Read it before each step, update it after. This prevents skipped sub-steps and ensures corrections are captured.
+11. **Choose the Right Write Level**: When recording experiences, benchmarks, or new reference patterns, always choose the correct target level. Universal lessons → `WRITE:user`. Article-specific overrides → `WRITE:project`. When in doubt, ask the user: "这条经验是通用的还是仅针对本文？"
 
 ## Output Directory Convention
 

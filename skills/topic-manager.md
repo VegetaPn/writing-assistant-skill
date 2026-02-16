@@ -7,6 +7,8 @@ description: Manage writing topics from idea capture to development, with viral 
 
 选题管理 + 爆款对标系统。负责**决定写什么**——从碎片想法到选题成熟。与写作系统 (writing-assistant) 分离：本系统产出准备好的选题，writing-assistant 从这里接手正式写作。
 
+> **Three-Level Protocol:** 选题管理主要读写 user-level。所有 `assets/` 和 `references/` 读取使用 `READ:3L`（检查 system → user → project 三层并合并）。写入默认为 `WRITE:user`。详见 SKILL.md "Three-Level Reference System"。
+
 ## When to Use
 
 **选题管理:**
@@ -57,10 +59,10 @@ assets/topics/
 
 ## Initialize Workspace
 
-Before executing any command, ensure required directories and files exist. Create any that are missing; never overwrite existing files.
+Before executing any command, ensure user-level required directories and files exist. Create any that are missing; never overwrite existing files.
 
 ```
-assets/topics/
+{project-root}/assets/topics/     # WRITE:user — all topic data lives at user level
 ├── inbox.md
 ├── developing/
 └── benchmarks/
@@ -77,7 +79,7 @@ assets/topics/
 **Trigger:** "记录选题"
 
 **Action:**
-1. Append to `assets/topics/inbox.md` under today's date:
+1. Append to `assets/topics/inbox.md` (`WRITE:user`) under today's date:
    ```markdown
    ## YYYY-MM-DD
    - {idea text}
@@ -90,8 +92,8 @@ assets/topics/
 **Trigger:** "看选题" / "我的选题" / "选题库"
 
 **Action:**
-1. Read `assets/topics/inbox.md` — show recent ideas (last 10)
-2. List files in `assets/topics/developing/` — show mature topics ready to write
+1. Read `assets/topics/inbox.md` (`READ:user`) — show recent ideas (last 10)
+2. List files in `assets/topics/developing/` (`READ:user`) — show mature topics ready to write
 3. Summary: "收集箱 N 条 | 已深化 N 个"
 
 ### 3. 深化选题
@@ -101,16 +103,16 @@ assets/topics/
 **Action:**
 1. If no topic specified, show inbox and ask user to pick
 2. Research phase:
-   - Search `assets/topics/benchmarks/` for related viral content
-   - Search `references/` for relevant author styles and techniques
-   - Check `assets/experiences/lessons.md` for relevant experience
+   - Search `assets/topics/benchmarks/` (`READ:3L`) for related viral content
+   - Search `references/` (`READ:3L`) for relevant author styles and techniques
+   - Check `assets/experiences/lessons.md` (`READ:3L`) for relevant experience
 3. Generate a preliminary outline:
    - Suggested angles (informed by benchmarks)
    - Key points to cover
    - Target audience
-   - Recommended structure (from `references/by-element/structures/`)
+   - Recommended structure (from `references/by-element/structures/`, `READ:3L`)
 4. Optionally invoke `skills/title-generator.md` for title candidates
-5. Save to `assets/topics/developing/{topic-slug}.md`:
+5. Save to `assets/topics/developing/{topic-slug}.md` (`WRITE:user`):
 
 ```markdown
 # Topic: {topic name}
@@ -152,7 +154,7 @@ assets/topics/
    - 微信公众号 article → Use `wechat-article-search`: `node scripts/search_wechat.js "{keyword}" -n 5 -r` to find the article, then `WebFetch` to read the full content from the resolved URL.
    - Other URL → `WebFetch`
    - Pasted content → use directly
-2. Create `assets/topics/benchmarks/{platform}-{slug}.md`:
+2. Create `assets/topics/benchmarks/{platform}-{slug}.md` (`WRITE:user`):
 
 ```markdown
 # Benchmark: {original title}
@@ -193,8 +195,8 @@ assets/topics/
 - Topic angle: {reusable angle}
 ```
 
-3. Append to `assets/topics/benchmarks/benchmarks-index.md`
-4. **Dynamic reference building** — auto-enrich reference library:
+3. Append to `assets/topics/benchmarks/benchmarks-index.md` (`WRITE:user`)
+4. **Dynamic reference building** — auto-enrich reference library (`WRITE:user`):
    - Title pattern → append to `references/by-element/titles/titles-index.md`
    - Opening technique → append to `references/by-element/openings/openings-index.md`
    - Novel structure → append to `references/by-element/structures/structure-templates.md`
@@ -235,7 +237,7 @@ assets/topics/
 
 持续后台运行，模拟日常浏览习惯——定期读 timeline，积累数据，发现模式。
 
-1. Read `assets/topics/benchmarks/monitor-config.md`
+1. Read `assets/topics/benchmarks/monitor-config.md` (`READ:3L`)
 2. Start background process, periodically:
    - **X/Twitter**: Read user's X timeline via `bird home`（每次大量读取，多次执行以积累数据）
    - **小红书**: Search trending content via `xiaohongshu-mcp` (`python scripts/xhs_client.py search` and `feeds`)
@@ -282,7 +284,7 @@ assets/topics/
 {any additional context}
 ```
 
-4. Save to `assets/topics/developing/{topic-slug}.md`
+4. Save to `assets/topics/developing/{topic-slug}.md` (`WRITE:user`)
 5. Inform user: "已从爆款创建选题，保存在 developing/。"
 
 ---

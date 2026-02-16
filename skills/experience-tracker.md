@@ -7,6 +7,11 @@ description: Records user corrections as cases and distills lessons learned. Aut
 
 记录用户纠正和反馈，形成经验库 (Case Library)，持续从中总结、提炼经验。核心理念：同样的错误不犯第二次。
 
+> **Three-Level Protocol:** 经验记录主要在 user-level。读取使用 `READ:3L`（合并 system/user/project 三层）。写入分两种：
+> - **通用经验** → `WRITE:user`（适用于所有文章）
+> - **文章特定经验** → `WRITE:project`（仅适用于当前文章，存入 `outputs/{topic-slug}/assets/experiences/`）
+> 记录经验后，询问用户："这条经验是通用的还是仅针对本文？" 据此决定写入层级。
+
 ## When to Use
 
 - **自动触发**: 当检测到用户在纠正 AI 的输出时（如"不是这样"、"太 AI 了"、"爹味"、"不对"、"应该是..."、"别这样"、直接改写 AI 的结果等）
@@ -43,7 +48,7 @@ Before executing any command, ensure required directories and files exist. Creat
 - 用户直接改写了 AI 的输出（而非接受）
 
 **Action:**
-1. When a correction is detected, create `assets/experiences/cases/{YYYY-MM-DD}-{slug}.md`:
+1. When a correction is detected, create `assets/experiences/cases/{YYYY-MM-DD}-{slug}.md` (`WRITE:user`):
 
 ```markdown
 # Case: {brief description}
@@ -81,8 +86,8 @@ Before executing any command, ensure required directories and files exist. Creat
 **Trigger:** "看经验" / "经验库"
 
 **Action:**
-1. Show `assets/experiences/lessons.md` content (summarized rules)
-2. Show recent cases from `assets/experiences/cases/` (last 5)
+1. Show `assets/experiences/lessons.md` content (`READ:3L`, merge all levels)
+2. Show recent cases from `assets/experiences/cases/` (`READ:user`)
 3. Show stats: "共 N 条经验案例，已提炼 M 条规则"
 
 ### 3. 总结经验
@@ -92,13 +97,13 @@ Before executing any command, ensure required directories and files exist. Creat
 - **自动**: 每记录 5 条新 case 后自动触发一次总结
 
 **Action:**
-1. Read all files in `assets/experiences/cases/`
+1. Read all files in `assets/experiences/cases/` (`READ:user`)
 2. Group by Root Cause category
 3. Identify patterns:
    - Recurring corrections (same lesson appearing multiple times)
    - New lessons not yet in `lessons.md`
    - Trends (e.g., most corrections are about AI味)
-4. Update `assets/experiences/lessons.md` with distilled rules, organized by category:
+4. Update `assets/experiences/lessons.md` (`WRITE:user`) with distilled rules, organized by category:
 
 ```markdown
 # Lessons Learned
@@ -123,7 +128,7 @@ Before executing any command, ensure required directories and files exist. Creat
 
 ## With Other Skills
 
-All skills should check `assets/experiences/lessons.md` at the start of their workflow:
+All skills should check `assets/experiences/lessons.md` (`READ:3L`) at the start of their workflow:
 
 - **title-generator** → Step 0: Check title-related lessons before generating
 - **topic-manager** → "深化选题": Check lessons before research and outline

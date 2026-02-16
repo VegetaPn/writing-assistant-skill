@@ -534,6 +534,370 @@ topics/
 
 **修改文件**: SKILL.md, skills/title-generator.md, skills/topic-manager.md, skills/experience-tracker.md, CLAUDE.md, dev/iteration-plan.md
 
+### Phase 11: 流程合规 + 监控透明度 + 工具配置 (2026-02-17)
+
+**触发事件**: chunwan-tech-roadshow 完整流程复盘，发现 9 个系统性问题
+
+**状态**: ✅ 已完成
+
+**问题清单**:
+
+| # | 问题 | 严重度 | 类别 |
+|---|------|--------|------|
+| 1 | Step 6 没有调用 content-research-writer 技能，手动润色代替 | HIGH | 流程合规 |
+| 2 | Step 7 没有调用 baoyu-xhs-images 技能，手动写 prompt 代替 | MEDIUM | 流程合规 |
+| 3 | Step 9 整个步骤被跳过，进度文件 5 个 checkbox 全空 | HIGH | 流程合规 |
+| 4 | Step 8 Experience Check 标注"无用户交互"并跳过 | MEDIUM | 流程合规 |
+| 5 | 监控爆款行为不一致，不同指令措辞导致不同执行结果 | HIGH | 监控透明度 |
+| 6 | 监控过程信息不透明，用户看不到在监控什么、怎么监控的 | HIGH | 监控透明度 |
+| 7 | bird CLI 仍然尝试读取 Safari cookie（尽管 lessons.md 已有规则） | MEDIUM | 工具配置 |
+| 8 | Step 2【必做】搜索爆款/拆解/对标，用户无法确认是否执行 | HIGH | 流程合规 |
+| 9 | 全流程完成后没有回头检查进度文件，遗漏未被发现 | MEDIUM | 流程合规 |
+
+---
+
+#### 修复 1: Step 6 必须通过 Skill 工具调用 content-research-writer
+
+**根因**: SKILL.md 写了"Invoke: content-research-writer skill"但语义模糊，AI 理解为"应用该技能的原则"而非"用 Skill 工具正式调用"。
+
+**修改文件**: `SKILL.md` Step 6
+
+**修改内容**:
+1. 将 Step 6 中的调用说明从伪代码改为明确的强制指令：
+   ```
+   **【强制】使用 Skill 工具调用 content-research-writer**，不得手动润色代替。
+
+   调用前，先编译以下指令作为 Skill 参数传入：
+   1. 目标平台 + 平台风格要求
+   2. 已选技巧清单及核心原则
+   3. 技巧专属润色检查清单（如 TOFU: "每段通过'给父母看'测试"）
+   4. 作者风格参考（如有）
+   5. lessons.md 中的相关规则
+
+   ❌ 禁止：自己直接修改草稿文件来完成润色
+   ✅ 正确：编译指令 → 调用 Skill → 技能产出 polished.md
+   ```
+2. 增加验证点：润色产出文件应包含 content-research-writer 的特征产出（引用、数据补充、逐段改进说明）
+
+---
+
+#### 修复 2: Step 7 必须通过 Skill 工具调用 baoyu-xhs-images
+
+**根因**: 同修复 1，"Invoke: baoyu-xhs-images skill"被理解为手动执行而非正式调用。
+
+**修改文件**: `SKILL.md` Step 7
+
+**修改内容**:
+1. 将调用说明改为强制指令：
+   ```
+   **【强制】使用 Skill 工具调用 baoyu-xhs-images**，传入 polished.md 内容。
+
+   技能会自动完成：内容分析 → 风格/布局选择 → outline 生成 → prompt 文件生成。
+   然后根据 prompt 文件调用 generate-image 生成实际图片。
+
+   ❌ 禁止：手动编写 outline.md 和 prompt 文件
+   ✅ 正确：调用 Skill → 技能自动产出 outline + prompts → 再生成图片
+   ```
+
+---
+
+#### 修复 3: Step 9 不可跳过，即使用户主动要求发布
+
+**根因**: 用户在 Step 8 输出后直接说"发布到微信"，AI 将其解读为跳到 Step 10。Step 9 作为审稿缓冲层被绕过。
+
+**修改文件**: `SKILL.md` Step 8 末尾 + Step 9 开头
+
+**修改内容**:
+1. Step 8 末尾增加硬性卡点：
+   ```
+   > **⚠️ STOP: 不得直接跳到 Step 10。**
+   > 即使用户在此步说"发布"，也必须先执行 Step 9。
+   > Step 9 是审稿缓冲层，确保用户在发布前正式审阅最终图文排版。
+   ```
+2. Step 9 开头增加说明：
+   ```
+   > **本步骤不可跳过。** 即使用户已表达发布意图，仍需执行 9a（呈现总结 + 问修改意见）。
+   > 如果用户确认无修改，可以快速通过 9b 和 9c 直接进入 Step 10。
+   ```
+3. Step 9 进度模板中标注 `← 不可跳过`
+
+---
+
+#### 修复 4: Step 8 Experience Check 必须呈现文章并等待反馈
+
+**根因**: Step 8 列在"需要用户交互的步骤"中，但 AI 认为"创建文件"这个动作不涉及交互。
+
+**修改文件**: `SKILL.md` Step 8
+
+**修改内容**:
+1. 明确 Step 8 的交互要求：
+   ```
+   **呈现最终文章：** 创建 final.md 后，必须：
+   1. 告知用户最终文件路径
+   2. 简要说明图片插入位置（哪张图在哪个段落）
+   3. **等待用户确认**再继续到 Step 9
+
+   用户确认可以是：明确说"好的/可以/继续"，或直接给出修改意见。
+   不得在用户未回复时就标记 Experience Check 为完成。
+   ```
+
+---
+
+#### 修复 5: 监控爆款 — 指令一致性 + 执行可预测性
+
+**根因（两层）**:
+
+**第一层：命名不一致**
+- topic-manager.md 注册的触发词是"分析爆款""监控爆款""启动爆款监控"
+- 用户实际说的是"看热点""监控热点"
+- "热点"从未出现在 trigger 列表中，导致 AI 走了自由发挥路径而非标准流程
+
+**第二层：规则散落，AI 难以稳定遵守**
+- `bird home` vs `bird search` 的区分写在 Prerequisites 里，不在命令流程本体中
+- `--cookie-source chrome` 只记录在 lessons.md 中，不在 topic-manager.md 的命令示例里
+- 用户不同的措辞触发不同的理解路径，导致有时用 `bird home`（正确），有时用 `bird search`（错误）
+
+**修改文件**: `skills/topic-manager.md`
+
+**修改内容**:
+
+1. **扩展触发词**，覆盖用户常用表达：
+   ```yaml
+   description: >
+     ... Use when users say "记录选题", "看选题", "深化选题",
+     "分析爆款", "监控爆款", "启动爆款监控",
+     "看热点", "监控热点", "热点", "有什么热点".
+   ```
+
+2. **在每个 bird 命令示例中内嵌 `--cookie-source chrome`**，不依赖 lessons.md：
+   ```
+   bird home --cookie-source chrome
+   bird read <url> --cookie-source chrome
+   bird search "query" --cookie-source chrome
+   ```
+
+3. **在 Command 5（监控爆款）流程中内嵌关键规则，而非只放在 Prerequisites**：
+   ```
+   1. X/Twitter: 执行 `bird home --cookie-source chrome`（至少 20 条）
+      ⚠️ 必须用 `bird home`，不得用 `bird search`。bird search 是关键词搜索，会错过自然趋势。
+   ```
+
+---
+
+#### 修复 6: 监控过程透明化
+
+**根因**: 用户执行"监控爆款"或"启动爆款监控"后，完全看不到：
+- 扫描了哪些平台
+- 每个平台抓了多少条
+- 用了什么筛选条件
+- 中间结果是什么
+- 最终怎么判断的"热门"
+
+**修改文件**: `skills/topic-manager.md` Command 5 + Command 6
+
+**修改内容**:
+
+1. **Command 5（监控爆款）增加透明度报告模板**：
+   ```
+   执行完毕后，必须向用户呈现以下报告（不可省略）：
+
+   ---
+   ## 监控报告
+
+   **扫描时间**: YYYY-MM-DD HH:MM
+   **扫描范围**:
+   | 平台 | 命令 | 抓取条数 | 筛选条件 |
+   |------|------|---------|---------|
+   | X/Twitter | bird home | {N} 条 | 原始 timeline |
+   | 小红书 | xhs search "{keywords}" | {N} 条 | 关键词: {keywords} |
+   | 微信公众号 | search_wechat "{keywords}" | {N} 条 | 关键词: {keywords} |
+
+   **扫描结果**:
+   - 共扫描 {total} 条内容
+   - 高互动内容（点赞 > {threshold}）: {N} 条
+   - 高频话题: {topic1}, {topic2}, ...
+
+   **Top 10 高互动内容**:
+   | # | 平台 | 标题 | 互动数据 | 话题 |
+   ...
+
+   **新趋势/新话题**: ...
+   ---
+
+   然后问："要深入分析哪几条？"
+   ```
+
+2. **Command 6（启动爆款监控）增加进度可见性**：
+   ```
+   后台监控每完成一轮扫描，必须输出简报：
+
+   "[监控] 第 {N} 轮扫描完成 | X: {n1}条 小红书: {n2}条 微信: {n3}条 |
+    新发现高互动: {count}条 | 累计数据: {total}条"
+
+   发现潜在爆款时，通知必须包含判断依据：
+   "发现热门趋势：{topic}
+   - 依据：{N}条相关内容，平均互动{avg}，最高互动{max}
+   - 时间跨度：最早{date1}，最新{date2}
+   - 代表内容：{title1}, {title2}"
+   ```
+
+3. **monitor-config.md 增加用户可控参数**：
+   ```markdown
+   ## 筛选配置
+   抓取源: bird home (X timeline), xhs search, wechat search
+   每次抓取条数: 20
+   筛选阈值:
+   - X/Twitter: 点赞 > 100 或 转发 > 50
+   - 小红书: 点赞 > 500 或 收藏 > 200
+   - 微信公众号: 在看 > 100
+   监控频率: 每 4 小时（后台模式）
+
+   ## 监控关键词（可选，留空则只读 timeline）
+   - AI
+   - 写作
+   - ...
+
+   ## 排除关键词
+   - ...
+   ```
+
+---
+
+#### 修复 7: bird CLI 全局配置 cookie-source
+
+**根因**: lessons.md 记录了"用 `--cookie-source chrome`"的规则，但：
+- topic-manager.md 的命令示例没有加这个 flag
+- SKILL.md Step 2 的 bird search 也没有加
+- AI 不一定每次都读 lessons.md 并应用到 bird 命令上
+
+**修改方案（双保险）**:
+
+1. **创建全局 bird 配置文件** `~/.config/bird/config.json5`：
+   ```json5
+   {
+     cookieSource: "chrome"
+   }
+   ```
+   这样所有 bird 命令自动使用 Chrome cookie，不需要每次加 flag。
+
+2. **更新技能文件中所有 bird 命令示例**（已包含在修复 5 中）：
+   - `skills/topic-manager.md`: 所有 bird 命令加 `--cookie-source chrome`
+   - `SKILL.md` Step 2: `bird search` 加 `--cookie-source chrome`
+
+---
+
+#### 修复 8: Step 2【必做】搜索爆款必须有可见产出
+
+**根因**: SKILL.md 标注了"【必做】Search target platform for popular content on the same topic"，进度文件也打了勾，但用户完全无法验证这一步到底做了没有、做了多深。进度文件只写"Searched target platform for popular content on the same topic"，没有任何搜索结果的记录。
+
+**问题本质**: 进度文件的 checkbox 只记录了"声称做了"，没有记录"做了什么"。一个没有证据的 checkbox 等于没有 checkbox。
+
+**修改文件**: `SKILL.md` Step 2
+
+**修改内容**:
+
+1. **搜索结果必须写入进度文件的 Session Notes**：
+   ```
+   **【必做】搜索完成后，必须在进度文件 Session Notes 中记录以下信息：**
+
+   ### Step 2 平台搜索记录
+   **平台**: {platform}
+   **搜索命令**:
+   - `{actual command executed 1}`
+   - `{actual command executed 2}`
+   **搜索关键词**: {keywords used}
+   **返回结果数**: {N} 条
+   **筛选后高互动内容**: {N} 条
+
+   **Top 3-5 高互动内容**:
+   | # | 标题 | 作者 | 互动数据 | 有参考价值的点 |
+   |---|------|------|---------|-------------|
+   | 1 | ... | ... | ... | 标题用了对比句式 |
+   | 2 | ... | ... | ... | 开头用数据冲击 |
+
+   **提取的模式/发现**:
+   - {pattern 1}
+   - {pattern 2}
+
+   如果搜索结果为空或无高互动内容，也必须记录：
+   "搜索 {platform} 关键词 '{keywords}'，返回 {N} 条，无明显高互动内容。"
+   ```
+
+2. **如果用户要求深入分析某条搜索结果**，调用 topic-manager 的"分析爆款"流程，产出物保存到 `assets/topics/benchmarks/`
+
+3. **进度文件 checklist 从单行改为多行**：
+   ```
+   - [ ] Searched target platform: {platform name}
+   - [ ] Search results recorded in Session Notes (commands, keywords, top results)
+   - [ ] Patterns extracted and noted
+   ```
+   替换原来的单行：
+   ```
+   - [ ] Searched target platform for popular content on the same topic
+   ```
+
+---
+
+#### 修复 9: 全流程完成后强制自检进度文件
+
+**根因**: chunwan-tech-roadshow 会话中，Step 9 的 5 个 checkbox 全部未勾，但流程直接进入了 Step 10 并完成发布。没有任何机制在最后一步检查进度文件的完整性。
+
+**问题本质**: 进度文件是"路线图"，但只有起点处读取、中途更新，没有终点处校验。缺少闭环。
+
+**修改文件**: `SKILL.md` Step 10 末尾 + 进度文件模板
+
+**修改内容**:
+
+1. **在 Step 10 末尾（或最后执行的步骤之后）增加强制自检**：
+   ```
+   ### 流程完成自检（不可跳过）
+
+   > **在标记会话完成之前，必须执行以下自检：**
+   >
+   > 1. **读取进度文件**，逐步检查所有 checkbox
+   > 2. **标记遗漏**：如果发现任何应勾未勾的 checkbox：
+   >    - 如果是确实执行了但忘记标记 → 补标并注明"自检时补标"
+   >    - 如果是确实跳过了 → 在 Session Notes 中记录原因，并询问用户是否需要补做
+   > 3. **检查 Corrections Log**：确认所有 correction 都有 Case File，没有 Pending
+   > 4. **检查 Step 9**：确认 Step 9 所有子步骤已执行（Step 9 不可跳过）
+   > 5. **向用户报告自检结果**：
+   >    - "自检完成，所有步骤已执行。" 或
+   >    - "自检发现以下遗漏：{list}。需要补做吗？"
+   ```
+
+2. **在进度文件模板末尾增加自检区域**：
+   ```markdown
+   ## 流程自检
+   - [ ] 所有 Step checkbox 已核对
+   - [ ] 无未闭合的 Corrections Log 条目
+   - [ ] Step 9 已执行（不可跳过）
+   - [ ] 自检结果已告知用户
+   **自检时间**: ____
+   **自检结果**: ____
+   ```
+
+---
+
+#### 实施计划
+
+| 优先级 | 修复 | 修改文件 | 工作量 |
+|--------|------|---------|-------|
+| P0 | #7 bird 全局配置 | ~/.config/bird/config.json5 | 1 行 |
+| P0 | #5 监控指令一致性 | skills/topic-manager.md | 中 |
+| P0 | #6 监控透明度 | skills/topic-manager.md, monitor-config.md | 大 |
+| P0 | #8 Step 2 搜索可见产出 | SKILL.md | 中 |
+| P1 | #3 Step 9 不可跳过 | SKILL.md | 小 |
+| P1 | #1 Step 6 强制调用技能 | SKILL.md | 小 |
+| P1 | #2 Step 7 强制调用技能 | SKILL.md | 小 |
+| P1 | #9 流程完成自检 | SKILL.md | 小 |
+| P2 | #4 Step 8 交互要求 | SKILL.md | 小 |
+
+**修改文件总览**:
+- `SKILL.md` — Step 2, 6, 7, 8, 9, 10 修改 + 进度模板更新（修复 1, 2, 3, 4, 8, 9）
+- `skills/topic-manager.md` — trigger 扩展 + 命令内嵌规则 + 透明度报告（修复 5, 6）
+- `assets/topics/benchmarks/monitor-config.md` — 增加分平台阈值和关键词配置（修复 6）
+- `~/.config/bird/config.json5` — 新建全局配置（修复 7）
+
 ## 八、参考资料
 
 - dontbesilent 系统架构：`dev/dev_reference_materials/dontbesilent/best_practice_reference.md`

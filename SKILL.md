@@ -213,7 +213,7 @@ Before starting the writing workflow, create a session progress tracker file. Th
 4. Initialize the file with the template below
 5. **Environment pre-check (only in Step 0, once):**
    1. Check if `.env` file exists and contains `OPENROUTER_API_KEY` (needed for image generation)
-   2. Check if bird CLI is available (`bird whoami`), record available cookie source
+   2. Check if bird CLI is available (`bird whoami --cookie-source chrome`), record available cookie source. If project has `config/bird.json5`, ensure `{project-root}/.birdrc.json5` exists (copy from `config/bird.json5` if missing) so bird defaults to Chrome cookies.
    3. Check if baoyu-post-to-wechat dependencies are fully installed (`front-matter`, `marked`, `highlight.js`, `reading-time`, `fflate`)
    4. Record pre-check results in the progress file's Session Metadata (update Environment fields)
    5. If anything is missing, fix on the spot or prompt user — do not leave for later steps
@@ -266,7 +266,8 @@ Before starting the writing workflow, create a session progress tracker file. Th
 - [ ] Searched `references/by-element/` (`READ:3L`) for element patterns
 - [ ] Searched `references/techniques/` (`READ:3L`) for writing methodologies
 - [ ] Searched `assets/topics/benchmarks/` (`READ:3L`) for viral cases
-- [ ] Searched target platform for popular content on the same topic
+- [ ] Searched target platform: {platform name}
+- [ ] Search results recorded in Session Notes (commands, keywords, top results, patterns)
 - [ ] Recorded matched techniques in "Applied References & Techniques" above
 
 ### Step 3: Collect & Clarify (Modes 1 & 2)
@@ -310,9 +311,11 @@ Before starting the writing workflow, create a session progress tracker file. Th
 - [ ] Combined polished content + images
 - [ ] Verified layout and formatting
 - [ ] Output: outputs/{topic-slug}/{topic-slug}-final.md
+- [ ] Presented final article to user (file path + image placement summary)
+- [ ] User confirmed or gave feedback
 - [ ] **Experience Check** completed
 
-### Step 9: Review & Platform Adaptation
+### Step 9: Review & Platform Adaptation ← 不可跳过
 - [ ] Presented summary to user
 - [ ] Asked about revisions
 - [ ] Asked about additional platform adaptations
@@ -323,6 +326,14 @@ Before starting the writing workflow, create a session progress tracker file. Th
 - [ ] User confirmed platform and content
 - [ ] Invoked publishing skill
 - [ ] Publication result: ____
+
+### 流程自检（不可跳过）
+- [ ] 所有 Step checkbox 已核对
+- [ ] 无未闭合的 Corrections Log 条目
+- [ ] Step 9 已执行
+- [ ] 自检结果已告知用户
+**自检时间**: ____
+**自检结果**: ____
 
 ## Corrections Log
 | Step | What User Said | Case Recorded? | Case File |
@@ -464,12 +475,34 @@ references/                         # Exists at each level:
      - **小红书**: Use `xiaohongshu-mcp` skill — `python scripts/xhs_client.py search "{topic keywords}"`. Returns notes with feed_id and xsec_token. Use `python scripts/xhs_client.py detail "{feed_id}" "{xsec_token}"` to get full content and comments for promising results.
      - **微信公众号**: Use `wechat-article-search` skill — `node scripts/search_wechat.js "{topic keywords}" -n 15`. Returns titles, summaries, publish time, source accounts, and links. Use `-r` flag for real URLs.
      - **抖音**: `WebSearch` with queries like "抖音 {topic keywords} 热门"
-     - **X/Twitter**: `bird search "{topic keywords}"` (here `bird search` IS correct — searching by topic, not reading timeline)
+     - **X/Twitter**: `bird search "{topic keywords}" --cookie-source chrome` (here `bird search` IS correct — searching by topic, not reading timeline)
    b. Select 3-5 high-engagement results
    c. For each, briefly analyze: title type, opening technique, structure patterns, engagement reasons
    d. Ask user if they want deep analysis on any (invoke topic-manager's "分析爆款")
    e. **Accumulate**: If valuable patterns are found, append to corresponding files in `references/by-element/` (`WRITE:user`)
-   f. Record search results summary in the progress tracker's Session Notes
+
+   **f.【强制】将搜索结果写入进度文件 Session Notes，格式如下：**
+
+   ```markdown
+   ### Step 2 平台搜索记录
+   **平台**: {platform}
+   **搜索命令**: `{actual command executed}`
+   **搜索关键词**: {keywords used}
+   **返回结果数**: {N} 条
+   **筛选后高互动内容**: {N} 条
+
+   **Top 3-5 高互动内容**:
+   | # | 标题 | 作者 | 互动数据 | 有参考价值的点 |
+   |---|------|------|---------|-------------|
+   | 1 | ... | ... | ... | 标题用了对比句式 |
+   | 2 | ... | ... | ... | 开头用数据冲击 |
+
+   **提取的模式/发现**:
+   - {pattern 1}
+   - {pattern 2}
+   ```
+
+   > 如果搜索结果为空或无高互动内容，也必须记录："搜索 {platform} 关键词 '{keywords}'，返回 {N} 条，无明显高互动内容。"
 
    > **Why this step matters**: The local reference library may be sparse. Searching the target platform for what's currently working on the same topic provides real, proven patterns to learn from — not generic writing advice, but specific examples of what resonates with the actual audience on that platform.
 
@@ -621,7 +654,7 @@ For Mode 3 (Draft-Based):
 
 > **Start:** Read progress tracker. Review selected techniques and target platform. Update Step 6 status to in-progress.
 
-Use the **@content-research-writer** skill to refine and polish the draft.
+**【强制】使用 Skill 工具调用 content-research-writer**，不得手动润色代替。
 
 **Before invoking the polishing skill, compile technique-aware instructions:**
 
@@ -633,9 +666,14 @@ Use the **@content-research-writer** skill to refine and polish the draft.
 4. **Author style reference** (if one was chosen in Step 2): key style characteristics to maintain
 5. **Lessons from experience library**: any relevant rules from `assets/experiences/lessons.md` (`READ:3L`)
 
+**Then invoke the skill:**
+
 ```
-Invoke: content-research-writer skill
-Input: The initial or user-provided draft + technique-aware instructions above
+❌ 禁止：自己直接修改草稿文件来完成润色
+✅ 正确：编译上述指令 → 使用 Skill 工具调用 content-research-writer → 技能产出 polished.md
+
+Invoke: content-research-writer skill (via Skill tool)
+Input: The initial or user-provided draft + technique-aware instructions compiled above
 Output: {filename}-polished.md
 ```
 
@@ -655,12 +693,15 @@ The polished version should have:
 
 > **Start:** Read progress tracker. Update Step 7 status to in-progress.
 
-Use the **@baoyu-xhs-images** skill to create appropriate images:
+**【强制】使用 Skill 工具调用 baoyu-xhs-images**，传入 polished.md 内容。技能会自动完成：内容分析 → 风格/布局选择 → outline 生成 → prompt 文件生成。然后根据 prompt 文件调用 generate-image 生成实际图片。
 
 ```
-Invoke: baoyu-xhs-images skill
+❌ 禁止：手动编写 outline.md 和 prompt 文件
+✅ 正确：使用 Skill 工具调用 baoyu-xhs-images → 技能自动产出 outline + prompts → 再生成图片
+
+Invoke: baoyu-xhs-images skill (via Skill tool)
 Input: {filename}-polished.md content
-Output: Generated images
+Output: Generated outline, prompts, and images
 ```
 
 **Image Guidelines:**
@@ -689,11 +730,22 @@ Combine the polished content with generated images:
 - Use consistent formatting
 - Ensure images enhance rather than disrupt reading
 
+**呈现最终文章（不可省略）：** 创建 final.md 后，必须：
+1. 告知用户最终文件路径
+2. 简要说明图片插入位置（哪张图在哪个段落）
+3. **等待用户确认**再继续到 Step 9
+
+用户确认可以是：明确说"好的/可以/继续"，或直接给出修改意见。不得在用户未回复时就标记 Experience Check 为完成。
+
 > **Experience Check:** After presenting the final article to user, review their feedback. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
+
+> **⚠️ STOP: 不得直接跳到 Step 10。** 即使用户在此步说"发布"，也必须先执行 Step 9。Step 9 是审稿缓冲层，确保用户在发布前正式审阅最终图文排版。
 
 > **End:** Update progress tracker with output filename. Proceed to Step 9.
 
 ### Step 9: Review and Platform Adaptation
+
+> **本步骤不可跳过。** 即使用户已表达发布意图（如"发布到微信"），仍需执行 9a（呈现总结 + 问修改意见）。如果用户确认无修改，可以快速通过 9b 和 9c 直接进入 Step 10。
 
 > **Start:** Read progress tracker. Review target platform and all applied techniques. Update Step 9 status to in-progress.
 
@@ -770,7 +822,22 @@ Input: {filename}-final.md and images
 
 Follow the publishing skill's workflow for platform-specific requirements.
 
-> **End:** Update progress tracker with publication result. Mark session as complete.
+> **End:** Update progress tracker with publication result. Then proceed to **流程自检**.
+
+### 流程完成自检（不可跳过）
+
+> **在标记会话完成之前，必须执行以下自检：**
+>
+> 1. **读取进度文件**，逐步检查所有 checkbox
+> 2. **标记遗漏**：如果发现任何应勾未勾的 checkbox：
+>    - 如果是确实执行了但忘记标记 → 补标并注明"自检时补标"
+>    - 如果是确实跳过了 → 在 Session Notes 中记录原因，并询问用户是否需要补做
+> 3. **检查 Corrections Log**：确认所有 correction 都有 Case File，没有 Pending
+> 4. **检查 Step 9**：确认 Step 9 所有子步骤已执行（Step 9 不可跳过）
+> 5. **向用户报告自检结果**：
+>    - "自检完成，所有步骤已执行。" 或
+>    - "自检发现以下遗漏：{list}。需要补做吗？"
+> 6. **更新进度文件**的"流程自检"区域，记录自检时间和结果
 
 ## Best Practices
 

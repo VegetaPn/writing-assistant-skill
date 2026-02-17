@@ -898,6 +898,72 @@ topics/
 - `assets/topics/benchmarks/monitor-config.md` — 增加分平台阈值和关键词配置（修复 6）
 - `~/.config/bird/config.json5` — 新建全局配置（修复 7）
 
+### Phase 12: 实时热点 + 命令失败记录 + 依赖前置预检 (2026-02-17)
+
+**触发事件**: ai-spring-war-all-lose 完整流程用户反馈
+
+**状态**: ✅ 已完成
+
+**用户反馈 3 条**:
+
+| # | 反馈 | 类别 |
+|---|------|------|
+| 1 | 热点不要按月搜索，要当下实时的热点 | 搜索策略 |
+| 2 | 命令执行失败要记录，用于后续迭代修复 | 系统健壮性 |
+| 3 | 小红书/微信依赖未安装导致搜索缺数据 | 依赖管理 |
+
+---
+
+#### 修复 1: 热点搜索实时化
+
+**根因**: WebSearch 补充搜索时使用了"2月AI热点""本月趋势"等月度总结类搜索词，返回的是回顾性内容而非实时热点。
+
+**修改文件**: `skills/topic-manager.md` Command 5 (监控爆款) Step 2
+
+**修改内容**:
+1. 新增 **实时性原则** 规则块，明确禁止搜索月度/周度总结
+2. 所有平台搜索不加时间限定词，直接搜关键词获取最新内容
+3. 优先使用 feeds/timeline 类接口（天然返回实时内容）
+4. WebSearch 补充时禁止 "X月热点总结" 类查询，改用 "AI 热点 今天" 等实时搜索
+5. 内容时效性标注：超过 3 天的标注为"非实时"
+6. 透明度报告增加"发布时间"列，让用户可以验证时效性
+
+---
+
+#### 修复 2: 命令失败日志系统
+
+**根因**: 命令执行失败后无记录，下次会话重复踩坑，无法追踪哪些依赖/配置有问题。
+
+**修改文件**: `skills/topic-manager.md` (新增 "Command Failure Log" section) + `assets/experiences/command-failures.md` (新建)
+
+**修改内容**:
+1. 新增 "Command Failure Log" 规范，定义记录格式（命令、错误、原因、影响、修复建议、状态）
+2. 创建 `assets/experiences/command-failures.md` 模板文件
+3. 每次会话开始时读取并检查未修复 (🔴) 的问题
+4. 透明度报告新增"命令失败记录"表格
+
+---
+
+#### 修复 3: 依赖前置预检（topic-manager 级别）
+
+**根因**: 依赖检查只在 writing-assistant 的 Step 0 执行。topic-manager 的"看热点"命令独立运行时不经过 Step 0，导致缺失依赖时直接执行失败、静默跳过平台。
+
+**修改文件**: `skills/topic-manager.md` (新增 "Dependency Pre-Check" section)
+
+**修改内容**:
+1. 新增 "Dependency Pre-Check" 流程，所有命令执行前必做
+2. 检查各平台依赖可用性（bird CLI、xiaohongshu-mcp、wechat-article-search）
+3. 缺失依赖时主动从 `dependencies/` 安装（告知用户）
+4. 平台不可用时不静默跳过，必须在报告中标明
+5. 透明度报告新增"平台可用性"表格
+6. 在 Command 5 (监控爆款) 开头新增 "Step 0: 依赖预检"
+
+---
+
+**修改文件总览**:
+- `skills/topic-manager.md` — 新增依赖预检 + 命令失败日志 + 实时搜索原则 + 透明度报告增强
+- `assets/experiences/command-failures.md` — 新建命令失败日志文件
+
 ## 八、参考资料
 
 - dontbesilent 系统架构：`dev/dev_reference_materials/dontbesilent/best_practice_reference.md`

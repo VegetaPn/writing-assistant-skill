@@ -10,28 +10,55 @@ This is **Writing Assistant Skill** - a Claude Code skill that orchestrates end-
 
 ### Core Files
 
-- `SKILL.md` - Main skill definition with 8-step workflow (the "brain" of this system)
-- `writing-assistant.skill` - Packaged skill file for distribution
+- `SKILL.md` - Main writing workflow (the "brain" — focuses on writing, from draft to publish)
 
-### Reference Library System (`references/`)
+### Sub-Skills (`skills/`)
 
-The reference library is the core innovation - a structured knowledge base that reduces "AI-flavored" writing by providing style guidance and proven patterns.
+Project-local skills, no installation needed. Directly readable by the main workflow.
 
-**Three organizational approaches:**
+- `skills/title-generator.md` - Platform-optimized title generation (小红书/公众号/抖音), anti-AI-flavor rules, title type distribution
+- `skills/topic-manager.md` - Topic lifecycle (inbox → developing) + viral benchmarking (分析爆款/监控爆款/后台监控)
+- `skills/experience-tracker.md` - Auto-records user corrections as cases, distills lessons learned
+
+### Three-Level Content System
+
+Assets (`assets/`) and references (`references/`) follow a three-level hierarchy. Each level has the same directory structure. Content merges on read (system → user → project); lower levels override higher levels on conflict.
+
+| Level | Location | Purpose |
+|-------|----------|---------|
+| **System** | `{skill-dir}/assets/`, `{skill-dir}/references/` | Skill 自带默认值，不可修改 |
+| **User** | `{project-root}/assets/`, `{project-root}/references/` | 用户积累（经验、选题、对标、参考） |
+| **Project** | `outputs/{topic-slug}/assets/`, `outputs/{topic-slug}/references/` | 单篇文章 override（按需创建） |
+
+**Read (`READ:3L`):** Check all three levels, merge content, annotate source. Conflict → project > user > system.
+**Write:** Each operation targets a level — `WRITE:user` (default) or `WRITE:project` (article-specific).
+
+**Directory structure (same at each level):**
 
 ```
+assets/
+├── topics/                       # Topic management + viral benchmarks
+│   ├── inbox.md                  # Idea capture (append-only)
+│   ├── developing/               # Researched topics ready to write
+│   └── benchmarks/               # Viral content analyses
+│       ├── benchmarks-index.md   # Quick-lookup index
+│       └── monitor-config.md     # Background monitoring config
+└── experiences/                  # Experience/case library
+    ├── cases/                    # Individual correction records
+    └── lessons.md                # Distilled rules from cases
+
 references/
-├── authors/{name}/           # By author: profile.md + articles/
-├── by-element/               # By writing element (case-driven)
+├── authors/{name}/               # By author: profile.md + articles/
+├── by-element/                   # By writing element (case-driven)
 │   ├── titles/titles-index.md
 │   ├── openings/openings-index.md
 │   ├── structures/structure-templates.md
 │   └── hooks/hook-examples.md
-└── techniques/               # By methodology (principle-driven)
+└── techniques/                   # By methodology (principle-driven)
     └── psychology/psychology-index.md
 ```
 
-**Key distinction:**
+**Key distinction in references/:**
 - `by-element/` = "What is this title, why is it good" (cases)
 - `techniques/` = "What makes a good title" (underlying principles)
 
@@ -40,25 +67,41 @@ references/
 Bundled skills for auto-installation:
 - `content-research-writer` - Content polishing (required)
 - `baoyu-xhs-images` - Illustration generation (required)
-- `generate-image` - Actual image generation (optional, needs OPENROUTER API)
-- `baoyu-post-to-wechat` - WeChat publishing (optional)
-- `baoyu-post-to-x` - X/Twitter publishing (optional)
+- `xiaohongshu-mcp` - Xiaohongshu search, analysis, and publishing (required, needs local MCP server)
+- `wechat-article-search` - WeChat article searching (required)
+- `generate-image` - Actual image generation (required, needs OPENROUTER API)
+- `baoyu-post-to-wechat` - WeChat publishing (required)
+- `baoyu-post-to-x` - X/Twitter publishing (required)
 
 ### Development (`dev/`)
 
 - `iteration-plan.md` - Project roadmap and design decisions
 - `dev_reference_materials/` - Source materials for reference library
 
-## Workflow (8 Steps)
+## Workflow
 
-1. **Choose Mode** - Topic/Materials/Draft
-2. **Search References** - Find relevant author styles and cases
-3. **Collect & Clarify** - Interactive questioning (Modes 1 & 2)
-4. **Element-Level Reference** - Title, opening, structure suggestions from library
-5. **Process Draft** - Mode 3 only
-6. **Polish** - Using content-research-writer skill
+**Topic System** (skills/topic-manager.md) — decides WHAT to write:
+1. 记录选题 → inbox.md
+2. 监控/分析爆款 → benchmarks/
+3. 深化选题 → developing/ (with benchmarks, outline, title candidates)
+
+**Writing System** (SKILL.md) — does the WRITING:
+0. **Create Progress Tracker** - Initialize per-session tracking file
+1. **Choose Starting Mode + Select Platform** - Load from `assets/topics/developing/` or start fresh; determine target platform upfront
+2. **Search References + Benchmarks + Techniques** - Find styles, patterns, viral cases, and writing methodologies from `references/techniques/`
+3. **Collect & Clarify** - Interactive questioning (Modes 1 & 2), apply selected techniques
+4. **Element-Level Reference** - Title (via title-generator), opening, structure, with technique cross-reference
+5. **Process Draft** - Mode 3 only, apply techniques throughout body
+6. **Polish** - Using content-research-writer with technique-aware instructions
 7. **Generate Illustrations** - Using baoyu-xhs-images skill
-8. **Create Final & Publish** - Combine content + images, optional publish
+8. **Create Final Article** - Combine content + images
+9. **Review + Platform Adaptation** - Review, optional multi-platform adaptation with technique re-application
+10. **Publish** - Optional, to WeChat or X
+
+**Experience System** (skills/experience-tracker.md) — learns from corrections:
+- Auto-records when user corrects AI output (enforced via Experience Checkpoints after every interactive step)
+- Progress tracker logs all corrections in a Corrections Log table
+- Distills lessons → all skills check before executing
 
 ## Key Patterns
 
@@ -72,9 +115,14 @@ Each entry follows: Core Framework → Psychology Mechanism → Why It Works →
 
 ### File Naming Convention
 
-- Initial draft: `{topic}.md`
-- Polished: `{topic}-polished.md`
-- Final: `{topic}-final.md`
+All output files are stored under `outputs/{topic-slug}/`:
+
+- Progress tracker: `outputs/{topic-slug}/{topic-slug}-progress.md`
+- Initial draft: `outputs/{topic-slug}/{topic-slug}.md`
+- Polished: `outputs/{topic-slug}/{topic-slug}-polished.md`
+- Final: `outputs/{topic-slug}/{topic-slug}-final.md`
+- Platform adaptation: `outputs/{topic-slug}/{topic-slug}-{platform}.md`
+- Illustrations: `outputs/{topic-slug}/xhs-images/`
 
 ## Language
 

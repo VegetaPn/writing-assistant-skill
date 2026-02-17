@@ -32,58 +32,11 @@ This skill orchestrates a multi-step writing process:
 
 ## Three-Level Reference System
 
-Assets (`assets/`) and references (`references/`) follow a three-level hierarchy. Each level has the same directory structure; content merges on read, with lower levels overriding higher levels on conflict.
+Assets and references follow a three-level hierarchy (system / user / project). Content merges on read; lower levels override higher on conflict.
 
-### Level Definitions
+**Full protocol:** Read `references/three-level-protocol.md` for level definitions, READ:3L merge rules, WRITE:user/project targets, and quick reference table.
 
-| Level | Location | Purpose |
-|-------|----------|---------|
-| **System** | `{skill-dir}/assets/`, `{skill-dir}/references/` | Skill 自带默认值。安装到 `.claude/skills/` 后原封不动，不修改 |
-| **User** | `{project-root}/assets/`, `{project-root}/references/` | 用户个人积累（经验、选题、对标、自己添加的参考） |
-| **Project** | `outputs/{topic-slug}/assets/`, `outputs/{topic-slug}/references/` | 单篇文章特定的 override（按需创建） |
-
-- `{skill-dir}` = skill 安装路径，即 `.claude/skills/writing-assistant/`（或开发时的仓库根目录）
-- `{project-root}` = 用户的项目工作目录
-
-### READ Protocol (`READ:3L`)
-
-Every time you read a file under `assets/` or `references/`, check **all three levels** in order:
-
-1. **System** — `{skill-dir}/assets/...` or `{skill-dir}/references/...`
-2. **User** — `{project-root}/assets/...` or `{project-root}/references/...`
-3. **Project** — `outputs/{topic-slug}/assets/...` or `outputs/{topic-slug}/references/...`
-
-**Merge rules:**
-- Concatenate content from all levels that exist, annotating each section with its source level: `[system]`, `[user]`, `[project]`
-- On conflict (same key/entry), lower level wins: **project > user > system**
-- If a level doesn't exist for that path, skip it silently
-
-Shorthand: **`READ:3L`** means "apply the three-level read protocol."
-
-### WRITE Protocol
-
-Each write operation targets a specific level. Default is user-level unless specified otherwise.
-
-| Write Target | Shorthand | When to Use |
-|-------------|-----------|-------------|
-| User level | `WRITE:user` | General accumulation — experiences, topics, benchmarks, new reference patterns |
-| Project level | `WRITE:project` | Article-specific overrides — corrections that only apply to this article |
-| System level | (never at runtime) | Only during skill development |
-
-Shorthand: **`WRITE:user`** or **`WRITE:project`** after each write path.
-
-### Quick Reference Table
-
-| Path | Read | Default Write |
-|------|------|---------------|
-| `assets/experiences/lessons.md` | `READ:3L` | `WRITE:user` (universal) or `WRITE:project` (article-specific) |
-| `assets/experiences/cases/` | `READ:3L` | `WRITE:user` |
-| `assets/topics/inbox.md` | `READ:user` | `WRITE:user` |
-| `assets/topics/developing/` | `READ:user` | `WRITE:user` |
-| `assets/topics/benchmarks/` | `READ:3L` | `WRITE:user` |
-| `references/authors/` | `READ:3L` | `WRITE:user` |
-| `references/by-element/` | `READ:3L` | `WRITE:user` |
-| `references/techniques/` | `READ:3L` | `WRITE:user` |
+**Shorthands used in this file:** `READ:3L` = read all three levels and merge. `WRITE:user` / `WRITE:project` = target a specific write level.
 
 ## Companion Skills (project-local, no installation needed)
 
@@ -156,51 +109,23 @@ Before starting the workflow, check the user's working directory and ensure the 
 
 ### Initial Setup: Check Dependencies
 
-Before starting the workflow, verify that all required skills are installed.
+Run the environment check script:
 
-**Required dependencies:**
-- `content-research-writer` - For polishing content (Step 6)
-- `baoyu-xhs-images` - For generating illustration descriptions and layouts (Step 7)
-- `xiaohongshu-mcp` - For searching and publishing on Xiaohongshu (小红书). Requires local MCP server running. Used in Step 2 (search popular content) and Step 10 (publish).
-- `wechat-article-search` - For searching WeChat Official Account (微信公众号) articles. Used in Step 2 (search popular content).
-- `generate-image` - For generating images from descriptions (requires OPENROUTER API key configured in `.env`).
-- `baoyu-post-to-wechat` - For WeChat publishing (Step 10)
-- `baoyu-post-to-x` OR `x-article-publisher` - For X/Twitter publishing (Step 10)
+```bash
+bash scripts/check-env.sh
+```
 
-**Note**: To generate actual images (not just descriptions), you must configure OPENROUTER API key in `.env` file. To use xiaohongshu-mcp, the local MCP server must be running (see `dependencies/xiaohongshu-mcp/SKILL.md` for setup).
+The script checks: OPENROUTER_API_KEY in `.env`, `bird` CLI availability, `config/bird.json5` propagation, installed skills in `.claude/skills/`, and baoyu-post-to-wechat npm dependencies.
 
-**Dependency check process:**
+**Handle results:**
+- All checks pass → proceed to Step 0
+- Required dependencies missing → install from bundled `dependencies/` directory:
+  ```bash
+  mkdir -p .claude/skills && cp -r dependencies/<skill-name> .claude/skills/
+  ```
+- User declines required dependencies → explain workflow cannot proceed, offer to pause
 
-This skill bundles all dependencies in the `dependencies/` directory for convenient automatic installation.
-
-1. **Check installed skills** using:
-   ```bash
-   claude skill list
-   ```
-
-2. **Identify missing dependencies**:
-   - Compare installed skills against the required and optional dependencies listed above
-   - Note which dependencies are missing
-
-3. **For each missing dependency**:
-   - Check if bundled version exists in `dependencies/<skill-name>/`
-   - If found, ask user: "The skill `<skill-name>` is required for [purpose]. Install it to your project's `.claude/skills/` directory?"
-   - If user confirms, copy to project:
-     ```bash
-     mkdir -p .claude/skills
-     cp -r dependencies/<skill-name> .claude/skills/
-     ```
-   - Verify the skill is now available
-
-4. **Handle installation outcomes**:
-   - **Required dependencies missing and user declines**: Explain that workflow cannot proceed without these skills. Offer to pause until user installs them manually.
-   - **Installation failed**: Provide manual instructions:
-     ```bash
-     # Manual installation from bundled dependencies
-     cp -r dependencies/<skill-name> .claude/skills/
-     ```
-
-5. **Proceed to Step 0** once required dependencies are installed
+**Required dependencies:** content-research-writer, baoyu-xhs-images, xiaohongshu-mcp, wechat-article-search, generate-image, baoyu-post-to-wechat, baoyu-post-to-x (or x-article-publisher).
 
 ### Step 0: Create Progress Tracker
 
@@ -209,139 +134,10 @@ Before starting the writing workflow, create a session progress tracker file. Th
 **Process:**
 1. Determine a topic slug (use a short English slug for the filename, e.g., "attention-economy", "ai-writing-tips")
 2. Create the output directory: `outputs/{topic-slug}/`
-3. Create the progress tracker file: `outputs/{topic-slug}/{topic-slug}-progress.md`
-4. Initialize the file with the template below
-5. **Environment pre-check (only in Step 0, once):**
-   1. Check if `.env` file exists and contains `OPENROUTER_API_KEY` (needed for image generation)
-   2. Check if bird CLI is available (`bird whoami --cookie-source chrome`), record available cookie source. If project has `config/bird.json5`, ensure `{project-root}/.birdrc.json5` exists (copy from `config/bird.json5` if missing) so bird defaults to Chrome cookies.
-   3. Check if baoyu-post-to-wechat dependencies are fully installed (`front-matter`, `marked`, `highlight.js`, `reading-time`, `fflate`)
-   4. Record pre-check results in the progress file's Session Metadata (update Environment fields)
-   5. If anything is missing, fix on the spot or prompt user — do not leave for later steps
+3. Read `assets/progress-template.md` (`READ:3L`) and instantiate it — replace all `{topic-slug}` with the actual slug
+4. Save as `outputs/{topic-slug}/{topic-slug}-progress.md`
+5. **Environment pre-check (only in Step 0, once):** Run `bash scripts/check-env.sh` if not yet run in Initial Setup. Record results in the progress file's Session Metadata (Environment fields). If anything is missing, fix on the spot or prompt user — do not leave for later steps.
 6. Proceed to Step 1
-
-**Progress Tracker Template:**
-
-```markdown
-# Progress Tracker: {topic-slug}
-
-## Session Metadata
-**Session Started:** YYYY-MM-DD HH:MM
-**Platform:** (pending - determined in Step 1)
-**Mode:** (pending - determined in Step 1)
-**Topic:** (pending - determined in Step 1)
-**Initialization:** ✅ completed (不需要重复)
-**Output Directory:** outputs/{topic-slug}/
-**Environment:**
-- OPENROUTER_API_KEY: ✅ / ❌
-- bird CLI: ✅ (cookie-source: chrome) / ❌
-- wechat dependencies: ✅ / ❌
-
-**Reference Levels:**
-- System: {skill-dir path} ✅ / ❌
-- User: {project-root path} ✅ / ❌
-- Project: outputs/{topic-slug}/ (created on demand)
-
-## Applied References & Techniques
-- **Author Style:** (pending)
-- **Selected Techniques:** (pending)
-- **Key Benchmarks:** (pending)
-
-## Step Checklist
-
-### Step 0: Create Progress Tracker
-- [x] Created output directory: outputs/{topic-slug}/
-- [x] Created progress tracker file
-- [x] Environment pre-check completed (results recorded above)
-
-### Step 1: Choose Starting Mode + Platform
-- [ ] Determined target platform
-- [ ] Checked `assets/topics/developing/` (`READ:user`) for ready topics
-- [ ] Selected starting mode
-- [ ] Updated session metadata above
-- [ ] **Experience Check** completed
-
-### Step 2: Search References & Techniques
-- [ ] Checked lessons.md (`READ:3L`)
-- [ ] Searched `references/authors/` (`READ:3L`) for style matches
-- [ ] Searched `references/by-element/` (`READ:3L`) for element patterns
-- [ ] Searched `references/techniques/` (`READ:3L`) for writing methodologies
-- [ ] Searched `assets/topics/benchmarks/` (`READ:3L`) for viral cases
-- [ ] Searched target platform: {platform name}
-- [ ] Search results recorded in Session Notes (commands, keywords, top results, patterns)
-- [ ] Recorded matched techniques in "Applied References & Techniques" above
-
-### Step 3: Collect & Clarify (Modes 1 & 2)
-- [ ] Checked lessons.md (`READ:3L`)
-- [ ] Analyzed provided content
-- [ ] Asked clarifying questions
-- [ ] Supplemented with research if needed
-- [ ] Applied selected techniques to content organization
-- [ ] Organized into initial draft
-- [ ] **Experience Check** completed
-
-### Step 4: Element-Level Reference
-- [ ] Checked lessons.md (`READ:3L`)
-- [ ] Title: invoked title-generator with platform rules
-- [ ] Opening: referenced openings-index.md + techniques
-- [ ] Structure: referenced structure-templates.md + techniques
-- [ ] Hooks: referenced hook-examples.md + planned placement
-- [ ] **Experience Check** completed
-
-### Step 5: Process Draft (Mode 3 only)
-- [ ] Checked lessons.md (`READ:3L`)
-- [ ] Analyzed existing draft
-- [ ] Applied element refinements (Step 4)
-- [ ] Applied selected techniques throughout article body
-- [ ] **Experience Check** completed
-
-### Step 6: Polish
-- [ ] Checked lessons.md (`READ:3L`)
-- [ ] Compiled technique-aware instructions for polishing
-- [ ] Invoked content-research-writer
-- [ ] Verified platform-specific style applied
-- [ ] Output: outputs/{topic-slug}/{topic-slug}-polished.md
-- [ ] **Experience Check** completed
-
-### Step 7: Generate Illustrations
-- [ ] Invoked baoyu-xhs-images
-- [ ] Generated appropriate illustrations
-- [ ] **Experience Check** completed
-
-### Step 8: Create Final Article
-- [ ] Combined polished content + images
-- [ ] Verified layout and formatting
-- [ ] Output: outputs/{topic-slug}/{topic-slug}-final.md
-- [ ] Presented final article to user (file path + image placement summary)
-- [ ] User confirmed or gave feedback
-- [ ] **Experience Check** completed
-
-### Step 9: Review & Platform Adaptation ← 不可跳过
-- [ ] Presented summary to user
-- [ ] Asked about revisions
-- [ ] Asked about additional platform adaptations
-- [ ] If adapting: re-applied techniques with platform rules
-- [ ] **Experience Check** completed
-
-### Step 10: Publish
-- [ ] User confirmed platform and content
-- [ ] Invoked publishing skill
-- [ ] Publication result: ____
-
-### 流程自检（不可跳过）
-- [ ] 所有 Step checkbox 已核对
-- [ ] 无未闭合的 Corrections Log 条目
-- [ ] Step 9 已执行
-- [ ] 自检结果已告知用户
-**自检时间**: ____
-**自检结果**: ____
-
-## Corrections Log
-| Step | What User Said | Case Recorded? | Case File |
-|------|----------------|----------------|-----------|
-
-## Session Notes
-(Add notes as the session progresses)
-```
 
 **Usage rules for the progress tracker:**
 - **Before each step:** Read the progress tracker to see current status and what this step requires
@@ -407,115 +203,20 @@ Update the progress tracker metadata (Platform, Mode, Topic) and mark Step 1 che
 
 > **Start:** Read progress tracker. Update Step 2 status to in-progress.
 
-After understanding the user's topic/theme and target platform, search all reference sources.
+After understanding the user's topic/theme and target platform, search all reference sources. **Full search workflow:** Read `references/search-workflow.md` for detailed process.
 
-**Reference Library Structure (three-level — `READ:3L`):**
+**Mandatory actions (do NOT skip):**
 
-All paths below are searched across system, user, and project levels.
-
-```
-references/                         # Exists at each level:
-├── authors/                        #   {skill-dir}/references/  (system)
-│   └── {author-name}/              #   {project-root}/references/  (user)
-│       ├── profile.md              #   outputs/{slug}/references/  (project)
-│       └── articles/
-│
-├── by-element/
-│   ├── titles/
-│   ├── openings/
-│   ├── structures/
-│   └── hooks/
-│
-└── techniques/
-    └── psychology/
-        ├── psychology-index.md
-        └── content-funnel.md
-```
-
-**Search Process:**
-
-1. **Check if reference library exists**:
-   - System-level references (in skill directory) always exist
-   - Check user-level and project-level for additional content
-   - If only system-level exists, proceed with system defaults
-
-2. **Search for relevant author styles** (`READ:3L`):
-   - Read available `references/authors/*/profile.md` files across all levels
-   - Present a brief summary of available writing styles
-   - Ask: "Would you like to reference a specific author's style for this article?"
-
-3. **Search for writing element patterns** (`READ:3L`):
-   - Check `references/by-element/` across all levels for relevant patterns
-   - Note relevant title patterns, opening techniques, structure templates, and hooks
-   - These will be used in Step 4
-
-4. **Search for writing techniques and methodologies** (`READ:3L`):
-   - Read `references/techniques/psychology/psychology-index.md` across all levels
-   - For each technique listed, evaluate relevance to the current topic and platform:
-     - **Content Marketing Funnel (内容营销漏斗)**: Relevant for all content creation. Determine which funnel stage this article targets (TOFU/MOFU/BOFU) based on the topic and platform. For example:
-       - 小红书 content is typically TOFU (broad audience, easy to understand, emotional)
-       - 微信公众号 long-form can be MOFU (in-depth, trust-building)
-       - The technique's Practice Guide checklist should be applied during writing
-     - Additional techniques as they are added to the library
-   - **Record selected techniques** in the progress tracker under "Applied References & Techniques"
-   - Present to user: "Based on your topic and platform, I recommend applying these writing techniques: [list]. Here's why: [brief explanation]."
-
-5. **Search viral benchmarks** (`READ:3L`, if `assets/topics/benchmarks/` exists at any level):
-   - Check for benchmark analyses on similar topics
-   - If found, present: "I found N benchmark analyses on related topics that might inform our approach."
-   - Note relevant title patterns, hooks, and structures from benchmarks
-   - Record key benchmarks in the progress tracker
-
-6. **【必做】Search target platform for popular content on the same topic**:
-
-   This step MUST NOT be skipped. Even if the local reference library is rich, you must search the target platform for current popular content.
-
-   Process:
-   a. Search by platform using corresponding tools:
-     - **小红书**: Use `xiaohongshu-mcp` skill — `python scripts/xhs_client.py search "{topic keywords}"`. Returns notes with feed_id and xsec_token. Use `python scripts/xhs_client.py detail "{feed_id}" "{xsec_token}"` to get full content and comments for promising results.
-     - **微信公众号**: Use `wechat-article-search` skill — `node scripts/search_wechat.js "{topic keywords}" -n 15`. Returns titles, summaries, publish time, source accounts, and links. Use `-r` flag for real URLs.
-     - **抖音**: `WebSearch` with queries like "抖音 {topic keywords} 热门"
-     - **X/Twitter**: `bird search "{topic keywords}" --cookie-source chrome` (here `bird search` IS correct — searching by topic, not reading timeline)
-   b. Select 3-5 high-engagement results
-   c. For each, briefly analyze: title type, opening technique, structure patterns, engagement reasons
-   d. Ask user if they want deep analysis on any (invoke topic-manager's "分析爆款")
-   e. **Accumulate**: If valuable patterns are found, append to corresponding files in `references/by-element/` (`WRITE:user`)
-
-   **f.【强制】将搜索结果写入进度文件 Session Notes，格式如下：**
-
-   ```markdown
-   ### Step 2 平台搜索记录
-   **平台**: {platform}
-   **搜索命令**: `{actual command executed}`
-   **搜索关键词**: {keywords used}
-   **返回结果数**: {N} 条
-   **筛选后高互动内容**: {N} 条
-
-   **Top 3-5 高互动内容**:
-   | # | 标题 | 作者 | 互动数据 | 有参考价值的点 |
-   |---|------|------|---------|-------------|
-   | 1 | ... | ... | ... | 标题用了对比句式 |
-   | 2 | ... | ... | ... | 开头用数据冲击 |
-
-   **提取的模式/发现**:
-   - {pattern 1}
-   - {pattern 2}
-   ```
-
-   > 如果搜索结果为空或无高互动内容，也必须记录："搜索 {platform} 关键词 '{keywords}'，返回 {N} 条，无明显高互动内容。"
-
-   > **Why this step matters**: The local reference library may be sparse. Searching the target platform for what's currently working on the same topic provides real, proven patterns to learn from — not generic writing advice, but specific examples of what resonates with the actual audience on that platform.
-
-7. **Present reference summary**:
-   - Summarize what was found: author style, element patterns, techniques, benchmarks
-   - If user wants to reference a style, note the chosen author's profile for use in later steps
-   - The style guidance and selected techniques will influence all subsequent steps:
-     - Title suggestions (Step 4)
-     - Opening paragraph style (Step 4)
-     - Overall article structure (Step 4)
-     - Content organization and body writing (Steps 3/5)
-     - Tone and voice during polishing (Step 6)
-     - Platform adaptation (Step 9)
+1. **Search references** (`READ:3L`): Check `references/authors/`, `references/by-element/`, `references/techniques/` for style matches, element patterns, and writing methodologies
+2. **Search benchmarks** (`READ:3L`): Check `assets/topics/benchmarks/` for viral cases
+3. **Select and record techniques** in progress tracker under "Applied References & Techniques"
+4. **【必做】Search target platform for popular content** on the same topic using platform tools:
+   - 小红书: `python scripts/xhs_client.py search "{keywords}"` (xiaohongshu-mcp)
+   - 微信公众号: `node scripts/search_wechat.js "{keywords}" -n 15` (wechat-article-search)
+   - 抖音: WebSearch
+   - X/Twitter: `bird search "{keywords}" --cookie-source chrome`
+5. **【强制】Record search results** in progress file Session Notes (platform, command, keywords, result count, top 3-5 high-engagement items, extracted patterns). See `references/search-workflow.md` for required format.
+6. **Present reference summary** to user: author style, element patterns, techniques, benchmarks
 
 > **End:** Update progress tracker with all findings. Proceed to Step 3.
 
@@ -566,13 +267,6 @@ For Modes 1 and 2, use an interactive questioning approach:
 **Question Strategy:**
 - Ask 2-4 questions at a time (avoid overwhelming the user)
 - Tailor each question to the specific content provided - no fixed templates
-- Common areas to explore (adjust based on actual needs):
-  - What's the main message or takeaway?
-  - Who is the target audience?
-  - What's the desired tone (professional, casual, technical, etc.)?
-  - Are there specific points that need more detail?
-  - What context or background should readers have?
-  - Are there particular examples or stories to include?
 - Let the content guide the questions - if something is already clear, don't ask about it
 
 ### Step 4: Element-Level Reference (Title, Opening, Structure)
@@ -650,208 +344,37 @@ For Mode 3 (Draft-Based):
 
 > **End:** Update progress tracker. Proceed to Step 6 with the (optionally refined) draft.
 
-### Step 6: Polish the Draft
+### Steps 6-10: Polish to Publish
 
-> **Start:** Read progress tracker. Review selected techniques and target platform. Update Step 6 status to in-progress.
+**Full details:** Read `references/steps-polish-to-publish.md` for complete instructions.
 
-**【强制】使用 Skill 工具调用 content-research-writer**，不得手动润色代替。
+**Step 6: Polish** — **【强制】使用 Skill 工具调用 content-research-writer**，不得手动润色代替。Compile technique-aware instructions (platform, techniques, checklist, style, lessons) before invoking. Output: `{topic-slug}-polished.md`. Experience Check after.
 
-**Before invoking the polishing skill, compile technique-aware instructions:**
+**Step 7: Illustrations** — **【强制】使用 Skill 工具调用 baoyu-xhs-images**，传入 polished.md。禁止手动编写 outline/prompt。Output: images in `xhs-images/`. Experience Check after.
 
-1. **Target platform**: "{platform}" — apply platform-specific length, tone, and formatting rules
-2. **Selected techniques**: List the techniques from Step 2 and their key principles
-3. **Technique-specific polish checklist** (derive from selected techniques):
-   - If Content Funnel (TOFU): "Ensure every paragraph passes the 'give it to your parents to read' test. Remove jargon. Strengthen emotional hooks. Make every section relatable."
-   - If Content Funnel (MOFU): "Maintain depth and credibility. Add supporting evidence. Build trust through expertise demonstration."
-4. **Author style reference** (if one was chosen in Step 2): key style characteristics to maintain
-5. **Lessons from experience library**: any relevant rules from `assets/experiences/lessons.md` (`READ:3L`)
+**Step 8: Final Article** — Combine polished content + images. Create `{topic-slug}-final.md`. **呈现最终文章（不可省略）：** 告知用户文件路径 + 图片位置 + **等待用户确认**。Experience Check after. **⚠️ STOP: 不得直接跳到 Step 10，必须先执行 Step 9。**
 
-**Then invoke the skill:**
+**Step 9: Review & Adaptation** ← **不可跳过** — 即使用户已表达发布意图，仍需执行。
+- 9a. Review: verbal summary + ask for revisions
+- 9b. Platform Adaptation (optional): search new platform + re-apply techniques + re-generate title + save as `{topic-slug}-{platform}.md`
+- 9c. Publishing Decision: ask user
+- Experience Check after.
 
-```
-❌ 禁止：自己直接修改草稿文件来完成润色
-✅ 正确：编译上述指令 → 使用 Skill 工具调用 content-research-writer → 技能产出 polished.md
-
-Invoke: content-research-writer skill (via Skill tool)
-Input: The initial or user-provided draft + technique-aware instructions compiled above
-Output: {filename}-polished.md
-```
-
-The polished version should have:
-- Improved structure and flow
-- Better hooks and engagement
-- Citations and research integration
-- Professional writing quality
-- **Technique principles applied throughout** (not just surface-level polish)
-- **Platform-appropriate style and length**
-
-> **Experience Check:** After presenting polished draft to user, review their feedback. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
-
-> **End:** Update progress tracker with output filename. Proceed to Step 7.
-
-### Step 7: Generate Illustrations
-
-> **Start:** Read progress tracker. Update Step 7 status to in-progress.
-
-**【强制】使用 Skill 工具调用 baoyu-xhs-images**，传入 polished.md 内容。技能会自动完成：内容分析 → 风格/布局选择 → outline 生成 → prompt 文件生成。然后根据 prompt 文件调用 generate-image 生成实际图片。
-
-```
-❌ 禁止：手动编写 outline.md 和 prompt 文件
-✅ 正确：使用 Skill 工具调用 baoyu-xhs-images → 技能自动产出 outline + prompts → 再生成图片
-
-Invoke: baoyu-xhs-images skill (via Skill tool)
-Input: {filename}-polished.md content
-Output: Generated outline, prompts, and images
-```
-
-**Image Guidelines:**
-- Images should be appropriately spaced (not too dense, usually 3~5 images)
-- Select key points that benefit from visual illustration
-- Maintain balance between text and visuals
-
-> **Experience Check:** After presenting illustrations to user, review their feedback. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
-
-> **End:** Update progress tracker. Proceed to Step 8.
-
-### Step 8: Create Final Article
-
-> **Start:** Read progress tracker. Update Step 8 status to in-progress.
-
-Combine the polished content with generated images:
-
-1. Take the {filename}-polished.md content
-2. Insert images at appropriate positions
-3. Ensure proper formatting and layout
-4. Create final output: {filename}-final.md
-
-**Layout Considerations:**
-- Place images near relevant text sections
-- Maintain readable flow
-- Use consistent formatting
-- Ensure images enhance rather than disrupt reading
-
-**呈现最终文章（不可省略）：** 创建 final.md 后，必须：
-1. 告知用户最终文件路径
-2. 简要说明图片插入位置（哪张图在哪个段落）
-3. **等待用户确认**再继续到 Step 9
-
-用户确认可以是：明确说"好的/可以/继续"，或直接给出修改意见。不得在用户未回复时就标记 Experience Check 为完成。
-
-> **Experience Check:** After presenting the final article to user, review their feedback. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
-
-> **⚠️ STOP: 不得直接跳到 Step 10。** 即使用户在此步说"发布"，也必须先执行 Step 9。Step 9 是审稿缓冲层，确保用户在发布前正式审阅最终图文排版。
-
-> **End:** Update progress tracker with output filename. Proceed to Step 9.
-
-### Step 9: Review and Platform Adaptation
-
-> **本步骤不可跳过。** 即使用户已表达发布意图（如"发布到微信"），仍需执行 9a（呈现总结 + 问修改意见）。如果用户确认无修改，可以快速通过 9b 和 9c 直接进入 Step 10。
-
-> **Start:** Read progress tracker. Review target platform and all applied techniques. Update Step 9 status to in-progress.
-
-After creating the final article, summarize the work completed and guide the user through review and optional adaptation.
-
-**9a. Review:**
-
-**Do not write a summary document**. Instead, provide a brief verbal summary covering:
-- What was written and for which platform
-- Which references and techniques were applied
-- Key decisions made during the process
-
-Ask:
-- "Would you like to make any revisions?"
-- Handle revisions if requested (loop back to relevant step)
-
-**9b. Platform Adaptation (Optional):**
-
-Ask: "Would you like to adapt this article for another platform?"
-
-If yes:
-1. **Determine the new target platform** (小红书, 微信公众号, 抖音, X/Twitter)
-2. **【NEW】Search the new platform for popular content**:
-   - Use the corresponding platform tool (same as Step 2, point 6) to search for popular content on the same/similar topic on the new platform
-   - Quickly analyze 2-3 results: title patterns, content density, tone/voice, engagement style
-   - Extract currently effective patterns on this platform and apply them to the adaptation
-3. **Re-evaluate funnel stage** (小红书 is typically TOFU, 微信公众号 MOFU — re-determine based on the new platform)
-4. **Re-apply writing techniques with new platform rules**:
-   - Re-read the selected techniques from Step 2
-   - Apply the technique's guidance for the new platform's content type:
-     - 小红书: TOFU — short (≤1000 words), casual, emotional, image-heavy
-     - 微信公众号: MOFU — long-form, in-depth, authoritative
-     - 抖音: TOFU — very short paragraphs, first 5 seconds critical, data-driven
-     - X/Twitter: Varies — thread format, concise, hook-heavy
-   - Adapt the article body, not just the title/opening
-5. **Re-generate title** for the new platform (invoke `skills/title-generator.md` with new platform)
-6. **Re-adapt opening and structure** for the new platform's conventions
-7. **Save the adapted version** as `outputs/{topic-slug}/{topic-slug}-{platform}.md`
-
-**9c. Publishing Decision:**
-
-Ask:
-- "Would you like to publish this article?"
-- Present available publishing options based on installed dependencies
-
-> **Experience Check:** Review all user feedback in this step. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
-
-> **End:** Update progress tracker. Proceed to Step 10 if publishing, or conclude session.
-
-### Step 10: Publish (Optional)
-
-> **Start:** Read progress tracker. Update Step 10 status to in-progress.
-
-If the user wants to publish, invoke the appropriate skill:
-
-**For 小红书 (Xiaohongshu):**
-```
-Invoke: xiaohongshu-mcp skill
-Command: python scripts/xhs_client.py publish "{title}" "{content}" "{image_urls}"
-```
-Ensure the xiaohongshu-mcp local server is running before publishing.
-
-**For WeChat Official Account:**
-```
-Invoke: baoyu-post-to-wechat skill
-Input: {filename}-final.md and images
-```
-
-**For X (Twitter):**
-```
-Invoke: baoyu-post-to-x or x-article-publisher skill
-Input: {filename}-final.md and images
-```
-
-Follow the publishing skill's workflow for platform-specific requirements.
-
-> **End:** Update progress tracker with publication result. Then proceed to **流程自检**.
+**Step 10: Publish (Optional)** — Invoke platform-specific publishing skill (xiaohongshu-mcp / baoyu-post-to-wechat / baoyu-post-to-x). Then proceed to **流程自检**.
 
 ### 流程完成自检（不可跳过）
 
-> **在标记会话完成之前，必须执行以下自检：**
->
-> 1. **读取进度文件**，逐步检查所有 checkbox
-> 2. **标记遗漏**：如果发现任何应勾未勾的 checkbox：
->    - 如果是确实执行了但忘记标记 → 补标并注明"自检时补标"
->    - 如果是确实跳过了 → 在 Session Notes 中记录原因，并询问用户是否需要补做
-> 3. **检查 Corrections Log**：确认所有 correction 都有 Case File，没有 Pending
-> 4. **检查 Step 9**：确认 Step 9 所有子步骤已执行（Step 9 不可跳过）
-> 5. **向用户报告自检结果**：
->    - "自检完成，所有步骤已执行。" 或
->    - "自检发现以下遗漏：{list}。需要补做吗？"
-> 6. **更新进度文件**的"流程自检"区域，记录自检时间和结果
+> 在标记会话完成之前，必须执行以下自检：
+> 1. 读取进度文件，逐步检查所有 checkbox
+> 2. 标记遗漏（补标或记录原因 + 询问用户）
+> 3. 检查 Corrections Log（无 Pending）
+> 4. 检查 Step 9（已执行）
+> 5. 向用户报告自检结果
+> 6. 更新进度文件的"流程自检"区域
 
 ## Best Practices
 
-1. **Be Patient with Questions**: Take time in Step 3 to thoroughly understand the user's vision
-2. **Research Thoughtfully**: Supplement user input with credible sources when gaps exist
-3. **Preserve User Voice**: While polishing, maintain the user's intended tone and style
-4. **Image Selection**: Be selective with images - quality and relevance over quantity
-5. **Review Before Publishing**: Confirm the user is satisfied with the final article before publishing
-6. **Use References as Inspiration, Not Templates**: The reference library provides patterns and techniques, not content to copy. Adapt them to the user's unique voice and topic.
-7. **Let User Choose**: Always present reference-based suggestions as options, not requirements. The user has final say on title, opening, and structure.
-8. **Style Consistency**: If a user chooses to reference a specific author's style, maintain that influence throughout the article for consistency.
-9. **Apply Techniques Throughout, Not Just to Elements**: Writing techniques from `references/techniques/` should influence the entire article body — paragraph structure, language choices, emotional arc, example selection — not just the title and opening. Check the technique's Practice Guide at the paragraph level.
-10. **Track Everything in the Progress File**: The progress tracker is your session memory. Read it before each step, update it after. This prevents skipped sub-steps and ensures corrections are captured.
-11. **Choose the Right Write Level**: When recording experiences, benchmarks, or new reference patterns, always choose the correct target level. Universal lessons → `WRITE:user`. Article-specific overrides → `WRITE:project`. When in doubt, ask the user: "这条经验是通用的还是仅针对本文？"
+See `references/steps-polish-to-publish.md` "Best Practices" section for 11 guidelines covering user voice, reference usage, technique application, progress tracking, and write-level selection.
 
 ## Output Directory Convention
 

@@ -11,6 +11,7 @@ description: Records user corrections as cases and distills lessons learned. Aut
 > - **通用经验** → `WRITE:user`（适用于所有文章）
 > - **文章特定经验** → `WRITE:project`（仅适用于当前文章，存入 `outputs/{topic-slug}/assets/experiences/`）
 > 记录经验后，询问用户："这条经验是通用的还是仅针对本文？" 据此决定写入层级。
+> 详见 `references/three-level-protocol.md`。
 
 ## When to Use
 

@@ -12,6 +12,19 @@ This is **Writing Assistant Skill** - a Claude Code skill that orchestrates end-
 
 - `SKILL.md` - Main writing workflow (the "brain" — focuses on writing, from draft to publish)
 
+### Scripts (`scripts/`)
+
+- `scripts/check-env.sh` - Environment pre-check script (OPENROUTER_API_KEY, bird CLI, installed skills, npm deps)
+
+### Extracted References (from SKILL.md for Progressive Disclosure)
+
+These files contain detailed instructions that SKILL.md references via links:
+
+- `references/three-level-protocol.md` - Full three-level reference system protocol (READ:3L, WRITE:user/project)
+- `references/search-workflow.md` - Step 2 detailed search process (platform commands, session notes format)
+- `references/steps-polish-to-publish.md` - Steps 6-10 full instructions + Best Practices
+- `assets/progress-template.md` - Progress tracker template (instantiated per session in Step 0)
+
 ### Sub-Skills (`skills/`)
 
 Project-local skills, no installation needed. Directly readable by the main workflow.

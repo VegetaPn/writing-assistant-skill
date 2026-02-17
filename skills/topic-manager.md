@@ -7,7 +7,7 @@ description: Manage writing topics from idea capture to development, with viral 
 
 选题管理 + 爆款对标系统。负责**决定写什么**——从碎片想法到选题成熟。与写作系统 (writing-assistant) 分离：本系统产出准备好的选题，writing-assistant 从这里接手正式写作。
 
-> **Three-Level Protocol:** 选题管理主要读写 user-level。所有 `assets/` 和 `references/` 读取使用 `READ:3L`（检查 system → user → project 三层并合并）。写入默认为 `WRITE:user`。详见 SKILL.md "Three-Level Reference System"。
+> **Three-Level Protocol:** 选题管理主要读写 user-level。所有 `assets/` 和 `references/` 读取使用 `READ:3L`（检查 system → user → project 三层并合并）。写入默认为 `WRITE:user`。详见 `references/three-level-protocol.md`。
 
 ## When to Use
 

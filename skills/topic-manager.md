@@ -256,11 +256,34 @@ Before executing any command, ensure user-level required directories and files e
 ```
 
 3. Append to `assets/topics/benchmarks/benchmarks-index.md` (`WRITE:user`)
-4. **Dynamic reference building** — auto-enrich reference library (`WRITE:user`):
-   - Title pattern → append to `references/by-element/titles/titles-index.md`
-   - Opening technique → append to `references/by-element/openings/openings-index.md`
-   - Novel structure → append to `references/by-element/structures/structure-templates.md`
-   - New author with multiple pieces → create `references/authors/{name}/profile.md`
+4. **【必做】Dynamic reference building** — auto-enrich reference library (`WRITE:user`)。这是参考库动态增长的核心机制，分析完爆款后必须执行，不可跳过。
+
+   从上面的 Analysis 中提取可复用模式，追加到参考库（格式与现有条目一致）：
+
+   - **Title pattern** → append to `references/by-element/titles/titles-index.md`：
+     ```markdown
+     ## Title #N
+     **Original Title:** {原标题}
+     **Source:** {作者} - *{文章标题}* ({平台}, {日期})
+     **Metrics:** {互动数据，如有}
+     **Analysis（分析）：** {为什么这个标题有效，从 Benchmark Analysis 的 Title 部分提取}
+     **Pattern（模式）：** `{可复用的标题模板公式}`
+     ```
+   - **Opening technique** → append to `references/by-element/openings/openings-index.md`：
+     ```markdown
+     ## Opening #N
+     **Source:** {作者} - *{文章标题}* ({平台}, {日期})
+     ### Original Text
+     > {开头前 2-3 段}
+     ### Analysis（分析）
+     **使用的技巧：** {从 Benchmark Analysis 的 Opening 部分提取}
+     **为什么有效：** {核心逻辑}
+     ```
+   - **Novel structure** → append to `references/by-element/structures/structure-templates.md`
+   - **Hook** → append to `references/by-element/hooks/hook-examples.md`
+   - **New author with multiple pieces** → create `references/authors/{name}/profile.md`
+
+   > 不是每个维度都必须积累——只积累确实有新的、可复用模式的维度。但至少标题模式必须积累（每篇爆款都有标题）。
 5. Ask: "要把这条爆款转化为选题吗？" If yes, run "爆款转选题" flow (Command 7).
 
 ### 5. 监控爆款

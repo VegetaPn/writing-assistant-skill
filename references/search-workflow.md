@@ -84,7 +84,36 @@ c. For each, briefly analyze: title type, opening technique, structure patterns,
 
 d. Ask user if they want deep analysis on any (invoke topic-manager's "分析爆款")
 
-e. **Accumulate**: If valuable patterns are found, append to corresponding files in `references/by-element/` (`WRITE:user`)
+e. **【必做】积累爆款模式到参考库** — 从搜索结果中提取有价值的模式，追加到 `references/by-element/` (`WRITE:user`)。这是参考库动态增长的核心机制，不可跳过。
+
+   **积累标准**：高互动内容（Top 3-5）中，标题/开头/结构有明确可复用模式的，必须积累。
+
+   **积累格式**（追加到对应文件末尾，与现有条目格式一致）：
+
+   - **标题** → `references/by-element/titles/titles-index.md`：
+     ```markdown
+     ## Title #N
+     **Original Title:** {原标题}
+     **Source:** {作者} - *{文章标题}* ({平台}, {日期})
+     **Analysis（分析）：** {为什么这个标题有效，1-3 个要点}
+     **Pattern（模式）：** `{可复用的标题模板公式}`
+     ```
+
+   - **开头** → `references/by-element/openings/openings-index.md`：
+     ```markdown
+     ## Opening #N
+     **Source:** {作者} - *{文章标题}* ({平台}, {日期})
+     ### Original Text
+     > {开头前 2-3 段}
+     ### Analysis（分析）
+     **使用的技巧：** {技巧名称 + 简要分析}
+     **为什么有效：** {核心逻辑}
+     ```
+
+   - **结构** → `references/by-element/structures/structure-templates.md`：追加新的结构模板
+   - **钩子** → `references/by-element/hooks/hook-examples.md`：追加新的钩子案例
+
+   > **注意**：不是每条搜索结果都要积累，只积累有明确可复用模式的。一次搜索积累 1-3 条即可。如果搜索结果质量都不高，记录"本次搜索未发现新的可积累模式"即可。
 
 **f.【强制】将搜索结果写入进度文件 Session Notes，格式如下：**
 

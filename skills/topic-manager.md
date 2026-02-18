@@ -1,6 +1,6 @@
 ---
 name: topic-manager
-description: Manage writing topics from idea capture to development, with viral content benchmarking. Use when users say "记录选题", "看选题", "深化选题", "分析爆款", "监控爆款", "启动爆款监控", "看热点", "监控热点", "热点", "有什么热点", or "最近有什么火的".
+description: Manage writing topics from idea capture to development, with viral content benchmarking and publication metrics. Use when users say "记录选题", "看选题", "深化选题", "分析爆款", "监控爆款", "启动爆款监控", "看热点", "监控热点", "热点", "有什么热点", "最近有什么火的", "记录数据", or "看数据".
 ---
 
 # Topic Manager
@@ -20,6 +20,10 @@ description: Manage writing topics from idea capture to development, with viral 
 - "分析爆款" + URL/内容 — 分析一条爆款内容
 - "监控爆款" / "看热点" / "监控热点" / "有什么热点" / "最近有什么火的" — 手动批量扫描当前热门内容
 - "启动爆款监控" — 启动后台长期监控进程
+
+**数据记录:**
+- "记录数据" — 记录某篇文章的发布数据
+- "看数据" — 查看某篇文章的历史数据
 
 ## Directory Structure
 
@@ -450,9 +454,108 @@ For each selected: run "分析爆款" flow (Command 4)
 
 ---
 
+## 数据记录
+
+### 8. 记录数据
+
+**Trigger:** "记录数据"
+
+**Action:**
+
+1. **识别文章**:
+   - 如果当前会话正在处理某篇文章 → 自动推断
+   - 否则 → 列出 `outputs/` 目录下的文章，让用户选择
+
+2. **确定平台**:
+   - 检查文章目录中存在的平台文件：
+     - `{slug}-final.md` → 源平台（从 progress 文件中读取）
+     - `{slug}-wechat.md` → 微信公众号
+     - `{slug}-xhs.md` → 小红书
+     - `{slug}-x.md` → X/Twitter
+     - `{slug}-douyin.md` → 抖音
+   - 如果有多个平台文件，问用户要记录哪个平台的数据（可以多选）
+
+3. **按平台收集指标**:
+
+   **微信公众号：**
+   - 阅读量
+   - 在看数
+   - 分享数
+   - 留言数
+
+   **小红书：**
+   - 点赞数
+   - 收藏数
+   - 评论数
+   - 分享数
+
+   **X/Twitter：**
+   - 浏览量 (impressions)
+   - 点赞数
+   - 转发数 (retweets)
+   - 回复数
+
+   **抖音：**
+   - 播放量
+   - 点赞数
+   - 评论数
+   - 分享数
+   - 完播率 (%)
+
+4. **保存到 `outputs/{slug}/metrics.md`** (`WRITE:project`)，追加式，带时间戳：
+
+```markdown
+## {YYYY-MM-DD} — {platform}
+
+| 指标 | 数值 |
+|------|------|
+| {metric1} | {value1} |
+| {metric2} | {value2} |
+| ... | ... |
+
+**备注:** {user notes, if any}
+```
+
+如果文件已存在，追加新快照（不覆盖历史数据）。
+
+5. **确认并建议**:
+   - "已记录 {platform} 数据到 metrics.md。"
+   - 如果是首次记录："建议 3-7 天后再记一次，看数据趋势。"
+   - 如果已有历史记录：自动对比上次数据，展示变化。
+
+### 9. 看数据
+
+**Trigger:** "看数据"
+
+**Action:**
+
+1. **识别文章**（同 Command 8 逻辑）
+
+2. **读取 `outputs/{slug}/metrics.md`**
+
+3. **展示数据**:
+   - 如果只有一个快照 → 直接展示
+   - 如果有多个快照 → 展示趋势对比表：
+
+```markdown
+## {article title} 数据趋势
+
+### {platform}
+| 指标 | {date1} | {date2} | 变化 |
+|------|---------|---------|------|
+| {metric} | {v1} | {v2} | {+/-}{diff} ({%}) |
+```
+
+4. **简要分析**（如果有多个快照）:
+   - 哪些指标增长/下降
+   - 与同平台其他文章对比（如果有其他文章的 metrics.md）
+
+---
+
 ## With Other Skills
 
 - **→ title-generator**: Called during "深化选题" and "爆款转选题" for title candidates
 - **→ experience-tracker**: Lessons checked during "深化选题"
 - **→ writing-assistant**: `developing/` is the handoff point. Writing-assistant Step 1 checks `developing/` for mature topics.
-- **← writing-assistant**: After writing is complete, publishing data may flow back (future: data & retrospective system)
+- **← writing-assistant**: After publishing (Step 10), writing-assistant reminds user to record data via "记录数据"
+- **→ content-adapter**: topic-manager manages the content lifecycle; content-adapter handles cross-platform adaptation

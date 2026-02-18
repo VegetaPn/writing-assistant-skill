@@ -30,7 +30,8 @@ These files contain detailed instructions that SKILL.md references via links:
 Project-local skills, no installation needed. Directly readable by the main workflow.
 
 - `skills/title-generator.md` - Platform-optimized title generation (小红书/公众号/抖音), anti-AI-flavor rules, title type distribution
-- `skills/topic-manager.md` - Topic lifecycle (inbox → developing) + viral benchmarking (分析爆款/监控爆款/后台监控)
+- `skills/content-adapter.md` - Multi-platform content adaptation (微信/小红书/X/抖音), per-platform specs
+- `skills/topic-manager.md` - Topic lifecycle (inbox → developing) + viral benchmarking (分析爆款/监控爆款/后台监控) + data recording
 - `skills/experience-tracker.md` - Auto-records user corrections as cases, distills lessons learned
 
 ### Three-Level Content System
@@ -97,6 +98,7 @@ Bundled skills for auto-installation:
 1. 记录选题 → inbox.md
 2. 监控/分析爆款 → benchmarks/
 3. 深化选题 → developing/ (with benchmarks, outline, title candidates)
+4. 记录数据 → outputs/{slug}/metrics.md
 
 **Writing System** (SKILL.md) — does the WRITING:
 0. **Create Progress Tracker** - Initialize per-session tracking file
@@ -108,7 +110,7 @@ Bundled skills for auto-installation:
 6. **Polish** - Using content-research-writer with technique-aware instructions
 7. **Generate Illustrations** - Using baoyu-xhs-images skill
 8. **Create Final Article** - Combine content + images
-9. **Review + Platform Adaptation** - Review, optional multi-platform adaptation with technique re-application
+9. **Review + Platform Adaptation** - Review, optional multi-platform adaptation via content-adapter
 10. **Publish** - Optional, to WeChat or X
 
 **Experience System** (skills/experience-tracker.md) — learns from corrections:
@@ -135,6 +137,7 @@ All output files are stored under `outputs/{topic-slug}/`:
 - Polished: `outputs/{topic-slug}/{topic-slug}-polished.md`
 - Final: `outputs/{topic-slug}/{topic-slug}-final.md`
 - Platform adaptation: `outputs/{topic-slug}/{topic-slug}-{platform}.md`
+- Metrics: `outputs/{topic-slug}/metrics.md`
 - Illustrations: `outputs/{topic-slug}/xhs-images/`
 
 ## Language

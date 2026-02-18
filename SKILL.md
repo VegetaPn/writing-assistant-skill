@@ -42,6 +42,7 @@ Assets and references follow a three-level hierarchy (system / user / project). 
 
 These skills live in the `skills/` directory and can be invoked directly:
 - `skills/title-generator.md` — Platform-optimized title generation (called in Step 4, or independently)
+- `skills/content-adapter.md` — Multi-platform content adaptation with per-platform specs (called in Step 9b, or independently)
 - `skills/topic-manager.md` — Topic lifecycle management + viral benchmarking
 - `skills/experience-tracker.md` — Records user corrections, distills lessons learned
 
@@ -356,11 +357,11 @@ For Mode 3 (Draft-Based):
 
 **Step 9: Review & Adaptation** ← **不可跳过** — 即使用户已表达发布意图，仍需执行。
 - 9a. Review: verbal summary + ask for revisions
-- 9b. Platform Adaptation (optional): search new platform + re-apply techniques + re-generate title + save as `{topic-slug}-{platform}.md`
+- 9b. Platform Adaptation (optional): invoke `skills/content-adapter.md` — extracts core message, searches target platform, restructures per platform spec, saves as `{topic-slug}-{platform}.md`
 - 9c. Publishing Decision: ask user
 - Experience Check after.
 
-**Step 10: Publish (Optional)** — Invoke platform-specific publishing skill (xiaohongshu-mcp / baoyu-post-to-wechat / baoyu-post-to-x). Then proceed to **流程自检**.
+**Step 10: Publish (Optional)** — Invoke platform-specific publishing skill (xiaohongshu-mcp / baoyu-post-to-wechat / baoyu-post-to-x). After publishing, remind user about data recording ("记录数据"). Then proceed to **流程自检**.
 
 ### 流程完成自检（不可跳过）
 
@@ -387,6 +388,7 @@ outputs/{topic-slug}/
 ├── {topic-slug}-polished.md      # Polished draft
 ├── {topic-slug}-final.md         # Final version
 ├── {topic-slug}-{platform}.md    # Platform adaptation
+├── metrics.md                    # Publication metrics
 └── xhs-images/                   # Illustrations
     ├── outline.md
     ├── prompts/

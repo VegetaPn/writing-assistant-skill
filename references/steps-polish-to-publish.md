@@ -113,24 +113,16 @@ Ask:
 
 Ask: "Would you like to adapt this article for another platform?"
 
-If yes:
-1. **Determine the new target platform** (小红书, 微信公众号, 抖音, X/Twitter)
-2. **【NEW】Search the new platform for popular content**:
-   - Use the corresponding platform tool (same as Step 2, point 6) to search for popular content on the same/similar topic on the new platform
-   - Quickly analyze 2-3 results: title patterns, content density, tone/voice, engagement style
-   - Extract currently effective patterns on this platform and apply them to the adaptation
-3. **Re-evaluate funnel stage** (小红书 is typically TOFU, 微信公众号 MOFU — re-determine based on the new platform)
-4. **Re-apply writing techniques with new platform rules**:
-   - Re-read the selected techniques from Step 2
-   - Apply the technique's guidance for the new platform's content type:
-     - 小红书: TOFU — short (≤1000 words), casual, emotional, image-heavy
-     - 微信公众号: MOFU — long-form, in-depth, authoritative
-     - 抖音: TOFU — very short paragraphs, first 5 seconds critical, data-driven
-     - X/Twitter: Varies — thread format, concise, hook-heavy
-   - Adapt the article body, not just the title/opening
-5. **Re-generate title** for the new platform (invoke `skills/title-generator.md` with new platform)
-6. **Re-adapt opening and structure** for the new platform's conventions
-7. **Save the adapted version** as `outputs/{topic-slug}/{topic-slug}-{platform}.md`
+If yes → read and invoke `skills/content-adapter.md`.
+
+Pass to content-adapter:
+- **Source file path**: the final article from this workflow (`outputs/{topic-slug}/{topic-slug}-final.md`)
+- **Source platform**: the platform this article was written for (from Step 1)
+- **Target platform(s)**: the platform(s) user wants to adapt to
+
+Content-adapter handles the full adaptation process: core information extraction, platform search, title generation, content restructuring per platform spec, and quality check. When adapting to multiple platforms, content-adapter processes them one at a time, sharing the core extraction.
+
+Output: `outputs/{topic-slug}/{topic-slug}-{platform}.md` (platform slug: wechat / xhs / x / douyin)
 
 **9c. Publishing Decision:**
 
@@ -169,7 +161,15 @@ Input: {filename}-final.md and images
 
 Follow the publishing skill's workflow for platform-specific requirements.
 
-> **End:** Update progress tracker with publication result. Then proceed to **流程自检**.
+> **End:** Update progress tracker with publication result.
+
+**发布后数据记录提醒（不可省略）：**
+
+发布成功后，向用户展示以下提醒：
+
+> "建议过几天数据稳定后，告诉我各平台数据（阅读量、点赞等），直接说「记录数据」即可。"
+
+Then proceed to **流程自检**.
 
 ## 流程完成自检（不可跳过）
 

@@ -24,7 +24,7 @@ import json
 import sys
 import requests
 
-BASE_URL = "http://localhost:18060"
+BASE_URL = "http://127.0.0.1:18060"
 TIMEOUT = 60
 
 

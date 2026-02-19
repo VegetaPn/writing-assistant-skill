@@ -16,6 +16,7 @@ description: Records user corrections as cases and distills lessons learned. Aut
 ## When to Use
 
 - **自动触发**: 当检测到用户在纠正 AI 的输出时（如"不是这样"、"太 AI 了"、"爹味"、"不对"、"应该是..."、"别这样"、直接改写 AI 的结果等）
+- **复盘触发**: 流程结束时的复盘（流程自检 + 复盘）发现的执行问题（流程遗漏、技巧脱节、质量问题等）
 - "记录经验" — 手动触发记录一条经验
 - "看经验" / "经验库" — 查看已积累的经验
 - "总结经验" — 从所有 cases 中提炼规则，更新 lessons.md
@@ -48,6 +49,11 @@ Before executing any command, ensure required directories and files exist. Creat
 - 用户表达不满: "别这样写"、"这不是我想要的"
 - 用户直接改写了 AI 的输出（而非接受）
 
+**复盘触发信号:**
+- 流程复盘中发现的执行问题（Execution Log 审阅）
+- 问题类型：流程遗漏、参考未用、技巧脱节、工具问题、质量问题、效率问题
+- Case 的 `Skill/Step` 字段标注"流程复盘"，`Root Cause` 使用对应的问题类型
+
 **Action:**
 1. When a correction is detected, create `assets/experiences/cases/{YYYY-MM-DD}-{slug}.md` (`WRITE:user`):
 
@@ -73,6 +79,11 @@ Before executing any command, ensure required directories and files exist. Creat
 - 过度修改: AI changed too much
 - AI 味: output sounded artificial
 - 风格偏差: didn't match user's voice/style
+- 流程遗漏: step or sub-step was improperly skipped (from retrospective)
+- 参考未用: available reference not used (from retrospective)
+- 技巧脱节: selected technique not applied in practice (from retrospective)
+- 工具问题: dependency unavailable or command failed (from retrospective)
+- 效率问题: redundant operations or context loss (from retrospective)
 - 其他: {describe}
 
 ## Lesson
@@ -134,8 +145,10 @@ All skills should check `assets/experiences/lessons.md` (`READ:3L`) at the start
 - **title-generator** → Step 0: Check title-related lessons before generating
 - **topic-manager** → "深化选题": Check lessons before research and outline
 - **writing-assistant** → Each step: Check relevant lessons before executing
+- **writing-assistant** → 流程复盘: Review Execution Log, create cases for process issues found
 
-This creates a feedback loop:
+This creates two feedback loops:
 ```
-AI produces output → User corrects → Case recorded → Lessons distilled → Skills check lessons → Better output
+Loop 1 (real-time): AI produces output → User corrects → Case recorded → Lessons distilled → Skills check lessons → Better output
+Loop 2 (retrospective): AI executes workflow → Execution Log recorded → Retrospective reviews log → Process issues found → Cases recorded → Lessons distilled → Better execution
 ```

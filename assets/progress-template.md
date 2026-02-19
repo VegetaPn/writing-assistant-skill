@@ -44,6 +44,7 @@
 - [ ] Selected starting mode
 - [ ] Updated session metadata above
 - [ ] **Experience Check** completed
+- [ ] **Execution Log** updated
 
 ### Step 2: Search References & Techniques
 - [ ] Checked lessons.md (`READ:3L`)
@@ -54,6 +55,7 @@
 - [ ] Searched target platform: {platform name}
 - [ ] Search results recorded in Session Notes (commands, keywords, top results, patterns)
 - [ ] Recorded matched techniques in "Applied References & Techniques" above
+- [ ] **Execution Log** updated
 
 ### Step 3: Collect & Clarify (Modes 1 & 2)
 - [ ] Checked lessons.md (`READ:3L`)
@@ -63,6 +65,7 @@
 - [ ] Applied selected techniques to content organization
 - [ ] Organized into initial draft
 - [ ] **Experience Check** completed
+- [ ] **Execution Log** updated
 
 ### Step 4: Element-Level Reference
 - [ ] Checked lessons.md (`READ:3L`)
@@ -71,6 +74,7 @@
 - [ ] Structure: referenced structure-templates.md + techniques
 - [ ] Hooks: referenced hook-examples.md + planned placement
 - [ ] **Experience Check** completed
+- [ ] **Execution Log** updated
 
 ### Step 5: Process Draft (Mode 3 only)
 - [ ] Checked lessons.md (`READ:3L`)
@@ -78,6 +82,7 @@
 - [ ] Applied element refinements (Step 4)
 - [ ] Applied selected techniques throughout article body
 - [ ] **Experience Check** completed
+- [ ] **Execution Log** updated
 
 ### Step 6: Polish
 - [ ] Checked lessons.md (`READ:3L`)
@@ -86,11 +91,13 @@
 - [ ] Verified platform-specific style applied
 - [ ] Output: outputs/{topic-slug}/{topic-slug}-polished.md
 - [ ] **Experience Check** completed
+- [ ] **Execution Log** updated
 
 ### Step 7: Generate Illustrations
 - [ ] Invoked baoyu-xhs-images
 - [ ] Generated appropriate illustrations
 - [ ] **Experience Check** completed
+- [ ] **Execution Log** updated
 
 ### Step 8: Create Final Article
 - [ ] Combined polished content + images
@@ -99,30 +106,125 @@
 - [ ] Presented final article to user (file path + image placement summary)
 - [ ] User confirmed or gave feedback
 - [ ] **Experience Check** completed
+- [ ] **Execution Log** updated
 
 ### Step 9: Review & Platform Adaptation ← 不可跳过
 - [ ] Presented summary to user
 - [ ] Asked about revisions
 - [ ] Asked about additional platform adaptations
-- [ ] If adapting: re-applied techniques with platform rules
+- [ ] If adapting: invoked content-adapter
 - [ ] **Experience Check** completed
+- [ ] **Execution Log** updated
 
 ### Step 10: Publish
 - [ ] User confirmed platform and content
 - [ ] Invoked publishing skill
 - [ ] Publication result: ____
+- [ ] Reminded user about data recording ("记录数据")
+- [ ] **Execution Log** updated
 
-### 流程自检（不可跳过）
+### 流程自检 + 复盘（不可跳过）
 - [ ] 所有 Step checkbox 已核对
 - [ ] 无未闭合的 Corrections Log 条目
 - [ ] Step 9 已执行
-- [ ] 自检结果已告知用户
+- [ ] **复盘完成**: 审阅 Execution Log，识别问题
+- [ ] 发现的问题已记录到 experience 系统
+- [ ] 自检 + 复盘结果已告知用户
 **自检时间**: ____
 **自检结果**: ____
+**复盘发现问题数**: ____
 
 ## Corrections Log
 | Step | What User Said | Case Recorded? | Case File |
 |------|----------------|----------------|-----------|
+
+## Execution Log
+
+> 每个 Step 完成后填写。记录 AI 实际做了什么、怎么做的、跳过了什么。
+> 复盘时审阅此日志，识别流程和方法论问题。
+
+### Step 1 Log
+**选择了什么**: (平台、模式、是否用了 developing/ 选题)
+**跳过了什么**: (如有，说明原因)
+**摩擦点**: (执行中遇到的障碍或不顺)
+
+### Step 2 Log
+**搜索了哪些来源**: (列出实际搜索的参考库路径和平台命令)
+**选择了哪些技巧**: (选中的 techniques 和原因)
+**匹配到的参考**: (使用了哪些 benchmarks / author styles / element patterns)
+**跳过了什么**: (如有，说明原因)
+**摩擦点**: (搜索无结果？参考库太空？工具不可用？)
+
+### Step 3 Log
+**问了哪些问题**: (关键问题摘要)
+**补充研究了什么**: (WebSearch/WebFetch 的内容)
+**技巧如何应用**: (选中的技巧在内容组织中怎么体现的)
+**跳过了什么**:
+**摩擦点**:
+
+### Step 4 Log
+**标题**: 选了哪个类型，用了什么参考
+**开头**: 选了哪种技巧
+**结构**: 选了什么模板
+**钩子**: 计划放在哪些位置
+**跳过了什么**:
+**摩擦点**:
+
+### Step 5 Log (Mode 3 only)
+**修改了什么**: (对原稿做了哪些调整)
+**保留了什么**: (用户原稿中保留不动的部分)
+**技巧应用**: (techniques 如何影响正文)
+**跳过了什么**:
+**摩擦点**:
+
+### Step 6 Log
+**传给 polishing skill 的指令摘要**: (technique-aware instructions 的关键点)
+**润色前后主要变化**: (结构调整？语气变化？长度变化？)
+**跳过了什么**:
+**摩擦点**:
+
+### Step 7 Log
+**生成了几张图**: (数量和位置)
+**跳过了什么**:
+**摩擦点**:
+
+### Step 8 Log
+**图文结合方式**: (图片插入了哪些位置)
+**用户反馈摘要**: (用户确认还是修改)
+**跳过了什么**:
+**摩擦点**:
+
+### Step 9 Log
+**用户修改意见**: (如有)
+**适配了哪些平台**: (如有，每个平台用了什么调整策略)
+**发布决定**: (用户选择发布/不发布/稍后)
+**跳过了什么**:
+**摩擦点**:
+
+### Step 10 Log
+**发布到哪个平台**: (平台名)
+**发布结果**: (成功/失败/跳过)
+**跳过了什么**:
+**摩擦点**:
+
+## 复盘记录
+
+> 流程自检完成后填写。审阅上方 Execution Log，识别可改进的问题。
+
+### 发现的问题
+| # | 问题描述 | 类型 | 记录到 |
+|---|---------|------|--------|
+
+**问题类型说明:**
+- **流程遗漏**: 某个步骤或子步骤被跳过，不应该跳过
+- **参考未用**: 有可用参考但没使用，或使用了不相关的参考
+- **技巧脱节**: 选了技巧但实际写作中没体现
+- **工具问题**: 依赖不可用、命令失败
+- **质量问题**: 产出不符合预期（AI 味、结构松散、不符合平台规范等）
+- **效率问题**: 重复操作、不必要的搜索、上下文丢失
+
+### 复盘总结
+(一段话总结本次写作流程的整体表现和主要改进方向)
 
 ## Session Notes
 (Add notes as the session progresses)

@@ -142,9 +142,19 @@ Before starting the writing workflow, create a session progress tracker file. Th
 
 **Usage rules for the progress tracker:**
 - **Before each step:** Read the progress tracker to see current status and what this step requires
-- **After each step:** Update the checklist, marking items as `[x]` and adding notes
+- **After each step:** Update the checklist, marking items as `[x]` and adding notes. **Update the Execution Log** for this step (see below).
 - **On correction:** Immediately add a row to the Corrections Log
-- **At session end:** Review the tracker for any missed items
+- **At session end:** Review the tracker for any missed items, then run the retrospective
+
+### Execution Logging (每步必做)
+
+**After completing each step**, update the Execution Log section in the progress tracker. Record:
+- **What you did**: key actions and decisions made
+- **What you used**: which references, techniques, tools were applied
+- **What you skipped**: anything you could have done but didn't, and why
+- **Friction**: any obstacles, tool failures, or awkward points in the process
+
+This log is reviewed during the 流程复盘 (retrospective) at session end to identify process issues.
 
 ### Step 1: Choose Starting Mode + Select Platform
 
@@ -198,9 +208,7 @@ Update the progress tracker metadata (Platform, Mode, Topic) and mark Step 1 che
 
 > **Experience Check:** Review user's responses. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
-> **End:** Update progress tracker. Proceed to Step 2.
-
-### Step 2: Search Reference Library, Benchmarks, and Techniques
+> **End:** Update progress tracker. **Update Execution Log** (Step 1 Log: platform, mode, developed topic used or not). Proceed to Step 2.
 
 > **Start:** Read progress tracker. Update Step 2 status to in-progress.
 
@@ -219,7 +227,7 @@ After understanding the user's topic/theme and target platform, search all refer
 5. **【强制】Record search results** in progress file Session Notes (platform, command, keywords, result count, top 3-5 high-engagement items, extracted patterns). See `references/search-workflow.md` for required format.
 6. **Present reference summary** to user: author style, element patterns, techniques, benchmarks
 
-> **End:** Update progress tracker with all findings. Proceed to Step 3.
+> **End:** Update progress tracker with all findings. **Update Execution Log** (Step 2 Log: sources searched, techniques selected, references matched, anything skipped). Proceed to Step 3.
 
 ### Step 3: Collect and Clarify (Modes 1 & 2 Only)
 
@@ -263,9 +271,7 @@ For Modes 1 and 2, use an interactive questioning approach:
 
 > **Experience Check:** Review user's responses during questioning. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
-> **End:** Update progress tracker. Proceed to Step 4.
-
-**Question Strategy:**
+> **End:** Update progress tracker. **Update Execution Log** (Step 3 Log: questions asked, research done, technique application). Proceed to Step 4.
 - Ask 2-4 questions at a time (avoid overwhelming the user)
 - Tailor each question to the specific content provided - no fixed templates
 - Let the content guide the questions - if something is already clear, don't ask about it
@@ -314,7 +320,7 @@ Before finalizing the initial draft, use the reference library AND selected writ
 
 > **Experience Check:** Review user's choices and feedback on proposed elements. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
-> **End:** Update progress tracker. Proceed to Step 5 or Step 6 with the refined elements.
+> **End:** Update progress tracker. **Update Execution Log** (Step 4 Log: title type chosen, opening technique, structure template, hook placement). Proceed to Step 5 or Step 6 with the refined elements.
 
 ### Step 5: Process Draft (Mode 3 Only)
 
@@ -343,35 +349,49 @@ For Mode 3 (Draft-Based):
 
 > **Experience Check:** Review user's decisions on what to keep/change. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
-> **End:** Update progress tracker. Proceed to Step 6 with the (optionally refined) draft.
+> **End:** Update progress tracker. **Update Execution Log** (Step 5 Log: what was modified, what was kept, technique application). Proceed to Step 6 with the (optionally refined) draft.
 
 ### Steps 6-10: Polish to Publish
 
 **Full details:** Read `references/steps-polish-to-publish.md` for complete instructions.
 
-**Step 6: Polish** — **【强制】使用 Skill 工具调用 content-research-writer**，不得手动润色代替。Compile technique-aware instructions (platform, techniques, checklist, style, lessons) before invoking. Output: `{topic-slug}-polished.md`. Experience Check after.
+**Step 6: Polish** — **【强制】使用 Skill 工具调用 content-research-writer**，不得手动润色代替。Compile technique-aware instructions (platform, techniques, checklist, style, lessons) before invoking. Output: `{topic-slug}-polished.md`. Experience Check after. **Update Execution Log.**
 
-**Step 7: Illustrations** — **【强制】使用 Skill 工具调用 baoyu-xhs-images**，传入 polished.md。禁止手动编写 outline/prompt。Output: images in `xhs-images/`. Experience Check after.
+**Step 7: Illustrations** — **【强制】使用 Skill 工具调用 baoyu-xhs-images**，传入 polished.md。禁止手动编写 outline/prompt。Output: images in `xhs-images/`. Experience Check after. **Update Execution Log.**
 
-**Step 8: Final Article** — Combine polished content + images. Create `{topic-slug}-final.md`. **呈现最终文章（不可省略）：** 告知用户文件路径 + 图片位置 + **等待用户确认**。Experience Check after. **⚠️ STOP: 不得直接跳到 Step 10，必须先执行 Step 9。**
+**Step 8: Final Article** — Combine polished content + images. Create `{topic-slug}-final.md`. **呈现最终文章（不可省略）：** 告知用户文件路径 + 图片位置 + **等待用户确认**。Experience Check after. **Update Execution Log.** **⚠️ STOP: 不得直接跳到 Step 10，必须先执行 Step 9。**
 
 **Step 9: Review & Adaptation** ← **不可跳过** — 即使用户已表达发布意图，仍需执行。
 - 9a. Review: verbal summary + ask for revisions
 - 9b. Platform Adaptation (optional): invoke `skills/content-adapter.md` — extracts core message, searches target platform, restructures per platform spec, saves as `{topic-slug}-{platform}.md`
 - 9c. Publishing Decision: ask user
-- Experience Check after.
+- Experience Check after. **Update Execution Log.**
 
-**Step 10: Publish (Optional)** — Invoke platform-specific publishing skill (xiaohongshu-mcp / baoyu-post-to-wechat / baoyu-post-to-x). After publishing, remind user about data recording ("记录数据"). Then proceed to **流程自检**.
+**Step 10: Publish (Optional)** — Invoke platform-specific publishing skill (xiaohongshu-mcp / baoyu-post-to-wechat / baoyu-post-to-x). After publishing, remind user about data recording ("记录数据"). **Update Execution Log.** Then proceed to **流程自检 + 复盘**.
 
-### 流程完成自检（不可跳过）
+### 流程自检 + 复盘（不可跳过）
 
-> 在标记会话完成之前，必须执行以下自检：
+> 在标记会话完成之前，必须执行自检和复盘：
+>
+> **Part 1: 自检**
 > 1. 读取进度文件，逐步检查所有 checkbox
 > 2. 标记遗漏（补标或记录原因 + 询问用户）
 > 3. 检查 Corrections Log（无 Pending）
 > 4. 检查 Step 9（已执行）
-> 5. 向用户报告自检结果
-> 6. 更新进度文件的"流程自检"区域
+>
+> **Part 2: 复盘（审阅 Execution Log）**
+> 5. **通读 Execution Log**，逐步审阅 AI 的执行记录
+> 6. **识别问题**，按类型分类：
+>    - **流程遗漏**: 步骤或子步骤被不当跳过
+>    - **参考未用**: 有可用参考但没使用
+>    - **技巧脱节**: 选了技巧但写作中没体现
+>    - **工具问题**: 依赖不可用、命令失败
+>    - **质量问题**: AI 味、结构松散、不符合平台规范
+>    - **效率问题**: 重复操作、不必要的搜索
+> 7. **记录问题**到进度文件的"复盘记录"区域
+> 8. **将问题录入经验系统**：对每个发现的问题，创建 experience case（`WRITE:user`），更新 `assets/experiences/lessons.md`
+> 9. **向用户报告**自检 + 复盘结果
+> 10. **更新进度文件**的"流程自检 + 复盘"区域
 
 ## Best Practices
 

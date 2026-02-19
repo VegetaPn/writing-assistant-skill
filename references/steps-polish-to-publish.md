@@ -40,7 +40,7 @@ The polished version should have:
 
 > **Experience Check:** After presenting polished draft to user, review their feedback. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
-> **End:** Update progress tracker with output filename. Proceed to Step 7.
+> **End:** Update progress tracker with output filename. **Update Execution Log** (Step 6 Log: polishing instructions summary, main changes, friction). Proceed to Step 7.
 
 ## Step 7: Generate Illustrations
 
@@ -64,7 +64,7 @@ Output: Generated outline, prompts, and images
 
 > **Experience Check:** After presenting illustrations to user, review their feedback. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
-> **End:** Update progress tracker. Proceed to Step 8.
+> **End:** Update progress tracker. **Update Execution Log** (Step 7 Log: image count, positions, friction). Proceed to Step 8.
 
 ## Step 8: Create Final Article
 
@@ -88,7 +88,7 @@ Combine the polished content with generated images:
 
 > **⚠️ STOP: 不得直接跳到 Step 10。** 即使用户在此步说"发布"，也必须先执行 Step 9。Step 9 是审稿缓冲层，确保用户在发布前正式审阅最终图文排版。
 
-> **End:** Update progress tracker with output filename. Proceed to Step 9.
+> **End:** Update progress tracker with output filename. **Update Execution Log** (Step 8 Log: image-text combination approach, user feedback summary, friction). Proceed to Step 9.
 
 ## Step 9: Review and Platform Adaptation
 
@@ -132,7 +132,7 @@ Ask:
 
 > **Experience Check:** Review all user feedback in this step. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
-> **End:** Update progress tracker. Proceed to Step 10 if publishing, or conclude session.
+> **End:** Update progress tracker. **Update Execution Log** (Step 9 Log: user revision requests, platforms adapted, publishing decision, friction). Proceed to Step 10 if publishing, or conclude session.
 
 ## Step 10: Publish (Optional)
 
@@ -161,7 +161,7 @@ Input: {filename}-final.md and images
 
 Follow the publishing skill's workflow for platform-specific requirements.
 
-> **End:** Update progress tracker with publication result.
+> **End:** Update progress tracker with publication result. **Update Execution Log** (Step 10 Log: platform published to, result, friction).
 
 **发布后数据记录提醒（不可省略）：**
 
@@ -171,20 +171,48 @@ Follow the publishing skill's workflow for platform-specific requirements.
 
 Then proceed to **流程自检**.
 
-## 流程完成自检（不可跳过）
+## 流程自检 + 复盘（不可跳过）
 
-> 在标记会话完成之前，必须执行以下自检：
->
+> 在标记会话完成之前，必须执行自检和复盘。自检确保流程完整性，复盘从执行记录中发现可改进的问题。
+
+### Part 1: 自检（Checklist Audit）
+
 > 1. **读取进度文件**，逐步检查所有 checkbox
 > 2. **标记遗漏**：如果发现任何应勾未勾的 checkbox：
 >    - 如果是确实执行了但忘记标记 → 补标并注明"自检时补标"
 >    - 如果是确实跳过了 → 在 Session Notes 中记录原因，并询问用户是否需要补做
 > 3. **检查 Corrections Log**：确认所有 correction 都有 Case File，没有 Pending
 > 4. **检查 Step 9**：确认 Step 9 所有子步骤已执行（Step 9 不可跳过）
-> 5. **向用户报告自检结果**：
->    - "自检完成，所有步骤已执行。" 或
->    - "自检发现以下遗漏：{list}。需要补做吗？"
-> 6. **更新进度文件**的"流程自检"区域，记录自检时间和结果
+
+### Part 2: 复盘（Execution Review）
+
+> **目的**: 审阅整个会话的 Execution Log，识别流程和方法论中的问题，录入经验系统。
+>
+> 5. **通读 Execution Log**：从 Step 1 到 Step 10，逐步审阅 AI 的执行记录
+> 6. **识别问题**，重点关注以下维度：
+>    - **流程遗漏**: 某个步骤或子步骤被跳过，不应该跳过
+>    - **参考未用**: 有可用的参考库内容但没使用，或使用了不相关的参考
+>    - **技巧脱节**: 选了技巧但实际写作中没体现（Step 2 选了，Step 3-6 没用）
+>    - **工具问题**: 依赖不可用、命令失败、工具返回空结果
+>    - **质量问题**: 产出不符合预期（AI 味重、结构松散、不符合平台规范）
+>    - **效率问题**: 重复操作、不必要的搜索、上下文在步骤间丢失
+> 7. **记录到进度文件**的"复盘记录"区域：
+>    ```
+>    | # | 问题描述 | 类型 | 记录到 |
+>    |---|---------|------|--------|
+>    | 1 | Step 2 搜索了 references/techniques/ 但 Step 3 写正文时没有应用 Content Funnel 原则 | 技巧脱节 | cases/2026-02-18-technique-disconnect.md |
+>    ```
+> 8. **将问题录入经验系统**：
+>    - 对每个发现的问题，使用 `skills/experience-tracker.md` 的格式创建 case file
+>    - Case 的 `Skill/Step` 字段标注"流程复盘"
+>    - Case 的 `Root Cause` 分类使用上方的问题类型
+>    - 更新 `assets/experiences/lessons.md` (`WRITE:user`)，将问题提炼为规则
+>    - 例："Step 2 选择了 Content Funnel 技巧后，Step 3-6 每步开头必须重新读取该技巧的 Practice Guide 并检查是否在正文中体现。"
+> 9. **向用户报告**自检 + 复盘结果：
+>    - "自检完成，所有步骤已执行。" 或 "自检发现以下遗漏：{list}。需要补做吗？"
+>    - "复盘发现 N 个可改进的问题：{简要列表}。已记录到经验库。"
+>    - 如果没发现问题："复盘完成，本次流程执行顺畅，未发现明显问题。"
+> 10. **更新进度文件**的"流程自检 + 复盘"区域，记录自检时间、自检结果、复盘发现问题数
 
 ## Best Practices
 

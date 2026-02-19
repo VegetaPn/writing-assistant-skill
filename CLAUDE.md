@@ -23,7 +23,7 @@ These files contain detailed instructions that SKILL.md references via links:
 - `references/three-level-protocol.md` - Full three-level reference system protocol (READ:3L, WRITE:user/project)
 - `references/search-workflow.md` - Step 2 detailed search process (platform commands, session notes format)
 - `references/steps-polish-to-publish.md` - Steps 6-10 full instructions + Best Practices
-- `assets/progress-template.md` - Progress tracker template (instantiated per session in Step 0)
+- `assets/progress-template.md` - Progress tracker template with Execution Log and retrospective sections (instantiated per session in Step 0)
 
 ### Sub-Skills (`skills/`)
 
@@ -32,7 +32,7 @@ Project-local skills, no installation needed. Directly readable by the main work
 - `skills/title-generator.md` - Platform-optimized title generation (小红书/公众号/抖音), anti-AI-flavor rules, title type distribution
 - `skills/content-adapter.md` - Multi-platform content adaptation (微信/小红书/X/抖音), per-platform specs
 - `skills/topic-manager.md` - Topic lifecycle (inbox → developing) + viral benchmarking (分析爆款/监控爆款/后台监控) + data recording
-- `skills/experience-tracker.md` - Auto-records user corrections as cases, distills lessons learned
+- `skills/experience-tracker.md` - Auto-records user corrections and retrospective-discovered process issues as cases, distills lessons learned
 
 ### Three-Level Content System
 
@@ -113,9 +113,11 @@ Bundled skills for auto-installation:
 9. **Review + Platform Adaptation** - Review, optional multi-platform adaptation via content-adapter
 10. **Publish** - Optional, to WeChat or X
 
-**Experience System** (skills/experience-tracker.md) — learns from corrections:
+**Experience System** (skills/experience-tracker.md) — learns from corrections and retrospectives:
 - Auto-records when user corrects AI output (enforced via Experience Checkpoints after every interactive step)
 - Progress tracker logs all corrections in a Corrections Log table
+- **Execution Log** records AI decisions/actions at each step; reviewed during end-of-session retrospective
+- Retrospective-discovered process issues are recorded as experience cases
 - Distills lessons → all skills check before executing
 
 ## Key Patterns

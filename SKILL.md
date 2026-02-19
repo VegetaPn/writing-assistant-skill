@@ -371,27 +371,7 @@ For Mode 3 (Draft-Based):
 
 ### 流程自检 + 复盘（不可跳过）
 
-> 在标记会话完成之前，必须执行自检和复盘：
->
-> **Part 1: 自检**
-> 1. 读取进度文件，逐步检查所有 checkbox
-> 2. 标记遗漏（补标或记录原因 + 询问用户）
-> 3. 检查 Corrections Log（无 Pending）
-> 4. 检查 Step 9（已执行）
->
-> **Part 2: 复盘（审阅 Execution Log）**
-> 5. **通读 Execution Log**，逐步审阅 AI 的执行记录
-> 6. **识别问题**，按类型分类：
->    - **流程遗漏**: 步骤或子步骤被不当跳过
->    - **参考未用**: 有可用参考但没使用
->    - **技巧脱节**: 选了技巧但写作中没体现
->    - **工具问题**: 依赖不可用、命令失败
->    - **质量问题**: AI 味、结构松散、不符合平台规范
->    - **效率问题**: 重复操作、不必要的搜索
-> 7. **记录问题**到进度文件的"复盘记录"区域
-> 8. **将问题录入经验系统**：对每个发现的问题，创建 experience case（`WRITE:user`），更新 `assets/experiences/lessons.md`
-> 9. **向用户报告**自检 + 复盘结果
-> 10. **更新进度文件**的"流程自检 + 复盘"区域
+**Full protocol:** Read `references/steps-polish-to-publish.md` "流程自检 + 复盘" section for the complete 10-step self-check and retrospective process (checklist audit + execution review + experience recording).
 
 ## Best Practices
 

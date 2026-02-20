@@ -1,0 +1,27 @@
+appId: com.writing-assistant.desktop
+productName: Writing Assistant
+directories:
+  buildResources: resources
+  output: release
+files:
+  - dist/**/*
+  - resources/**/*
+mac:
+  category: public.app-category.productivity
+  target:
+    - dmg
+    - zip
+  icon: resources/icon.icns
+win:
+  target:
+    - nsis
+  icon: resources/icon.ico
+linux:
+  target:
+    - AppImage
+    - deb
+  icon: resources/icon.png
+  category: Office
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true

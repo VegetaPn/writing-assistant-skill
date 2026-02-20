@@ -54,3 +54,8 @@ Thumbs.db
 .bird/
 dev/.DS_Store
 outputs
+
+# GUI
+gui/node_modules/
+gui/dist/
+gui/release/

@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is **Writing Assistant Skill** - a Claude Code skill that orchestrates end-to-end writing workflows from ideation to publication. The skill transforms ideas, materials, or rough drafts into polished, illustrated articles.
 
+It has two interfaces:
+- **CLI**: The original Claude Code skill — interact via terminal commands
+- **Desktop GUI** (`gui/`): An Electron + React app providing the same capabilities through a visual interface
+
 ## Architecture
 
 ### Core Files
@@ -145,3 +149,51 @@ All output files are stored under `outputs/{topic-slug}/`:
 ## Language
 
 Project documentation is bilingual (English + Chinese). README.md is English, README.zh-CN.md is Chinese. Reference library content is primarily in Chinese with English annotations.
+
+## Desktop GUI (`gui/`)
+
+The `gui/` directory contains a full Electron + React desktop application.
+
+### Tech Stack
+
+Electron (main process) + React 18 + TypeScript (renderer) + shadcn/ui (Radix + Tailwind) + Zustand + TanStack Query.
+
+### How AI Works in the GUI
+
+The GUI does NOT call the Anthropic API directly. It spawns `claude --print --output-format stream-json` as a child process via `AgentSDKManager`. All AI interaction goes through Claude Code, inheriting its tool use, permissions, and skill system.
+
+### GUI Architecture
+
+```
+gui/src/
+├── main/                   # Electron main process (Node.js)
+│   ├── index.ts            # App entry, BrowserWindow, system tray
+│   ├── preload.ts          # contextBridge (IPC API exposed to renderer)
+│   ├── services/           # AgentSDKManager, FileSystemService, SubprocessManager,
+│   │                       # BackgroundMonitor, ProxyManager, NotificationService, EnvChecker
+│   └── ipc/                # IPC handler registration (agent, fs, subprocess)
+├── renderer/               # React app (runs in Chromium)
+│   ├── pages/              # 8 pages: Dashboard, WritingStudio, TopicManager,
+│   │                       # Benchmarking, ReferenceLibrary, ExperienceSystem, Metrics, Settings
+│   ├── components/         # AppShell, Sidebar, TopBar, AgentChat, MarkdownPreview,
+│   │                       # DiffView, ProgressChecklist, CommandPalette, ui/ (shadcn)
+│   ├── stores/             # Zustand: app-store (global state), agent-chat-store (chat sessions)
+│   ├── hooks/              # TanStack Query: useReadFile, useRead3L, useSettings, etc.
+│   └── lib/                # progress-parser, three-level-merge, markdown-parser, platform-utils
+└── shared/                 # types.ts, constants.ts, ipc-types.ts (shared by main + renderer)
+```
+
+### GUI Build Commands
+
+```bash
+cd gui
+npm install          # Install dependencies
+npm run dev          # Dev mode (tsc --watch + Vite HMR)
+npm run build        # Production build
+npm start            # Launch built app
+npm run dist         # Package for distribution
+```
+
+### Shared Data
+
+The GUI reads/writes the same `assets/`, `references/`, and `outputs/` directories as the CLI skill. The `getProjectPath()` function in `gui/src/main/index.ts` resolves back to the skill root. Users can switch between CLI and GUI freely.

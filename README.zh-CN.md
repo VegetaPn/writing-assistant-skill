@@ -4,9 +4,13 @@
 
 一个 Claude Code 技能，编排从构思到发布的端到端写作流程——自动生成配图、内置选题管理、爆款对标、经验沉淀和多平台发布。
 
+**两种使用方式：**
+- **命令行** — 作为 Claude Code 技能安装，通过终端交互
+- **桌面应用** — 完整 GUI，可视化工作流、选题看板、热点仪表盘、后台监控（见 [`gui/`](gui/)）
+
 ## 快速开始
 
-### 安装
+### 方式 A：命令行技能
 
 让 Claude Code 帮你安装：
 
@@ -40,6 +44,19 @@ rm writing-assistant-skill.zip
 ```
 
 就这样，技能会交互式引导你完成整个流程。
+
+### 方式 B：桌面应用
+
+需要 Node.js >= 18 和已安装的 Claude Code CLI。
+
+```bash
+cd gui
+npm install
+npm run build
+npm start
+```
+
+桌面应用通过可视化界面提供相同的写作能力——包含步进式写作工作台、选题看板、热点监控仪表盘、参考库浏览器等。详见 [`gui/README.zh-CN.md`](gui/README.zh-CN.md)。
 
 ## 功能一览
 
@@ -165,6 +182,10 @@ writing-assistant-skill/
 │   ├── by-element/                # 写作元素（案例）
 │   └── techniques/                # 方法论（原理）
 ├── dependencies/                  # 打包的依赖技能
+├── gui/                           # 桌面应用（Electron + React）
+│   ├── src/main/                  # Electron 主进程
+│   ├── src/renderer/              # React UI
+│   └── src/shared/                # 共享类型
 └── outputs/                       # 生成的文章
 ```
 

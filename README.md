@@ -4,9 +4,13 @@ English | [简体中文](README.zh-CN.md)
 
 A Claude Code skill that orchestrates end-to-end writing workflows — from idea to polished, illustrated, published article. Built-in topic management, viral benchmarking, experience tracking, and multi-platform publishing.
 
+**Two ways to use it:**
+- **CLI** — install as a Claude Code skill and interact via terminal
+- **Desktop App** — full GUI with visual workflow, topic kanban, trend dashboard, and background monitoring (see [`gui/`](gui/))
+
 ## Quick Start
 
-### Install
+### Option A: CLI Skill
 
 Ask Claude Code:
 
@@ -40,6 +44,19 @@ I want to write an article about the attention economy, for Xiaohongshu
 ```
 
 That's it. The skill walks you through the entire process interactively.
+
+### Option B: Desktop App
+
+Requires Node.js >= 18 and Claude Code CLI installed.
+
+```bash
+cd gui
+npm install
+npm run build
+npm start
+```
+
+The app provides the same writing workflow through a visual interface — with a step-by-step writing studio, topic kanban board, trend monitoring dashboard, reference library browser, and more. See [`gui/README.md`](gui/README.md) for details.
 
 ## What It Does
 
@@ -165,6 +182,10 @@ writing-assistant-skill/
 │   ├── by-element/                # Writing elements (cases)
 │   └── techniques/                # Methodologies (principles)
 ├── dependencies/                  # Bundled dependency skills
+├── gui/                           # Desktop app (Electron + React)
+│   ├── src/main/                  # Electron main process
+│   ├── src/renderer/              # React UI
+│   └── src/shared/                # Shared types
 └── outputs/                       # Generated articles
 ```
 

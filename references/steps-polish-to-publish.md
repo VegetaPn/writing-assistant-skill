@@ -142,10 +142,10 @@ If the user wants to publish, invoke the appropriate skill:
 
 **For 小红书 (Xiaohongshu):**
 ```
-Invoke: xiaohongshu-mcp skill
-Command: python scripts/xhs_client.py publish "{title}" "{content}" "{image_urls}"
+Invoke: xiaohongshu skill
+MCP tool: publish_content (title, content, images)
 ```
-Ensure the xiaohongshu-mcp local server is running before publishing.
+Ensure the xiaohongshu MCP server is running on localhost:18060 before publishing.
 
 **For WeChat Official Account:**
 ```

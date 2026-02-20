@@ -73,7 +73,7 @@ This step MUST NOT be skipped. Even if the local reference library is rich, you 
 **Process:**
 
 a. Search by platform using corresponding tools:
-  - **小红书**: Use `xiaohongshu-mcp` skill — `python scripts/xhs_client.py search "{topic keywords}"`. Returns notes with feed_id and xsec_token. Use `python scripts/xhs_client.py detail "{feed_id}" "{xsec_token}"` to get full content and comments for promising results.
+  - **小红书**: Invoke xiaohongshu skill — MCP tool `search_feeds` with keyword: "{topic keywords}". Returns notes with feed_id and xsec_token. Use MCP tool `get_feed_detail` with feed_id and xsec_token to get full content and comments for promising results.
   - **微信公众号**: Use `wechat-article-search` skill — `node scripts/search_wechat.js "{topic keywords}" -n 15`. Returns titles, summaries, publish time, source accounts, and links. Use `-r` flag for real URLs.
   - **抖音**: `WebSearch` with queries like "抖音 {topic keywords} 热门"
   - **X/Twitter**: `bird search "{topic keywords}" --cookie-source chrome` (here `bird search` IS correct — searching by topic, not reading timeline)

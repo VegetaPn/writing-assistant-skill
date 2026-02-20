@@ -81,7 +81,7 @@ references/
 Bundled skills for auto-installation:
 - `content-research-writer` - Content polishing (required)
 - `baoyu-xhs-images` - Illustration generation (required)
-- `xiaohongshu-mcp` - Xiaohongshu search, analysis, and publishing (required, needs local MCP server)
+- `xiaohongshu` - Xiaohongshu content creation, search, analysis, and publishing (required, needs local MCP server)
 - `wechat-article-search` - WeChat article searching (required)
 - `generate-image` - Actual image generation (required, needs OPENROUTER API)
 - `baoyu-post-to-wechat` - WeChat publishing (required)
@@ -145,3 +145,9 @@ All output files are stored under `outputs/{topic-slug}/`:
 ## Language
 
 Project documentation is bilingual (English + Chinese). README.md is English, README.zh-CN.md is Chinese. Reference library content is primarily in Chinese with English annotations.
+
+## Strict Rules (全局强制)
+
+1. **禁止擅自兜底**: 任何命令或工具调用失败时，必须如实报告给用户，由用户决定是否采用替代方案。不得未经允许自行使用 WebSearch 或其他方式作为降级兜底。
+2. **搜索实时性**: 搜索热点/热门内容时，禁止以任何时间段（月/周/季度）为单位搜索。不搜"X月热点总结""本周趋势""近期回顾"等盘点类内容，只搜具体话题关键词获取当下实时内容。
+3. **bird CLI 超时处理**: bird CLI 超时通常是因为 X/Twitter 在中国境内无法直连。此时应询问用户是否需要配置代理，默认代理地址为 `127.0.0.1:7890`。配置方式：在 bird 命令前加 `HTTPS_PROXY=http://127.0.0.1:7890`（或用户提供的地址）。

@@ -50,12 +50,13 @@ assets/topics/
 
 > **IMPORTANT:** When reading the user's timeline for trend monitoring (Commands 5 and 6), always use `bird home`, NOT `bird search`. `bird search` returns keyword-based search results and will miss organic timeline trends.
 > **IMPORTANT:** Always use `--cookie-source chrome`. Do NOT use Safari cookies. If the project has `config/bird.json5`, this is already configured, but always pass the flag explicitly as a safeguard.
+> **IMPORTANT:** bird CLI 超时通常是因为 X/Twitter 在中国境内无法直连。此时应询问用户是否需要配置代理，默认代理地址为 `127.0.0.1:7890`。配置方式：`HTTPS_PROXY=http://127.0.0.1:7890 bird <command> --cookie-source chrome`（或用户提供的代理地址）。
 
-- **xiaohongshu-mcp skill** — Required for Xiaohongshu (小红书) content searching and analysis. Requires local MCP server running. Commands:
-  - `python scripts/xhs_client.py search "{keyword}"` — Search notes by keyword
-  - `python scripts/xhs_client.py detail "{feed_id}" "{xsec_token}"` — Get full content and comments
-  - `python scripts/xhs_client.py feeds` — Get recommended feed
-  - `python scripts/xhs_client.py publish "{title}" "{content}" "{images}"` — Publish a note
+- **xiaohongshu skill** — Required for Xiaohongshu (小红书) content creation, searching, and analysis. Requires local MCP server running on `http://localhost:18060/mcp`. MCP tools:
+  - `search_feeds` (keyword) — Search notes by keyword
+  - `get_feed_detail` (feed_id, xsec_token) — Get full content and comments
+  - `list_feeds` — Get recommended feed
+  - `publish_content` (title, content, images) — Publish image+text note
 
 - **wechat-article-search skill** — Required for WeChat Official Account (微信公众号) article searching. Commands:
   - `node scripts/search_wechat.js "{keyword}"` — Search articles (default 10 results)
@@ -70,7 +71,7 @@ assets/topics/
 
 1. **检查必要 skill 是否已安装**:
    - X/Twitter: 检查 `bird` 命令是否可用 → `bird whoami --cookie-source chrome`
-   - 小红书: 检查 `xiaohongshu-mcp` 是否已安装 → `ls .claude/skills/xiaohongshu-mcp/` + 检查 MCP server 是否运行 → `curl -s http://localhost:18060/health` 或类似方式
+   - 小红书: 检查 `xiaohongshu` 是否已安装 → `ls .claude/skills/xiaohongshu/` + 检查 MCP server 是否运行 → `curl -s http://localhost:18060/mcp` 或类似方式
    - 微信公众号: 检查 `wechat-article-search` 是否已安装 → `ls .claude/skills/wechat-article-search/`
 
 2. **对于缺失的依赖**:
@@ -84,14 +85,14 @@ assets/topics/
    | 平台 | 依赖 | 状态 | 备注 |
    |------|------|------|------|
    | X/Twitter | bird CLI | ✅ 可用 | |
-   | 小红书 | xiaohongshu-mcp | ❌ 未安装 | MCP server 未运行 |
+   | 小红书 | xiaohongshu | ❌ 未安装 | MCP server 未运行 |
    | 微信公众号 | wechat-article-search | ✅ 可用 | |
    ```
 
 4. **如果某平台不可用**，不要静默跳过，必须：
    - 在透明度报告中标明该平台被跳过及原因
-   - 用 `WebSearch` 作为降级方案搜索该平台的公开内容
    - 在命令失败日志中记录（见下方"命令失败日志"）
+   - **⚠️ 禁止擅自兜底**：不得自行使用 WebSearch 或其他替代方案。必须将失败情况报告给用户，由用户决定是否采用替代方案以及用什么方案
 
 ## Command Failure Log (命令失败日志)
 
@@ -214,7 +215,7 @@ Before executing any command, ensure user-level required directories and files e
 **Action:**
 1. Fetch content:
    - X/Twitter URL → `bird read <url> --cookie-source chrome` or `bird thread <url> --cookie-source chrome`
-   - 小红书 note → Use `xiaohongshu-mcp`: `python scripts/xhs_client.py detail "{feed_id}" "{xsec_token}"` to get full content and comments. If user provides a search keyword instead of ID, first search with `python scripts/xhs_client.py search "{keyword}"` then detail the target note.
+   - 小红书 note → Invoke xiaohongshu skill: MCP tool `get_feed_detail` with feed_id and xsec_token to get full content and comments. If user provides a search keyword instead of ID, first use MCP tool `search_feeds` with the keyword, then get detail of the target note.
    - 微信公众号 article → Use `wechat-article-search`: `node scripts/search_wechat.js "{keyword}" -n 5 -r` to find the article, then `WebFetch` to read the full content from the resolved URL.
    - Other URL → `WebFetch`
    - Pasted content → use directly
@@ -308,24 +309,24 @@ Read `assets/topics/benchmarks/monitor-config.md` (`READ:3L`)，获取筛选阈�
 
 **Step 2: 多平台扫描（必须获取实时内容）**
 
-> ⚠️ **实时性原则**：目标是获取"此刻"的热点内容，不是历史综述或月度总结。
-> - 所有平台搜索**不加时间限定词**（不用"2月""本月""上周"等），直接搜关键词获取最新内容
+> ⚠️ **实时性原则（严格执行）**：目标是获取"此刻"的热点内容，不是历史综述或任何时间段的总结。
+> - **禁止以任何时间段为单位搜索**：不用"2月""本月""上周""近一个月""Q1"等任何时间范围限定词，直接搜关键词获取最新内容
 > - 优先使用 timeline/feeds 类接口（返回的就是最新内容）
-> - WebSearch 补充时，搜索"今天""实时""热门"，**绝对不要搜"X月热点总结"之类的月度回顾**
+> - WebSearch 时只搜具体话题关键词，**绝对禁止**搜索"X月热点总结""本周趋势""近期回顾"等任何带时间范围的总结/盘点类内容
 > - 判断时效性：如果内容发布时间超过 3 天，标注为"非实时"
 
 1. **X/Twitter**: `bird home --cookie-source chrome` — 至少 20 条，可多次执行以获取更多内容
    > ⚠️ 必须用 `bird home`，不得用 `bird search`。`bird search` 是关键词搜索，会错过自然趋势。
    > `bird home` 返回的是实时 timeline，天然就是当下内容。
-2. **小红书**: `python scripts/xhs_client.py feeds` (推荐流，实时内容) + `python scripts/xhs_client.py search "{relevant keywords}"` (关键词搜索)
+2. **小红书**: Invoke xiaohongshu skill — MCP tool `list_feeds` (推荐流，实时内容) + MCP tool `search_feeds` keyword: "{relevant keywords}" (关键词搜索)
    > 优先用 `feeds`（推荐流是实时的），再用 `search` 补充特定话题。
 3. **微信公众号**: `node scripts/search_wechat.js "{relevant keywords}" -n 20`
    > 微信搜索默认按时间排序，返回的是最新文章。**不要在搜索词中加月份或日期**。
-4. **WebSearch 补充（降级方案或额外信息源）**:
-   > ⚠️ **禁止搜索月度/周度总结类内容**。
-   > ❌ 错误："2026年2月AI热点总结"、"本月AI趋势回顾"
-   > ✅ 正确："AI 热点 今天"、"AI最新动态"、直接搜具体话题关键词
-   > 优先搜索具体话题而非笼统的"热点盘点"。
+4. **WebSearch 补充（仅作为额外信息源，不得作为命令失败的兜底方案）**:
+   > ⚠️ **禁止搜索任何时间段的总结/盘点类内容**。
+   > ❌ 错误："2026年2月AI热点总结"、"本月AI趋势回顾"、"上周热点"、"近期AI动态盘点"
+   > ✅ 正确：直接搜具体话题关键词，如"AI agent"、"deepseek"、"sora"
+   > 只搜具体话题，不搜笼统的"热点盘点"。
 
 **Step 3: 积累式分析**
 
@@ -348,7 +349,7 @@ Read `assets/topics/benchmarks/monitor-config.md` (`READ:3L`)，获取筛选阈�
 | 平台 | 依赖 | 状态 | 备注 |
 |------|------|------|------|
 | X/Twitter | bird CLI | ✅/❌ | {如失败则说明原因} |
-| 小红书 | xiaohongshu-mcp | ✅/❌ | {如失败则说明原因} |
+| 小红书 | xiaohongshu | ✅/❌ | {如失败则说明原因} |
 | 微信公众号 | wechat-article-search | ✅/❌ | {如失败则说明原因} |
 
 **扫描范围**:
@@ -391,7 +392,7 @@ For each selected: run "分析爆款" flow (Command 4)
 2. Start background process, periodically:
    - **X/Twitter**: `bird home --cookie-source chrome`（每次大量读取，多次执行以积累数据）
      > ⚠️ 必须用 `bird home`，不得用 `bird search`。
-   - **小红书**: `python scripts/xhs_client.py search` and `python scripts/xhs_client.py feeds`
+   - **小红书**: xiaohongshu skill — MCP tools `search_feeds` and `list_feeds`
    - **微信公众号**: `node scripts/search_wechat.js "{keywords}" -n 20`
    - Fetch configured analysis sites
    - **持续积累数据**到内存/临时文件中，跨多次抓取识别趋势

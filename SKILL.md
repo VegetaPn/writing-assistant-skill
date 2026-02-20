@@ -29,6 +29,8 @@ This skill orchestrates a multi-step writing process:
 1. **Progress file first**: After entering the writing workflow, the very first action must be creating the progress file (Step 0). No other steps may execute before the progress file is created. The progress file is the "roadmap" for this session — all subsequent operations strictly follow the step order in the progress file.
 2. **Initialize only once**: Dependency checks, API key validation, and environment pre-checks are performed only once in Step 0, never repeated. Subsequent steps skip initialization when they see the `Initialization: ✅ completed` marker in the progress file.
 3. **Output directory convention**: All output files are stored under `outputs/{topic-slug}/`.
+4. **禁止擅自兜底**: 任何命令或工具调用失败时，必须如实报告给用户，由用户决定是否采用替代方案。不得未经允许自行使用 WebSearch 或其他方式作为降级兜底。
+5. **搜索实时性**: 搜索热点/热门内容时，禁止以任何时间段（月/周/季度）为单位搜索。不搜"X月热点总结""本周趋势""近期回顾"等盘点类内容，只搜具体话题关键词获取当下实时内容。
 
 ## Three-Level Reference System
 
@@ -126,7 +128,7 @@ The script checks: OPENROUTER_API_KEY in `.env`, `bird` CLI availability, `confi
   ```
 - User declines required dependencies → explain workflow cannot proceed, offer to pause
 
-**Required dependencies:** content-research-writer, baoyu-xhs-images, xiaohongshu-mcp, wechat-article-search, generate-image, baoyu-post-to-wechat, baoyu-post-to-x (or x-article-publisher).
+**Required dependencies:** content-research-writer, baoyu-xhs-images, xiaohongshu, wechat-article-search, generate-image, baoyu-post-to-wechat, baoyu-post-to-x (or x-article-publisher).
 
 ### Step 0: Create Progress Tracker
 
@@ -220,7 +222,7 @@ After understanding the user's topic/theme and target platform, search all refer
 2. **Search benchmarks** (`READ:3L`): Check `assets/topics/benchmarks/` for viral cases
 3. **Select and record techniques** in progress tracker under "Applied References & Techniques"
 4. **【必做】Search target platform for popular content** on the same topic using platform tools:
-   - 小红书: `python scripts/xhs_client.py search "{keywords}"` (xiaohongshu-mcp)
+   - 小红书: Invoke xiaohongshu skill (MCP tool: `search_feeds`, keyword: "{keywords}")
    - 微信公众号: `node scripts/search_wechat.js "{keywords}" -n 15` (wechat-article-search)
    - 抖音: WebSearch
    - X/Twitter: `bird search "{keywords}" --cookie-source chrome`
@@ -367,7 +369,7 @@ For Mode 3 (Draft-Based):
 - 9c. Publishing Decision: ask user
 - Experience Check after. **Update Execution Log.**
 
-**Step 10: Publish (Optional)** — Invoke platform-specific publishing skill (xiaohongshu-mcp / baoyu-post-to-wechat / baoyu-post-to-x). After publishing, remind user about data recording ("记录数据"). **Update Execution Log.** Then proceed to **流程自检 + 复盘**.
+**Step 10: Publish (Optional)** — Invoke platform-specific publishing skill (xiaohongshu / baoyu-post-to-wechat / baoyu-post-to-x). After publishing, remind user about data recording ("记录数据"). **Update Execution Log.** Then proceed to **流程自检 + 复盘**.
 
 ### 流程自检 + 复盘（不可跳过）
 

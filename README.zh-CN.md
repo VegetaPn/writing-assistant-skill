@@ -131,7 +131,7 @@ rm writing-assistant-skill.zip
 | content-research-writer | 内容润色 |
 | baoyu-xhs-images | 插图生成 |
 | generate-image | AI 图片生成（需 OPENROUTER API） |
-| xiaohongshu-mcp | 小红书搜索与发布 |
+| xiaohongshu | 小红书文案创作、搜索与发布 |
 | wechat-article-search | 微信公众号文章搜索 |
 | baoyu-post-to-wechat | 微信公众号发布 |
 | baoyu-post-to-x | X/Twitter 发布 |

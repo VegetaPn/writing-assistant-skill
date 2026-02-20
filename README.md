@@ -131,7 +131,7 @@ All dependencies are **bundled in the repository** and auto-installed on first r
 | content-research-writer | Content polishing |
 | baoyu-xhs-images | Illustration generation |
 | generate-image | AI image generation (needs OPENROUTER API) |
-| xiaohongshu-mcp | Xiaohongshu search & publish |
+| xiaohongshu | Xiaohongshu content creation, search & publish |
 | wechat-article-search | WeChat article search |
 | baoyu-post-to-wechat | WeChat publishing |
 | baoyu-post-to-x | X/Twitter publishing |

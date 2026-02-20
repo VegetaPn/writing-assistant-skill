@@ -59,7 +59,7 @@ if command -v bird &>/dev/null; then
   fi
   rm -f /tmp/bird_check_$$
   if [ "$BIRD_OUTPUT" = "timed out" ] || [ -z "$BIRD_OUTPUT" ]; then
-    report "BIRD_CLI" "FAIL" "bird available but whoami timed out"
+    report "BIRD_CLI" "FAIL" "bird available but whoami timed out (possibly blocked in China, try setting HTTPS_PROXY=http://127.0.0.1:7890 or user-provided proxy)"
   elif echo "$BIRD_OUTPUT" | grep -qi "error\|fail\|not found\|unauthorized"; then
     report "BIRD_CLI" "FAIL" "bird available but auth failed: $(echo "$BIRD_OUTPUT" | head -1)"
   else
@@ -104,7 +104,7 @@ check_skill() {
   fi
 }
 
-for skill in content-research-writer baoyu-xhs-images xiaohongshu-mcp wechat-article-search generate-image baoyu-post-to-wechat; do
+for skill in content-research-writer baoyu-xhs-images xiaohongshu wechat-article-search generate-image baoyu-post-to-wechat; do
   check_skill "$skill" "required"
 done
 

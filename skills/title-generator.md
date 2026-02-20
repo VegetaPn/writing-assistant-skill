@@ -7,7 +7,7 @@ description: Generate platform-optimized titles for Chinese social media (小红
 
 Generate platform-optimized titles for Chinese social media content. Independently callable — does not require the full writing-assistant workflow.
 
-> **Three-Level Protocol:** This skill follows the three-level reference system (system / user / project). All `assets/` and `references/` reads use `READ:3L` — check system, user, and project levels, merge content. See SKILL.md "Three-Level Reference System" for details.
+> **Three-Level Protocol:** This skill follows the three-level reference system (system / user / project). All `assets/` and `references/` reads use `READ:3L` — check system, user, and project levels, merge content. See `references/three-level-protocol.md` for details.
 
 ## When to Use
 

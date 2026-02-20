@@ -9,11 +9,11 @@
 <!-- 示例格式：
 ## 2026-02-17 11:30
 
-**失败命令**: `python scripts/xhs_client.py search "AI"`
+**失败命令**: `curl -s -X POST http://localhost:18060/mcp ... search_feeds`
 **错误信息**: ConnectionError: Cannot connect to localhost:18060
-**失败原因**: xiaohongshu-mcp server 未启动
+**失败原因**: xiaohongshu MCP server 未启动
 **影响范围**: 小红书内容搜索不可用
 **临时解决方案**: 使用 WebSearch 搜索小红书公开内容
-**修复建议**: 启动 MCP server: `NO_PROXY=localhost .claude/skills/xiaohongshu-mcp/bin/xiaohongshu-mcp-darwin-arm64`
+**修复建议**: 启动 MCP server（参考 xiaohongshu skill 的安装和启动说明）
 **状态**: 🟢 已修复
 -->

@@ -12,13 +12,27 @@ This is **Writing Assistant Skill** - a Claude Code skill that orchestrates end-
 
 - `SKILL.md` - Main writing workflow (the "brain" — focuses on writing, from draft to publish)
 
+### Scripts (`scripts/`)
+
+- `scripts/check-env.sh` - Environment pre-check script (OPENROUTER_API_KEY, bird CLI, installed skills, npm deps)
+
+### Extracted References (from SKILL.md for Progressive Disclosure)
+
+These files contain detailed instructions that SKILL.md references via links:
+
+- `references/three-level-protocol.md` - Full three-level reference system protocol (READ:3L, WRITE:user/project)
+- `references/search-workflow.md` - Step 2 detailed search process (platform commands, session notes format)
+- `references/steps-polish-to-publish.md` - Steps 6-10 full instructions + Best Practices
+- `assets/progress-template.md` - Progress tracker template with Execution Log and retrospective sections (instantiated per session in Step 0)
+
 ### Sub-Skills (`skills/`)
 
 Project-local skills, no installation needed. Directly readable by the main workflow.
 
 - `skills/title-generator.md` - Platform-optimized title generation (小红书/公众号/抖音), anti-AI-flavor rules, title type distribution
-- `skills/topic-manager.md` - Topic lifecycle (inbox → developing) + viral benchmarking (分析爆款/监控爆款/后台监控)
-- `skills/experience-tracker.md` - Auto-records user corrections as cases, distills lessons learned
+- `skills/content-adapter.md` - Multi-platform content adaptation (微信/小红书/X/抖音), per-platform specs
+- `skills/topic-manager.md` - Topic lifecycle (inbox → developing) + viral benchmarking (分析爆款/监控爆款/后台监控) + data recording
+- `skills/experience-tracker.md` - Auto-records user corrections and retrospective-discovered process issues as cases, distills lessons learned
 
 ### Three-Level Content System
 
@@ -67,7 +81,7 @@ references/
 Bundled skills for auto-installation:
 - `content-research-writer` - Content polishing (required)
 - `baoyu-xhs-images` - Illustration generation (required)
-- `xiaohongshu-mcp` - Xiaohongshu search, analysis, and publishing (required, needs local MCP server)
+- `xiaohongshu` - Xiaohongshu content creation, search, analysis, and publishing (required, needs local MCP server)
 - `wechat-article-search` - WeChat article searching (required)
 - `generate-image` - Actual image generation (required, needs OPENROUTER API)
 - `baoyu-post-to-wechat` - WeChat publishing (required)
@@ -84,6 +98,7 @@ Bundled skills for auto-installation:
 1. 记录选题 → inbox.md
 2. 监控/分析爆款 → benchmarks/
 3. 深化选题 → developing/ (with benchmarks, outline, title candidates)
+4. 记录数据 → outputs/{slug}/metrics.md
 
 **Writing System** (SKILL.md) — does the WRITING:
 0. **Create Progress Tracker** - Initialize per-session tracking file
@@ -95,12 +110,14 @@ Bundled skills for auto-installation:
 6. **Polish** - Using content-research-writer with technique-aware instructions
 7. **Generate Illustrations** - Using baoyu-xhs-images skill
 8. **Create Final Article** - Combine content + images
-9. **Review + Platform Adaptation** - Review, optional multi-platform adaptation with technique re-application
+9. **Review + Platform Adaptation** - Review, optional multi-platform adaptation via content-adapter
 10. **Publish** - Optional, to WeChat or X
 
-**Experience System** (skills/experience-tracker.md) — learns from corrections:
+**Experience System** (skills/experience-tracker.md) — learns from corrections and retrospectives:
 - Auto-records when user corrects AI output (enforced via Experience Checkpoints after every interactive step)
 - Progress tracker logs all corrections in a Corrections Log table
+- **Execution Log** records AI decisions/actions at each step; reviewed during end-of-session retrospective
+- Retrospective-discovered process issues are recorded as experience cases
 - Distills lessons → all skills check before executing
 
 ## Key Patterns
@@ -122,8 +139,15 @@ All output files are stored under `outputs/{topic-slug}/`:
 - Polished: `outputs/{topic-slug}/{topic-slug}-polished.md`
 - Final: `outputs/{topic-slug}/{topic-slug}-final.md`
 - Platform adaptation: `outputs/{topic-slug}/{topic-slug}-{platform}.md`
+- Metrics: `outputs/{topic-slug}/metrics.md`
 - Illustrations: `outputs/{topic-slug}/xhs-images/`
 
 ## Language
 
 Project documentation is bilingual (English + Chinese). README.md is English, README.zh-CN.md is Chinese. Reference library content is primarily in Chinese with English annotations.
+
+## Strict Rules (全局强制)
+
+1. **禁止擅自兜底**: 任何命令或工具调用失败时，必须如实报告给用户，由用户决定是否采用替代方案。不得未经允许自行使用 WebSearch 或其他方式作为降级兜底。
+2. **搜索实时性**: 搜索热点/热门内容时，禁止以任何时间段（月/周/季度）为单位搜索。不搜"X月热点总结""本周趋势""近期回顾"等盘点类内容，只搜具体话题关键词获取当下实时内容。
+3. **bird CLI 超时处理**: bird CLI 超时通常是因为 X/Twitter 在中国境内无法直连。此时应询问用户是否需要配置代理，默认代理地址为 `127.0.0.1:7890`。配置方式：在 bird 命令前加 `HTTPS_PROXY=http://127.0.0.1:7890`（或用户提供的地址）。

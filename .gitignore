@@ -59,3 +59,5 @@ outputs
 gui/node_modules/
 gui/dist/
 gui/release/
+*/node_modules/
+dependencies/wechat-article-search/node_modules/

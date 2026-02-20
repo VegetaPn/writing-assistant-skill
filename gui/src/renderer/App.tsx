@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import { PAGES } from '../shared/constants';
 import { AppShell } from './components/AppShell';
 import { useAppStore } from './stores/app-store';
+import { useActivityLogger } from './hooks/use-activity-logger';
 import Dashboard from './pages/Dashboard';
 import WritingStudio from './pages/WritingStudio';
 import TopicManager from './pages/TopicManager';
@@ -14,6 +15,9 @@ import Settings from './pages/Settings';
 
 export default function App() {
   const setProjectPath = useAppStore((s) => s.setProjectPath);
+
+  // Mount global activity logger
+  useActivityLogger();
 
   useEffect(() => {
     // Initialize project path from main process

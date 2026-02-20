@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useAppStore } from '../stores/app-store';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { CommandPalette } from './CommandPalette';
 import { NotificationPanel } from './NotificationPanel';
+import { ActivityLog } from './ActivityLog';
 import { ScrollArea } from './ui/scroll-area';
 
 interface AppShellProps {
@@ -35,7 +36,7 @@ export function AppShell({ children }: AppShellProps) {
       {/* Sidebar */}
       <Sidebar />
 
-      {/* Main content */}
+      {/* Main content area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top bar */}
         <TopBar />
@@ -46,6 +47,9 @@ export function AppShell({ children }: AppShellProps) {
             {children}
           </main>
         </ScrollArea>
+
+        {/* Activity Log (bottom panel) */}
+        <ActivityLog />
       </div>
 
       {/* Command Palette */}

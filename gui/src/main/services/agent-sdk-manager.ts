@@ -3,7 +3,8 @@
 // Uses `claude` CLI with --print flag for non-interactive mode.
 // The CLI outputs streaming JSON when invoked programmatically.
 
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, execSync, ChildProcess } from 'child_process';
+import * as fs from 'fs';
 import type {
   AgentMessage,
   AgentQueryOptions,
@@ -17,8 +18,69 @@ interface AgentSession {
   process: ChildProcess | null;
 }
 
+/**
+ * Resolve the full path to the `claude` binary.
+ * Electron GUI apps on macOS don't inherit the shell's PATH,
+ * so we need to find it manually.
+ */
+function resolveClaudePath(): string {
+  // 1. Try common locations
+  const candidates = [
+    '/usr/local/bin/claude',
+    '/opt/homebrew/bin/claude',
+    `${process.env.HOME}/.npm-global/bin/claude`,
+    `${process.env.HOME}/.nvm/versions/node/current/bin/claude`,
+  ];
+
+  // Also check NVM versions
+  try {
+    const nvmDir = `${process.env.HOME}/.nvm/versions/node`;
+    if (fs.existsSync(nvmDir)) {
+      const versions = fs.readdirSync(nvmDir).sort().reverse();
+      for (const v of versions) {
+        candidates.push(`${nvmDir}/${v}/bin/claude`);
+      }
+    }
+  } catch { /* skip */ }
+
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return p;
+    } catch { /* skip */ }
+  }
+
+  // 2. Try `which claude` via shell
+  try {
+    const result = execSync('which claude', {
+      encoding: 'utf-8',
+      env: { ...process.env, PATH: getExtendedPath() },
+      timeout: 5000,
+    }).trim();
+    if (result && fs.existsSync(result)) return result;
+  } catch { /* skip */ }
+
+  // 3. Fallback — let spawn try with extended PATH
+  return 'claude';
+}
+
+/**
+ * Build an extended PATH that includes common binary locations.
+ */
+function getExtendedPath(): string {
+  const home = process.env.HOME || '';
+  const extra = [
+    '/usr/local/bin',
+    '/opt/homebrew/bin',
+    `${home}/.npm-global/bin`,
+    `${home}/.nvm/versions/node/current/bin`,
+  ];
+  const existing = process.env.PATH || '';
+  return [...extra, ...existing.split(':')].filter(Boolean).join(':');
+}
+
 export class AgentSDKManager {
   private projectPath: string;
+  private claudePath: string;
   private sessions = new Map<string, AgentSession>();
   private streamCallbacks: Array<(sessionId: string, message: AgentMessage) => void> = [];
   private permissionCallbacks: Array<(request: PermissionRequest) => void> = [];
@@ -27,6 +89,8 @@ export class AgentSDKManager {
 
   constructor(projectPath: string) {
     this.projectPath = projectPath;
+    this.claudePath = resolveClaudePath();
+    console.log(`[AgentSDK] Claude binary resolved to: ${this.claudePath}`);
   }
 
   async query(options: AgentQueryOptions): Promise<string> {
@@ -40,6 +104,15 @@ export class AgentSDKManager {
     };
 
     this.sessions.set(sessionId, session);
+
+    // Emit a startup message so the UI knows something is happening
+    const startMsg: AgentMessage = {
+      id: this.generateMessageId(),
+      role: 'system',
+      content: `启动 Claude CLI: ${this.claudePath}`,
+      timestamp: new Date().toISOString(),
+    };
+    this.streamCallbacks.forEach(cb => cb(sessionId, startMsg));
 
     // Run query in background
     this.runQuery(sessionId, options).catch((error) => {
@@ -57,6 +130,7 @@ export class AgentSDKManager {
       // Build claude CLI args
       const args: string[] = [
         '--print',  // Non-interactive, print output
+        '--verbose',  // Required for stream-json output format
         '--output-format', 'stream-json',  // Stream JSON events
       ];
 
@@ -71,13 +145,28 @@ export class AgentSDKManager {
       // The prompt goes last
       args.push(options.prompt);
 
-      const child = spawn('claude', args, {
-        cwd: options.cwd || this.projectPath,
-        env: { ...process.env },
+      const cwd = options.cwd || this.projectPath;
+      console.log(`[AgentSDK] Spawning: ${this.claudePath} ${args.slice(0, 3).join(' ')} ... (cwd: ${cwd})`);
+
+      const child = spawn(this.claudePath, args, {
+        cwd,
+        env: { ...process.env, PATH: getExtendedPath() },
         stdio: ['pipe', 'pipe', 'pipe'],
       });
 
       session.process = child;
+
+      // Close stdin immediately so claude doesn't wait for input
+      child.stdin?.end();
+
+      // Notify that process has started with PID
+      const pidMsg: AgentMessage = {
+        id: this.generateMessageId(),
+        role: 'system',
+        content: `进程已启动 (PID: ${child.pid})`,
+        timestamp: new Date().toISOString(),
+      };
+      this.streamCallbacks.forEach(cb => cb(sessionId, pidMsg));
 
       let buffer = '';
 
@@ -115,12 +204,12 @@ export class AgentSDKManager {
 
       child.stderr?.on('data', (data: Buffer) => {
         const text = data.toString();
-        // Claude CLI may output progress/status to stderr
         if (text.trim()) {
+          console.log(`[AgentSDK] stderr: ${text.trim()}`);
           const message: AgentMessage = {
             id: this.generateMessageId(),
             role: 'system',
-            content: text,
+            content: `[stderr] ${text.trim()}`,
             timestamp: new Date().toISOString(),
           };
           session.messages.push(message);
@@ -132,6 +221,8 @@ export class AgentSDKManager {
         child.on('close', (code) => {
           session.isActive = false;
           session.process = null;
+
+          console.log(`[AgentSDK] Process exited with code ${code}`);
 
           const finalContent = session.messages
             .filter(m => m.role === 'assistant')
@@ -151,7 +242,14 @@ export class AgentSDKManager {
         child.on('error', (err) => {
           session.isActive = false;
           session.process = null;
-          this.errorCallbacks.forEach(cb => cb(sessionId, err.message));
+          console.error(`[AgentSDK] Process error: ${err.message}`);
+
+          let hint = '';
+          if (err.message.includes('ENOENT')) {
+            hint = ' — claude 命令未找到，请确认已安装 Claude Code CLI（npm install -g @anthropic-ai/claude-code）';
+          }
+
+          this.errorCallbacks.forEach(cb => cb(sessionId, err.message + hint));
           reject(err);
         });
       });
@@ -162,23 +260,72 @@ export class AgentSDKManager {
     }
   }
 
+  /**
+   * Extract text content from a claude stream-json event.
+   *
+   * The `assistant` event wraps an Anthropic API message:
+   *   { type: "assistant", message: { content: [{ type: "text", text: "..." }, ...] } }
+   *
+   * Tool-use blocks appear inside the same content array:
+   *   { type: "tool_use", id: "...", name: "Bash", input: { command: "..." } }
+   */
   private processStreamEvent(event: Record<string, unknown>): AgentMessage | null {
     const timestamp = new Date().toISOString();
     const type = event.type as string;
 
     switch (type) {
-      case 'assistant':
-      case 'text':
-      case 'content_block_delta':
+      case 'assistant': {
+        // Full assistant message with content blocks
+        const message = event.message as Record<string, unknown> | undefined;
+        if (!message) return null;
+
+        const contentBlocks = message.content as Array<Record<string, unknown>> | undefined;
+        if (!contentBlocks || !Array.isArray(contentBlocks)) return null;
+
+        const textParts: string[] = [];
+        const toolCalls: Array<{ name: string; input: Record<string, unknown>; status: 'pending' | 'running' | 'completed' | 'error' }> = [];
+
+        for (const block of contentBlocks) {
+          if (block.type === 'text') {
+            textParts.push(block.text as string);
+          } else if (block.type === 'tool_use') {
+            toolCalls.push({
+              name: (block.name || 'unknown') as string,
+              input: (block.input || {}) as Record<string, unknown>,
+              status: 'running',
+            });
+          }
+        }
+
+        const content = textParts.join('') || (toolCalls.length > 0 ? `Using tool: ${toolCalls[0].name}` : '');
+
         return {
           id: this.generateMessageId(),
           role: 'assistant',
-          content: (event.content || event.text || event.delta || '') as string,
+          content,
+          timestamp,
+          isStreaming: true,
+          ...(toolCalls.length > 0 ? { toolCalls } : {}),
+        };
+      }
+
+      case 'content_block_start':
+      case 'content_block_delta': {
+        // Streaming delta — extract partial text
+        const delta = event.delta as Record<string, unknown> | undefined;
+        const contentBlock = event.content_block as Record<string, unknown> | undefined;
+        const text = (delta?.text || contentBlock?.text || event.text || '') as string;
+        if (!text) return null;
+        return {
+          id: this.generateMessageId(),
+          role: 'assistant',
+          content: text,
           timestamp,
           isStreaming: true,
         };
+      }
 
-      case 'tool_use':
+      case 'tool_use': {
         return {
           id: this.generateMessageId(),
           role: 'assistant',
@@ -190,8 +337,9 @@ export class AgentSDKManager {
             status: 'running',
           }],
         };
+      }
 
-      case 'tool_result':
+      case 'tool_result': {
         return {
           id: this.generateMessageId(),
           role: 'assistant',
@@ -204,6 +352,7 @@ export class AgentSDKManager {
             status: 'completed',
           }],
         };
+      }
 
       case 'error':
         return {
@@ -217,13 +366,18 @@ export class AgentSDKManager {
         return {
           id: this.generateMessageId(),
           role: 'assistant',
-          content: (event.result || event.content || '') as string,
+          content: (event.result || '') as string,
           timestamp,
           isStreaming: false,
         };
 
+      case 'system':
+        // Init event — log but don't surface as chat content
+        console.log(`[AgentSDK] System event: subtype=${event.subtype}, model=${event.model}`);
+        return null;
+
       default:
-        // Unknown event type - skip
+        // Unknown event type — skip silently
         return null;
     }
   }
@@ -240,8 +394,6 @@ export class AgentSDKManager {
   }
 
   respondPermission(requestId: string, _result: string): void {
-    // Permission handling would need stdin interaction with the CLI
-    // For now, this is a placeholder - the --print flag auto-accepts
     console.log(`Permission response for ${requestId}: ${_result}`);
   }
 
@@ -275,6 +427,10 @@ export class AgentSDKManager {
 
   getSession(sessionId: string): AgentSession | undefined {
     return this.sessions.get(sessionId);
+  }
+
+  getClaudePath(): string {
+    return this.claudePath;
   }
 
   private generateSessionId(): string {

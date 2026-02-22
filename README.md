@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-A Claude Code skill that orchestrates end-to-end writing workflows — from idea to polished, illustrated, published article. Built-in topic management, viral benchmarking, experience tracking, and multi-platform publishing.
+A Claude Code skill that orchestrates end-to-end writing workflows — from idea to polished, illustrated, published article. Built-in topic management, viral benchmarking, experience tracking, multi-platform publishing, and **autonomous mode** for fully hands-off execution.
 
 ## Quick Start
 
@@ -41,9 +41,27 @@ I want to write an article about the attention economy, for Xiaohongshu
 
 That's it. The skill walks you through the entire process interactively.
 
+#### Autonomous Mode
+
+Want to walk away and come back to a finished article? Just say:
+
+```
+Autonomous mode, write an article about the attention economy for Xiaohongshu
+```
+
+The AI runs the entire workflow start-to-finish — no interaction needed. It makes every decision autonomously, logs everything, and only stops when a strict Completion Gate checklist is fully satisfied.
+
+More examples:
+
+```
+全自动写一篇公众号文章，主题是注意力经济，写完发到公众号
+Write three XHS articles on different angles of AI productivity
+自主模式，把 inbox 里的选题都写了
+```
+
 ## What It Does
 
-### Writing Workflow (11 steps, fully guided)
+### Writing Workflow (11 steps, fully guided or fully autonomous)
 
 | Phase | What happens |
 |-------|-------------|
@@ -56,6 +74,8 @@ That's it. The skill walks you through the entire process interactively.
 | **Publish** | Review → platform adaptation → publish to WeChat / Xiaohongshu / X |
 
 Three starting modes: **topic idea**, **raw materials**, or **existing draft**.
+
+Two execution modes: **interactive** (default, step-by-step with user) or **autonomous** (fully hands-off).
 
 ### Topic Management
 
@@ -87,6 +107,16 @@ Three starting modes: **topic idea**, **raw materials**, or **existing draft**.
 | "Summarize experience" | Re-distill rules from all cases |
 
 ## Key Features
+
+**Autonomous Mode (New in 2.1)**
+- Send one instruction, walk away, come back to a finished article
+- AI makes all decisions autonomously — platform, title, structure, style — and logs every choice
+- Failure-resilient: tool failures are recorded and skipped, never blocking the workflow
+- Stuck detection: auto-detects and escapes hung operations
+- Completion Gate: strict 7-point checklist (G1-G7) that must ALL pass before stopping — guarantees nothing is left unfinished
+- Supports batch execution: "write all topics in inbox", "write 3 articles", etc.
+- Full transparency: Autonomous Decision Log + execution summary for post-hoc review
+- Images skipped by default in autonomous mode (opt-in with explicit request)
 
 **Content Creation**
 - Multi-mode input: topic idea / raw materials / existing draft
@@ -211,6 +241,21 @@ MIT License
 [VegetaPn](https://github.com/VegetaPn)
 
 ## Changelog
+
+### 2.1.0 (2026-02-22)
+
+Autonomous Mode — send one instruction, walk away, come back to a finished article.
+
+- Autonomous mode: fully hands-off execution from idea to final article
+- Natural language completion conditions ("write 3 articles", "write all inbox topics", etc.)
+- Completion Gate: mandatory 7-point checklist (G1-G7) enforced before stopping
+- Autonomous Decision Log: every AI decision recorded with reasoning and alternatives
+- Failure-resilient execution: tool failures logged and skipped, never blocking
+- Stuck detection: auto-escapes hung operations with fallback strategies
+- Autonomous capability boundary: auto-skips operations requiring user participation (login, scan, etc.)
+- Images skipped by default in autonomous mode for speed (opt-in)
+- Batch execution: multiple articles with independent progress trackers and cross-article learning
+- Execution summary: structured post-hoc report with key decisions, outputs, failures, and review recommendations
 
 ### 2.0.0 (2026-02-17)
 

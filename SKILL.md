@@ -51,6 +51,7 @@ Assets and references follow a three-level hierarchy (system / user / project). 
 | content-adapter | `{skill-dir}/skills/content-adapter.md` | Step 9b (平台适配) / 独立调用 |
 | topic-manager | `{skill-dir}/skills/topic-manager.md` | 选题管理（独立调用） |
 | experience-tracker | `{skill-dir}/skills/experience-tracker.md` | Experience Check（每步交互后） |
+| scheduler | `{skill-dir}/skills/scheduler.md` | 定时任务管理（独立调用） |
 
 ### Project-Local Skill 执行协议（MUST）
 

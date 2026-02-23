@@ -14,7 +14,10 @@ This is **Writing Assistant Skill** - a Claude Code skill that orchestrates end-
 
 ### Scripts (`scripts/`)
 
-- `scripts/check-env.sh` - Environment pre-check script (OPENROUTER_API_KEY, bird CLI, installed skills, npm deps)
+- `scripts/check-env.sh` - Environment pre-check script (OPENROUTER_API_KEY, bird CLI, installed skills, npm deps, claude CLI)
+- `scripts/cron-runner.sh` - Core execution script for scheduled tasks (called by crontab, handles single tasks and pipelines)
+- `scripts/install-schedule.sh` - Register a crontab entry for a scheduled task
+- `scripts/uninstall-schedule.sh` - Remove a crontab entry for a scheduled task
 
 ### Extracted References (from SKILL.md for Progressive Disclosure)
 
@@ -33,6 +36,20 @@ Project-local skills, no installation needed. Directly readable by the main work
 - `skills/content-adapter.md` - Multi-platform content adaptation (微信/小红书/X/抖音), per-platform specs
 - `skills/topic-manager.md` - Topic lifecycle (inbox → developing) + viral benchmarking (分析爆款/监控爆款/后台监控) + data recording
 - `skills/experience-tracker.md` - Auto-records user corrections and retrospective-discovered process issues as cases, distills lessons learned
+- `skills/scheduler.md` - Natural language scheduled task management (cron-based), supports single tasks and multi-step pipelines
+
+### Schedules (`schedules/`)
+
+Scheduled task data directory (independent top-level directory, not under `assets/`):
+
+```
+schedules/
+├── schedule-registry.md        # Task registry (all scheduled tasks)
+├── tasks/                      # Task definition files (cron-NNN.md)
+└── history/                    # Execution history per task
+    ├── cron-001/               # Single task history (timestamped .md files)
+    └── cron-002/               # Pipeline history (timestamped directories)
+```
 
 ### Three-Level Content System
 
@@ -119,6 +136,13 @@ Bundled skills for auto-installation:
 - **Execution Log** records AI decisions/actions at each step; reviewed during end-of-session retrospective
 - Retrospective-discovered process issues are recorded as experience cases
 - Distills lessons → all skills check before executing
+
+**Scheduling System** (skills/scheduler.md) — automates WHEN to execute:
+- Natural language driven: "每天早上9点监控爆款" → crontab entry
+- Single tasks: one cron trigger → one claude execution
+- Pipelines: one cron trigger → serial multi-step execution with shared context (pipeline-context.md)
+- Full lifecycle: create, view, pause, resume, modify, delete scheduled tasks
+- Execution history tracked in `schedules/history/`
 
 ## Key Patterns
 

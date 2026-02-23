@@ -42,7 +42,14 @@ else
   report "OPENROUTER_API_KEY" "FAIL" ".env file not found"
 fi
 
-# --- Check 2: bird CLI ---
+# --- Check 2: claude CLI ---
+if command -v claude &>/dev/null; then
+  report "CLAUDE_CLI" "PASS"
+else
+  report "CLAUDE_CLI" "FAIL" "claude command not found (required for scheduled task execution)"
+fi
+
+# --- Check 3: bird CLI ---
 if command -v bird &>/dev/null; then
   # Portable timeout: run bird in background, kill after 10s
   BIRD_OUTPUT=""
@@ -69,7 +76,7 @@ else
   report "BIRD_CLI" "FAIL" "bird command not found"
 fi
 
-# --- Check 3: config/bird.json5 -> .birdrc.json5 ---
+# --- Check 4: config/bird.json5 -> .birdrc.json5 ---
 if [ -f "$PROJECT_ROOT/config/bird.json5" ]; then
   if [ -f "$PROJECT_ROOT/.birdrc.json5" ]; then
     report "BIRD_CONFIG" "PASS" "already exists"
@@ -81,7 +88,7 @@ else
   report "BIRD_CONFIG" "PASS" "no config/bird.json5 to propagate"
 fi
 
-# --- Check 4: Required skills ---
+# --- Check 5: Required skills ---
 SKILLS_DIR="$PROJECT_ROOT/.claude/skills"
 
 check_skill() {
@@ -120,7 +127,7 @@ if [ "$X_FOUND" = false ]; then
   report "SKILL_x-publisher" "FAIL" "neither baoyu-post-to-x nor x-article-publisher installed"
 fi
 
-# --- Check 5: baoyu-post-to-wechat npm dependencies ---
+# --- Check 6: baoyu-post-to-wechat npm dependencies ---
 NPM_DEPS="front-matter marked highlight.js reading-time fflate"
 MISSING_DEPS=""
 

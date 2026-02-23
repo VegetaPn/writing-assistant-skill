@@ -152,6 +152,7 @@ Step 2 检测到来自 developing/ 的选题时，复用已有的搜索成果，
 | 顺序 | 阶段 | 前置条件 |
 |------|------|---------|
 | 0 | ~~执行日志 + 流程复盘~~ | ✅ 已完成 |
+| 0.5 | ~~Cron 定时任务调度~~ | ✅ 已完成 |
 | 1 | 选题→写作上下文传递 | 无 |
 | 2 | 数据分析 | 需要有 metrics 数据的文章（≥3 篇） |
 | 3 | 参考库搜索和过滤 | 参考库条目接近 20-30 条 |
@@ -176,6 +177,36 @@ Step 2 检测到来自 developing/ 的选题时，复用已有的搜索成果，
 - 记录范围：AI 执行过程（决策、使用的参考、跳过的步骤、摩擦点）
 - 问题去向：录入经验系统（lessons.md），不进 iteration-plan
 - 每步记录，不事后回忆——避免遗漏
+
+### 阶段 0.5：Cron 定时任务调度 ✅
+
+**完成时间:** 2026-02-24
+
+**核心价值：** 为系统增加自然语言驱动的定时/周期任务调度能力，使系统可以自主运作（定时监控爆款、定期写作、按计划发布等）。
+
+**新增文件：**
+- `skills/scheduler.md` — 调度器子技能（7 个管理命令：创建/查看/历史/暂停/恢复/修改/删除）
+- `references/scheduler-protocol.md` — NL 解析协议（命令映射表、cron 表达式速查、确认模板）
+- `scripts/cron-runner.sh` — 核心执行脚本（单任务 + 流水线，并发锁，系统通知，历史记录）
+- `scripts/install-schedule.sh` — crontab 条目注册
+- `scripts/uninstall-schedule.sh` — crontab 条目移除
+- `schedules/schedule-registry.md` — 任务注册表（空模板）
+- `schedules/tasks/` — 任务定义目录
+- `schedules/history/` — 执行历史目录
+
+**修改文件：**
+- `CLAUDE.md` — Architecture 段新增 scheduler 到 Sub-Skills、新增 `schedules/` 目录说明、Scripts 段新增 3 个脚本、Workflow 段新增 Scheduling System
+- `SKILL.md` — Companion Skills 表新增 scheduler
+- `skills/topic-manager.md` — Command 6（启动爆款监控）新增持久化监控提示
+- `scripts/check-env.sh` — 新增 claude CLI 可用性检查
+- `dev/iteration-plan.md` — 新增 cron 功能为阶段 0.5
+
+**设计决策：**
+- 调度引擎：crontab（跨平台、简单可靠、无额外依赖）
+- 任务形态：单任务 + 流水线（pipeline-context.md 实现全上下文感知）
+- 执行模式：`claude -p --dangerously-skip-permissions` 无人值守
+- 数据目录：`schedules/` 独立顶层目录
+- 流水线上下文：每步前更新 pipeline-context.md，Claude 自主读取并利用
 
 ## 五、参考资料
 

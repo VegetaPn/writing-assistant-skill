@@ -415,6 +415,8 @@ For each selected: run "分析爆款" flow (Command 4)
 
 5. "停止爆款监控" to end the process
 
+> **持久化监控提示:** 后台监控仅在当前 Claude 会话内有效。如需跨会话持续监控（如每天定时执行），请使用 scheduler 创建定时任务：`"每天早上9点监控爆款"`。详见 `{skill-dir}/skills/scheduler.md`。
+
 ### 7. 爆款转选题
 
 **Trigger:** "爆款转选题" or triggered after "分析爆款"

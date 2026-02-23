@@ -176,7 +176,7 @@ Before executing any command, ensure user-level required directories and files e
    - Key points to cover
    - Target audience
    - Recommended structure (from `references/by-element/structures/`, `READ:3L`)
-4. Optionally invoke `skills/title-generator.md` for title candidates
+4. 可选：使用 Read 工具读取 `{skill-dir}/skills/title-generator.md`，按文件中的 Step 顺序执行，生成标题候选
 5. Save to `assets/topics/developing/{topic-slug}.md` (`WRITE:user`):
 
 ```markdown

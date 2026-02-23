@@ -72,7 +72,7 @@ Apply currently effective patterns to the adaptation.
 
 ### Step 4: Generate Platform-Optimized Title
 
-Read and invoke `skills/title-generator.md` with the target platform. Pass:
+**【强制】使用 Read 工具读取 `{skill-dir}/skills/title-generator.md`，严格按照文件中的 Step 0-6 顺序执行。** Pass:
 - The core thesis from Step 2
 - The key data points and emotional hooks
 - The target platform
@@ -89,7 +89,7 @@ Using the core information from Step 2, the platform search insights from Step 3
 
 Run the adapted content through these checks:
 
-1. **Anti-AI check**: Does it sound natural? Apply `skills/title-generator.md` Anti-AI Rules to the full content (not just title). No banned words/patterns.
+1. **Anti-AI check**: Does it sound natural? Apply `{skill-dir}/skills/title-generator.md` Anti-AI Rules to the full content (not just title). No banned words/patterns.
 2. **Lessons check**: Re-read `assets/experiences/lessons.md` (`READ:3L`). Does the adaptation violate any learned lessons?
 3. **Spec compliance**: Does the content meet all items in the target platform's Content Checklist (see Platform Specs)?
 4. **Core information preservation**: Compare against Step 2 extraction — are the core thesis and key supporting points preserved? (They should be restructured, not lost.)

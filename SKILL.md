@@ -22,7 +22,7 @@ This skill orchestrates a multi-step writing process:
 9. **Review and platform adaptation** — review, optional multi-platform adaptation with technique re-application
 10. **Publish** — optional, to WeChat or X
 
-**Note:** This skill focuses on **writing**. For topic management (recording ideas, analyzing viral content, monitoring trends), use `skills/topic-manager.md`. For standalone title generation, use `skills/title-generator.md`.
+**Note:** This skill focuses on **writing**. For topic management (recording ideas, analyzing viral content, monitoring trends), use `{skill-dir}/skills/topic-manager.md`. For standalone title generation, use `{skill-dir}/skills/title-generator.md`.
 
 ## Execution Principles (MUST NOT skip)
 
@@ -41,13 +41,27 @@ Assets and references follow a three-level hierarchy (system / user / project). 
 
 **Shorthands used in this file:** `READ:3L` = read all three levels and merge. `WRITE:user` / `WRITE:project` = target a specific write level.
 
-## Companion Skills (project-local, no installation needed)
+## Companion Skills (project-local)
 
-These skills live in the `skills/` directory and can be invoked directly:
-- `skills/title-generator.md` — Platform-optimized title generation (called in Step 4, or independently)
-- `skills/content-adapter.md` — Multi-platform content adaptation with per-platform specs (called in Step 9b, or independently)
-- `skills/topic-manager.md` — Topic lifecycle management + viral benchmarking
-- `skills/experience-tracker.md` — Records user corrections, distills lessons learned
+以下 skills 位于 `{skill-dir}/skills/` 目录下（`{skill-dir}` 定义见 `references/three-level-protocol.md`）：
+
+| Skill | 文件路径 | 调用时机 |
+|-------|---------|---------|
+| title-generator | `{skill-dir}/skills/title-generator.md` | Step 4 (标题生成) / 独立调用 |
+| content-adapter | `{skill-dir}/skills/content-adapter.md` | Step 9b (平台适配) / 独立调用 |
+| topic-manager | `{skill-dir}/skills/topic-manager.md` | 选题管理（独立调用） |
+| experience-tracker | `{skill-dir}/skills/experience-tracker.md` | Experience Check（每步交互后） |
+
+### Project-Local Skill 执行协议（MUST）
+
+调用 project-local skill 时，**必须**：
+
+1. **使用 Read 工具读取完整文件**（不得凭记忆替代文件内容）
+2. **严格按文件中的 Step 顺序执行**，不得跳过任何步骤
+3. **每个 Step 的输出格式必须与文件要求一致**
+
+❌ 禁止：看到 `skills/title-generator.md` 后凭记忆生成标题
+✅ 正确：Read 工具读取文件 → 按 Step 0 → Step 1 → ... → Step 6 顺序执行
 
 ## Experience Check System
 
@@ -68,7 +82,7 @@ These skills live in the `skills/` directory and can be invoked directly:
 > - Rewrite your output instead of accepting it?
 >
 > **If ANY of the above occurred:**
-> 1. **Immediately** create a case file in `assets/experiences/cases/` (`WRITE:user`) (format: `{YYYY-MM-DD}-{slug}.md`, see `skills/experience-tracker.md`)
+> 1. **Immediately** create a case file in `assets/experiences/cases/` (`WRITE:user`) (format: `{YYYY-MM-DD}-{slug}.md`, see `{skill-dir}/skills/experience-tracker.md`)
 > 2. Log the correction in the progress tracker's Corrections Log with `Case Recorded? = Yes` and fill in the Case File path
 > 3. Ask user: "这条经验是通用的还是仅针对本文？"
 >    - 通用 → update `assets/experiences/lessons.md` (`WRITE:user`)
@@ -358,7 +372,7 @@ If no developed topics, or user wants to start fresh, ask for one of three modes
 
 Update the progress tracker metadata (Platform, Mode, Topic) and mark Step 1 checklist items.
 
-> **Experience Check:** Review user's responses. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
+> **Experience Check:** Review user's responses. Did user provide any corrections? If yes, invoke `{skill-dir}/skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
 > **If Autonomous Mode:** 跳过 Experience Check（无用户交互 = 无纠错）。记录 "Autonomous mode — no interaction"。
 
@@ -427,7 +441,7 @@ For Modes 1 and 2, use an interactive questioning approach:
 
 > **If Autonomous Mode:** 跳过交互式提问。AI 自行生成澄清问题并自答（基于素材 + 搜索结果 + 选定技巧），将 Q&A 模拟记录到 Execution Log。如需补充研究（WebSearch/WebFetch），正常执行；搜索失败则记录并基于已有素材继续。直接组织初稿并进入 Step 4。
 
-> **Experience Check:** Review user's responses during questioning. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
+> **Experience Check:** Review user's responses during questioning. Did user provide any corrections? If yes, invoke `{skill-dir}/skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
 > **If Autonomous Mode:** 跳过 Experience Check（无用户交互 = 无纠错）。记录 "Autonomous mode — no interaction"。
 
@@ -447,7 +461,7 @@ Before finalizing the initial draft, use the reference library AND selected writ
 **Process:**
 
 1. **Title Refinement**:
-   - Read and invoke `skills/title-generator.md` for platform-optimized title generation
+   - **【强制】使用 Read 工具读取 `{skill-dir}/skills/title-generator.md`，严格按照文件中的 Step 0-6 顺序执行。** 不得跳过任何步骤，不得凭记忆替代文件内容。
    - Pass the target platform (determined in Step 1) to the title-generator
    - The title-generator will search references, apply platform rules, and generate 5 candidates
    - **Technique cross-reference**: If Content Funnel technique was selected and article is TOFU, verify titles follow TOFU principles: broad appeal, emotional trigger, no jargon, relatable to wide audience
@@ -484,7 +498,7 @@ Before finalizing the initial draft, use the reference library AND selected writ
    - Plan where to place engaging hooks in the draft
    - **Technique cross-reference**: Ensure hooks align with the article's funnel stage and platform expectations
 
-> **Experience Check:** Review user's choices and feedback on proposed elements. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
+> **Experience Check:** Review user's choices and feedback on proposed elements. Did user provide any corrections? If yes, invoke `{skill-dir}/skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
 > **If Autonomous Mode:** 跳过 Experience Check（无用户交互 = 无纠错）。记录 "Autonomous mode — no interaction"。
 
@@ -517,7 +531,7 @@ For Mode 3 (Draft-Based):
      - **Paragraph-level application**: Each paragraph should be checked against technique checklists, not just the overall structure
    - Suggest specific paragraph-level improvements based on techniques
 
-> **Experience Check:** Review user's decisions on what to keep/change. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
+> **Experience Check:** Review user's decisions on what to keep/change. Did user provide any corrections? If yes, invoke `{skill-dir}/skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
 > **If Autonomous Mode:** 跳过 Experience Check（无用户交互 = 无纠错）。记录 "Autonomous mode — no interaction"。
 
@@ -538,7 +552,7 @@ For Mode 3 (Draft-Based):
 
 **Step 9: Review & Adaptation** ← **不可跳过** — 即使用户已表达发布意图，仍需执行。
 - 9a. Review: verbal summary + ask for revisions
-- 9b. Platform Adaptation (optional): invoke `skills/content-adapter.md` — extracts core message, searches target platform, restructures per platform spec, saves as `{topic-slug}-{platform}.md`
+- 9b. Platform Adaptation (optional): **【强制】使用 Read 工具读取 `{skill-dir}/skills/content-adapter.md`，严格按照文件中的 Step 顺序执行。** Extracts core message, searches target platform, restructures per platform spec, saves as `{topic-slug}-{platform}.md`
 - 9c. Publishing Decision: ask user
 - Experience Check after. **Update Execution Log.**
 > **If Autonomous Mode:** 9a: AI 自行审阅，不询问修改意见。9b: 根据用户初始意图决定是否适配其他平台——用户要求了则执行，未要求则跳过。9c: 根据用户初始意图和自主能力边界决定是否发布。跳过 Experience Check。

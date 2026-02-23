@@ -40,7 +40,7 @@ The polished version should have:
 
 > **If Autonomous Mode:** content-research-writer 调用失败时，记录失败原因和影响到 Execution Log 和 Autonomous Decision Log（标注：降级为 AI 自行润色）。AI 自行根据已编译的 technique-aware instructions 润色草稿，产出 polished.md。这是自主模式的设计决策——失败时"记录 + 尽力继续"，而非"报告 + 等待"。跳过 Experience Check，记录 "Autonomous mode — no interaction"。
 
-> **Experience Check:** After presenting polished draft to user, review their feedback. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
+> **Experience Check:** After presenting polished draft to user, review their feedback. Did user provide any corrections? If yes, invoke `{skill-dir}/skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
 > **End:** Update progress tracker with output filename. **Update Execution Log** (Step 6 Log: polishing instructions summary, main changes, friction). Proceed to Step 7.
 
@@ -66,7 +66,7 @@ Output: Generated outline, prompts, and images
 
 > **If Autonomous Mode:** 默认跳过整个 Step 7（不生成配图），在 Execution Log 记录"自主模式 — 跳过配图"，直接进入 Step 8（final.md 仅含文字）。如用户在初始指令中明确要求配图，则尝试调用 baoyu-xhs-images；调用失败 → 记录失败原因和影响到 Execution Log 和 Autonomous Decision Log，在执行摘要的"跳过/失败项"中标注"配图生成失败"，继续进入 Step 8。跳过 Experience Check，记录 "Autonomous mode — no interaction"。
 
-> **Experience Check:** After presenting illustrations to user, review their feedback. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
+> **Experience Check:** After presenting illustrations to user, review their feedback. Did user provide any corrections? If yes, invoke `{skill-dir}/skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
 > **End:** Update progress tracker. **Update Execution Log** (Step 7 Log: image count, positions, friction). Proceed to Step 8.
 
@@ -90,7 +90,7 @@ Combine the polished content with generated images:
 
 > **If Autonomous Mode:** 跳过"等待用户确认"环节。创建 final.md 后，直接记录文件路径和图片位置到 Execution Log，然后继续到 Step 9。跳过 Experience Check，记录 "Autonomous mode — no interaction"。
 
-> **Experience Check:** After presenting the final article to user, review their feedback. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
+> **Experience Check:** After presenting the final article to user, review their feedback. Did user provide any corrections? If yes, invoke `{skill-dir}/skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
 > **⚠️ STOP: 不得直接跳到 Step 10。** 即使用户在此步说"发布"，也必须先执行 Step 9。Step 9 是审稿缓冲层，确保用户在发布前正式审阅最终图文排版。
 
@@ -123,7 +123,7 @@ Ask: "Would you like to adapt this article for another platform?"
 
 > **If Autonomous Mode (9b):** 根据用户初始消息中的意图决定是否适配。用户要求了多平台适配 → 执行 content-adapter；未要求 → 跳过。不询问用户。记录决策到 Autonomous Decision Log。
 
-If yes → read and invoke `skills/content-adapter.md`.
+If yes → **【强制】使用 Read 工具读取 `{skill-dir}/skills/content-adapter.md`，严格按照文件中的 Step 顺序执行。**
 
 Pass to content-adapter:
 - **Source file path**: the final article from this workflow (`outputs/{topic-slug}/{topic-slug}-final.md`)
@@ -142,7 +142,7 @@ Ask:
 
 > **If Autonomous Mode (9c):** 根据用户初始消息中的发布意图 + 自主能力边界评估：用户要求发布且发布路径可自主完成（API/CLI + 已有凭证）→ 进入 Step 10；用户要求发布但路径不可自主完成（需登录/扫码）→ 跳过发布，在执行摘要中标注"发布需用户手动完成"；用户未要求发布 → 跳过 Step 10。记录决策到 Autonomous Decision Log。
 
-> **Experience Check:** Review all user feedback in this step. Did user provide any corrections? If yes, invoke `skills/experience-tracker.md` and log in Corrections Log. Then proceed.
+> **Experience Check:** Review all user feedback in this step. Did user provide any corrections? If yes, invoke `{skill-dir}/skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
 > **End:** Update progress tracker. **Update Execution Log** (Step 9 Log: user revision requests, platforms adapted, publishing decision, friction). Proceed to Step 10 if publishing, or conclude session.
 
@@ -220,7 +220,7 @@ Then proceed to **流程自检**.
 >    | 1 | Step 2 搜索了 references/techniques/ 但 Step 3 写正文时没有应用 Content Funnel 原则 | 技巧脱节 | cases/2026-02-18-technique-disconnect.md |
 >    ```
 > 8. **将问题录入经验系统**：
->    - 对每个发现的问题，使用 `skills/experience-tracker.md` 的格式创建 case file
+>    - 对每个发现的问题，使用 `{skill-dir}/skills/experience-tracker.md` 的格式创建 case file
 >    - Case 的 `Skill/Step` 字段标注"流程复盘"
 >    - Case 的 `Root Cause` 分类使用上方的问题类型
 >    - 更新 `assets/experiences/lessons.md` (`WRITE:user`)，将问题提炼为规则

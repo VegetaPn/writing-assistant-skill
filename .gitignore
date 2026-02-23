@@ -54,3 +54,5 @@ Thumbs.db
 .bird/
 dev/.DS_Store
 outputs
+
+dependencies/wechat-article-search/node_modules

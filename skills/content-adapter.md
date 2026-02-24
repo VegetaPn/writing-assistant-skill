@@ -58,7 +58,6 @@ This extraction is shared across all target platforms. Do NOT skip it — it pre
 Reuse the search logic from `references/search-workflow.md` (Step 2, point 6):
 
 - **小红书**: Invoke xiaohongshu skill (MCP tool: `search_feeds`, keyword: "{topic keywords}")
-- **微信公众号**: `node scripts/search_wechat.js "{topic keywords}" -n 15` (wechat-article-search)
 - **抖音**: `WebSearch` with queries like "抖音 {topic keywords} 热门"
 - **X/Twitter**: `bird search "{topic keywords}" --cookie-source chrome`
 

@@ -72,7 +72,6 @@ assets/topics/
 1. **检查必要 skill 是否已安装**:
    - X/Twitter: 检查 `bird` 命令是否可用 → `bird whoami --cookie-source chrome`
    - 小红书: 检查 `xiaohongshu` 是否已安装 → `ls .claude/skills/xiaohongshu/` + 检查 MCP server 是否运行 → `curl -s http://localhost:18060/mcp` 或类似方式
-   - 微信公众号: 检查 `wechat-article-search` 是否已安装 → `ls .claude/skills/wechat-article-search/`
 
 2. **对于缺失的依赖**:
    - 检查 `dependencies/` 目录是否有打包好的版本
@@ -86,7 +85,6 @@ assets/topics/
    |------|------|------|------|
    | X/Twitter | bird CLI | ✅ 可用 | |
    | 小红书 | xiaohongshu | ❌ 未安装 | MCP server 未运行 |
-   | 微信公众号 | wechat-article-search | ✅ 可用 | |
    ```
 
 4. **如果某平台不可用**，不要静默跳过，必须：
@@ -320,9 +318,9 @@ Read `assets/topics/benchmarks/monitor-config.md` (`READ:3L`)，获取筛选阈�
    > `bird home` 返回的是实时 timeline，天然就是当下内容。
 2. **小红书**: Invoke xiaohongshu skill — MCP tool `list_feeds` (推荐流，实时内容) + MCP tool `search_feeds` keyword: "{relevant keywords}" (关键词搜索)
    > 优先用 `feeds`（推荐流是实时的），再用 `search` 补充特定话题。
-3. **微信公众号**: `node scripts/search_wechat.js "{relevant keywords}" -n 20`
-   > 微信搜索默认按时间排序，返回的是最新文章。**不要在搜索词中加月份或日期**。
-4. **WebSearch 补充（仅作为额外信息源，不得作为命令失败的兜底方案）**:
+   > `search_feeds` 返回完整 interactInfo (likedCount, collectedCount, commentCount, sharedCount)，可直接筛选排序。
+   > `list_feeds` 仅返回 likedCount，需对 Top 5 调用 `get_feed_detail` 补全完整互动数据。
+3. **WebSearch 补充（仅作为额外信息源，不得作为命令失败的兜底方案）**:
    > ⚠️ **禁止搜索任何时间段的总结/盘点类内容**。
    > ❌ 错误："2026年2月AI热点总结"、"本月AI趋势回顾"、"上周热点"、"近期AI动态盘点"
    > ✅ 正确：直接搜具体话题关键词，如"AI agent"、"deepseek"、"sora"
@@ -335,6 +333,10 @@ Read `assets/topics/benchmarks/monitor-config.md` (`READ:3L`)，获取筛选阈�
 - 识别出现频率高的话题/关键词（大家都在聊什么）
 - 找出互动数据明显高于平均的内容（参照 monitor-config.md 中的分平台阈值）
 - 对比历史 benchmarks，识别新趋势
+- **排序权重（从高到低）**：
+  - 小红书: commentCount（最高） > likedCount = sharedCount > collectedCount（最低）
+  - X/Twitter: replies（最高） > retweets > likes（最低）
+- **`list_feeds` 结果处理**（仅有 likedCount）：先按 likedCount 初筛 Top 5 → 调用 `get_feed_detail` 补全完整互动数据 → 按上述权重重新排序
 
 **Step 4:【强制】向用户呈现透明度报告**
 
@@ -350,14 +352,12 @@ Read `assets/topics/benchmarks/monitor-config.md` (`READ:3L`)，获取筛选阈�
 |------|------|------|------|
 | X/Twitter | bird CLI | ✅/❌ | {如失败则说明原因} |
 | 小红书 | xiaohongshu | ✅/❌ | {如失败则说明原因} |
-| 微信公众号 | wechat-article-search | ✅/❌ | {如失败则说明原因} |
 
 **扫描范围**:
 | 平台 | 执行命令 | 抓取条数 | 筛选条件 |
 |------|---------|---------|---------|
 | X/Twitter | `bird home --cookie-source chrome` | {N} 条 | 原始 timeline |
 | 小红书 | `xhs feeds` + `xhs search "{keywords}"` | {N} 条 | 关键词: {keywords} |
-| 微信公众号 | `search_wechat "{keywords}" -n 20` | {N} 条 | 关键词: {keywords} |
 
 **命令失败记录**（如有）:
 | 命令 | 错误 | 已记录到 command-failures.md |
@@ -367,10 +367,17 @@ Read `assets/topics/benchmarks/monitor-config.md` (`READ:3L`)，获取筛选阈�
 **高频话题**: {topic1}, {topic2}, {topic3}...
 
 **Top 10 高互动内容**:
-| # | 平台 | 标题 | 互动数据 | 话题标签 | 发布时间 |
-|---|------|------|---------|---------|---------|
-| 1 | ... | ... | 点赞 {N} / 评论 {N} | ... | {date/time} |
-| ... | ... | ... | ... | ... | ... |
+| # | 平台 | 标题 | 评论 | 点赞/转发 | 分享 | 收藏 | 链接 | 话题标签 | 发布时间 |
+|---|------|------|------|----------|------|------|------|---------|---------|
+| 1 | ... | ... | {commentCount/replies} | {likedCount/retweets} | {sharedCount} | {collectedCount} | {URL/feed_id} | ... | {date/time} |
+| ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+
+> 列顺序反映排序权重：评论（最高权重）在前。
+> 小红书: 评论{commentCount} / 点赞{likedCount} / 分享{sharedCount} / 收藏{collectedCount}
+> X/Twitter: replies / retweets / likes（分享/收藏列留空）
+> 链接: 原始 URL 或 feed_id，便于用户核验原始数据
+> 如数据来源为 `list_feeds`（仅 likedCount），在备注中标注"已通过 get_feed_detail 补全"或"仅 likedCount 数据"
+> 分析覆盖的内容总数及来源明细，便于用户核验数据完整性
 
 **新趋势/新话题**: {description}
 ```
@@ -392,15 +399,14 @@ For each selected: run "分析爆款" flow (Command 4)
 2. Start background process, periodically:
    - **X/Twitter**: `bird home --cookie-source chrome`（每次大量读取，多次执行以积累数据）
      > ⚠️ 必须用 `bird home`，不得用 `bird search`。
-   - **小红书**: xiaohongshu skill — MCP tools `search_feeds` and `list_feeds`
-   - **微信公众号**: `node scripts/search_wechat.js "{keywords}" -n 20`
+   - **小红书**: xiaohongshu skill — MCP tools `search_feeds` (完整 interactInfo) and `list_feeds` (仅 likedCount，Top 5 用 `get_feed_detail` 补全)
    - Fetch configured analysis sites
    - **持续积累数据**到内存/临时文件中，跨多次抓取识别趋势
    - 判断标准参照 `monitor-config.md` 中的分平台阈值
 
 3. **【强制】每轮扫描完成后输出简报**：
    ```
-   [监控] 第 {N} 轮扫描完成 | X: {n1}条 小红书: {n2}条 微信: {n3}条 | 新发现高互动: {count}条 | 累计数据: {total}条
+   [监控] 第 {N} 轮扫描完成 | X: {n1}条 小红书: {n2}条 | 新发现高互动: {count}条 | 累计数据: {total}条
    ```
 
 4. **发现潜在爆款时，通知必须包含判断依据**：

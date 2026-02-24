@@ -73,8 +73,7 @@ This step MUST NOT be skipped. Even if the local reference library is rich, you 
 **Process:**
 
 a. Search by platform using corresponding tools:
-  - **小红书**: Invoke xiaohongshu skill — MCP tool `search_feeds` with keyword: "{topic keywords}". Returns notes with feed_id and xsec_token. Use MCP tool `get_feed_detail` with feed_id and xsec_token to get full content and comments for promising results.
-  - **微信公众号**: Use `wechat-article-search` skill — `node scripts/search_wechat.js "{topic keywords}" -n 15`. Returns titles, summaries, publish time, source accounts, and links. Use `-r` flag for real URLs.
+  - **小红书**: Invoke xiaohongshu skill — MCP tool `search_feeds` with keyword: "{topic keywords}". Returns notes with feed_id, xsec_token, and interactInfo (likedCount, collectedCount, commentCount, sharedCount). Sort results by engagement priority: commentCount（最高） > likedCount = sharedCount > collectedCount（最低），then select Top 3-5. Use MCP tool `get_feed_detail` with feed_id and xsec_token to get full content and comments for promising results.
   - **抖音**: `WebSearch` with queries like "抖音 {topic keywords} 热门"
   - **X/Twitter**: `bird search "{topic keywords}" --cookie-source chrome` (here `bird search` IS correct — searching by topic, not reading timeline)
 
@@ -126,10 +125,10 @@ e. **【必做】积累爆款模式到参考库** — 从搜索结果中提取�
 **筛选后高互动内容**: {N} 条
 
 **Top 3-5 高互动内容**:
-| # | 标题 | 作者 | 互动数据 | 有参考价值的点 |
-|---|------|------|---------|-------------|
-| 1 | ... | ... | ... | 标题用了对比句式 |
-| 2 | ... | ... | ... | 开头用数据冲击 |
+| # | 标题 | 作者 | 评论 | 点赞/转发 | 分享 | 收藏 | 链接 | 有参考价值的点 |
+|---|------|------|------|----------|------|------|------|-------------|
+| 1 | ... | ... | {commentCount/replies} | {likedCount/retweets} | {sharedCount} | {collectedCount} | {URL/feed_id} | 标题用了对比句式 |
+| 2 | ... | ... | ... | ... | ... | ... | ... | 开头用数据冲击 |
 
 **提取的模式/发现**:
 - {pattern 1}

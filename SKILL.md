@@ -389,8 +389,7 @@ After understanding the user's topic/theme and target platform, search all refer
 2. **Search benchmarks** (`READ:3L`): Check `assets/topics/benchmarks/` for viral cases
 3. **Select and record techniques** in progress tracker under "Applied References & Techniques"
 4. **【必做】Search target platform for popular content** on the same topic using platform tools:
-   - 小红书: Invoke xiaohongshu skill (MCP tool: `search_feeds`, keyword: "{keywords}")
-   - 微信公众号: `node scripts/search_wechat.js "{keywords}" -n 15` (wechat-article-search)
+   - 小红书: Invoke xiaohongshu skill (MCP tool: `search_feeds`, keyword: "{keywords}") — returns interactInfo; sort by engagement priority (commentCount > likedCount = sharedCount > collectedCount)
    - 抖音: WebSearch
    - X/Twitter: `bird search "{keywords}" --cookie-source chrome`
 5. **【强制】Record search results** in progress file Session Notes (platform, command, keywords, result count, top 3-5 high-engagement items, extracted patterns). See `references/search-workflow.md` for required format.

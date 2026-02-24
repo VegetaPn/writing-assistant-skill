@@ -313,6 +313,9 @@ Read `assets/topics/benchmarks/monitor-config.md` (`READ:3L`)，获取筛选阈�
 > - WebSearch 时只搜具体话题关键词，**绝对禁止**搜索"X月热点总结""本周趋势""近期回顾"等任何带时间范围的总结/盘点类内容
 > - 判断时效性：如果内容发布时间超过 3 天，标注为"非实时"
 
+> ⚠️ **信息源限定（严格执行）**：热点分析信息源**仅限 X/Twitter 和小红书**，不得使用 WebSearch 或其他平台获取热点信息。
+> 唯一例外：当背景了解不足或上下文不够理解某个话题时，可以搜索**事实性信息**作为上下文补充（如某个事件的背景、某个概念的含义），但这不是热点信息源。
+
 1. **X/Twitter**: `bird home --cookie-source chrome` — 至少 20 条，可多次执行以获取更多内容
    > ⚠️ 必须用 `bird home`，不得用 `bird search`。`bird search` 是关键词搜索，会错过自然趋势。
    > `bird home` 返回的是实时 timeline，天然就是当下内容。
@@ -320,11 +323,6 @@ Read `assets/topics/benchmarks/monitor-config.md` (`READ:3L`)，获取筛选阈�
    > 优先用 `feeds`（推荐流是实时的），再用 `search` 补充特定话题。
    > `search_feeds` 返回完整 interactInfo (likedCount, collectedCount, commentCount, sharedCount)，可直接筛选排序。
    > `list_feeds` 仅返回 likedCount，需对 Top 5 调用 `get_feed_detail` 补全完整互动数据。
-3. **WebSearch 补充（仅作为额外信息源，不得作为命令失败的兜底方案）**:
-   > ⚠️ **禁止搜索任何时间段的总结/盘点类内容**。
-   > ❌ 错误："2026年2月AI热点总结"、"本月AI趋势回顾"、"上周热点"、"近期AI动态盘点"
-   > ✅ 正确：直接搜具体话题关键词，如"AI agent"、"deepseek"、"sora"
-   > 只搜具体话题，不搜笼统的"热点盘点"。
 
 **Step 3: 积累式分析**
 

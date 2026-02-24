@@ -388,9 +388,8 @@ After understanding the user's topic/theme and target platform, search all refer
 1. **Search references** (`READ:3L`): Check `references/authors/`, `references/by-element/`, `references/techniques/` for style matches, element patterns, and writing methodologies
 2. **Search benchmarks** (`READ:3L`): Check `assets/topics/benchmarks/` for viral cases
 3. **Select and record techniques** in progress tracker under "Applied References & Techniques"
-4. **【必做】Search target platform for popular content** on the same topic using platform tools:
+4. **【必做】Search target platform for popular content** on the same topic — **信息源仅限 X/Twitter 和小红书**（背景不足时可搜索事实性信息补充上下文，但不作为热点源）:
    - 小红书: Invoke xiaohongshu skill (MCP tool: `search_feeds`, keyword: "{keywords}") — returns interactInfo; sort by engagement priority (commentCount > likedCount = sharedCount > collectedCount)
-   - 抖音: WebSearch
    - X/Twitter: `bird search "{keywords}" --cookie-source chrome`
 5. **【强制】Record search results** in progress file Session Notes (platform, command, keywords, result count, top 3-5 high-engagement items, extracted patterns). See `references/search-workflow.md` for required format.
 6. **Present reference summary** to user: author style, element patterns, techniques, benchmarks

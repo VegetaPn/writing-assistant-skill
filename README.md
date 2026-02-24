@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-A Claude Code skill that orchestrates end-to-end writing workflows — from idea to polished, illustrated, published article. Built-in topic management, viral benchmarking, experience tracking, multi-platform publishing, and **autonomous mode** for fully hands-off execution.
+A Claude Code skill that orchestrates end-to-end writing workflows — from idea to polished, illustrated, published article. Built-in topic management, viral benchmarking, experience tracking, multi-platform publishing, **autonomous mode** for fully hands-off execution, and **scheduled tasks** for automated recurring workflows.
 
 ## Quick Start
 
@@ -77,6 +77,18 @@ Three starting modes: **topic idea**, **raw materials**, or **existing draft**.
 
 Two execution modes: **interactive** (default, step-by-step with user) or **autonomous** (fully hands-off).
 
+### Scheduled Tasks
+
+| Command | What it does |
+|---------|-------------|
+| "Every day at 9am, monitor trends" | Create a recurring cron task |
+| "First monitor trends, then develop topics" | Create a multi-step pipeline |
+| "Show scheduled tasks" | View all scheduled tasks |
+| "Execution history" | View past execution logs |
+| "Pause schedule cron-001" | Pause a scheduled task |
+| "Resume schedule cron-001" | Resume a paused task |
+| "Delete schedule cron-001" | Remove a scheduled task |
+
 ### Topic Management
 
 | Command | What it does |
@@ -117,6 +129,17 @@ Two execution modes: **interactive** (default, step-by-step with user) or **auto
 - Supports batch execution: "write all topics in inbox", "write 3 articles", etc.
 - Full transparency: Autonomous Decision Log + execution summary for post-hoc review
 - Images skipped by default in autonomous mode (opt-in with explicit request)
+
+**Scheduled Tasks (New in 2.2)**
+- Natural language driven: "every day at 9am monitor trends" → crontab entry
+- Two task forms: **single task** (one cron trigger → one execution) and **pipeline** (one cron trigger → serial multi-step execution with shared context)
+- Pipeline context awareness: each step reads a `pipeline-context.md` with the overall goal and completed step outputs, enabling natural context flow between steps
+- Full lifecycle management: create, view, pause, resume, modify, delete
+- Execution history with live logs, step-by-step output, and system notifications
+- Concurrency control via lock files — prevents overlapping executions
+- End conditions: unlimited, count-limited (`count:N`), or date-limited (`until:YYYY-MM-DD`)
+- One-time tasks auto-cleanup after execution
+- Runs via `claude CLI` with `--dangerously-skip-permissions` for unattended execution
 
 **Content Creation**
 - Multi-mode input: topic idea / raw materials / existing draft
@@ -188,7 +211,17 @@ writing-assistant-skill/
 │   ├── title-generator.md         # Platform-optimized titles
 │   ├── content-adapter.md         # Multi-platform adaptation
 │   ├── topic-manager.md           # Topic lifecycle + benchmarking
-│   └── experience-tracker.md      # Correction tracking + lessons
+│   ├── experience-tracker.md      # Correction tracking + lessons
+│   └── scheduler.md               # Scheduled task management
+├── scripts/                       # Automation scripts
+│   ├── check-env.sh               # Environment pre-check
+│   ├── cron-runner.sh             # Task execution engine
+│   ├── install-schedule.sh        # Register crontab entries
+│   └── uninstall-schedule.sh      # Remove crontab entries
+├── schedules/                     # Scheduled task data
+│   ├── schedule-registry.md       # Task registry
+│   ├── tasks/                     # Task definition files
+│   └── history/                   # Execution history per task
 ├── assets/                        # System-level defaults
 ├── references/                    # System-level reference library
 │   ├── authors/                   # Author profiles & styles
@@ -241,6 +274,23 @@ MIT License
 [VegetaPn](https://github.com/VegetaPn)
 
 ## Changelog
+
+### 2.2.0 (2026-02-24)
+
+Scheduled Tasks — automate recurring workflows with natural language cron scheduling.
+
+- Scheduler sub-skill: natural language driven task scheduling ("every day at 9am monitor trends" → crontab)
+- Two task forms: single task and multi-step pipeline with shared context
+- Pipeline context awareness: `pipeline-context.md` passes goal, step summaries, and outputs between steps
+- Full lifecycle: create, view, pause, resume, modify, delete scheduled tasks
+- Execution engine (`cron-runner.sh`): handles validation, locking, timeout, stream processing, and history recording
+- Live execution logs with real-time tool call tracking
+- Heartbeat notifications for long-running tasks
+- Concurrency control via lock files — prevents overlapping runs
+- End conditions: unlimited, count-limited, or date-limited with auto-cleanup
+- One-time tasks auto-remove from crontab after execution
+- System notifications (macOS/Linux) on task completion or failure
+- Execution history: per-run output files, pipeline summaries, and step-level detail
 
 ### 2.1.0 (2026-02-22)
 

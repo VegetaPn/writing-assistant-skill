@@ -54,19 +54,18 @@ The script will automatically detect the `.env` file and provide clear error mes
 
 ## Model Selection
 
-**Default model**: `google/gemini-3-pro-image-preview` (high quality, recommended)
+**⚠️ 强制使用模型**: `google/gemini-3.1-pro-preview` — 禁止私自选择其他模型。
 
-**Available models for generation and editing**:
+**Default model**: `google/gemini-3.1-pro-preview` (ENFORCED — 不得更改)
+
+**Other available models** (仅在用户明确指定时才可使用):
 - `google/gemini-3-pro-image-preview` - High quality, supports generation + editing
 - `black-forest-labs/flux.2-pro` - Fast, high quality, supports generation + editing
 
-**Generation only**:
+**Generation only** (仅在用户明确指定时才可使用):
 - `black-forest-labs/flux.2-flex` - Fast and cheap, but not as high quality as pro
 
-Select based on:
-- **Quality**: Use gemini-3-pro or flux.2-pro
-- **Editing**: Use gemini-3-pro or flux.2-pro (both support image editing)
-- **Cost**: Use flux.2-flex for generation only
+**⚠️ STRICT RULE**: Always use `google/gemini-3.1-pro-preview` unless the user explicitly requests a different model. Do NOT autonomously select flux or any other model.
 
 ## Common Usage Patterns
 
@@ -75,7 +74,7 @@ Select based on:
 python scripts/generate_image.py "Your prompt here"
 ```
 
-### Specify model
+### Specify model (only if user explicitly requests)
 ```bash
 python scripts/generate_image.py "A cat in space" --model "black-forest-labs/flux.2-pro"
 ```
@@ -111,7 +110,7 @@ python scripts/generate_image.py "Image 2 description" --output image2.png
 
 - `prompt` (required): Text description of the image to generate, or editing instructions
 - `--input` or `-i`: Input image path for editing (enables edit mode)
-- `--model` or `-m`: OpenRouter model ID (default: google/gemini-3-pro-image-preview)
+- `--model` or `-m`: OpenRouter model ID (default: google/gemini-3.1-pro-preview, ENFORCED)
 - `--output` or `-o`: Output file path (default: generated_image.png)
 - `--api-key`: OpenRouter API key (overrides .env file)
 

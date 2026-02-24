@@ -72,9 +72,10 @@ This step MUST NOT be skipped. Even if the local reference library is rich, you 
 
 **Process:**
 
+> ⚠️ **信息源限定**：热点/流行内容搜索**仅限 X/Twitter 和小红书**，不得使用 WebSearch 或其他平台获取热点信息。唯一例外：当背景了解不足或上下文不够理解某个话题时，可以搜索**事实性信息**作为上下文补充（如某个事件的背景、某个概念的含义），但这不是热点信息源。
+
 a. Search by platform using corresponding tools:
   - **小红书**: Invoke xiaohongshu skill — MCP tool `search_feeds` with keyword: "{topic keywords}". Returns notes with feed_id, xsec_token, and interactInfo (likedCount, collectedCount, commentCount, sharedCount). Sort results by engagement priority: commentCount（最高） > likedCount = sharedCount > collectedCount（最低），then select Top 3-5. Use MCP tool `get_feed_detail` with feed_id and xsec_token to get full content and comments for promising results.
-  - **抖音**: `WebSearch` with queries like "抖音 {topic keywords} 热门"
   - **X/Twitter**: `bird search "{topic keywords}" --cookie-source chrome` (here `bird search` IS correct — searching by topic, not reading timeline)
 
 b. Select 3-5 high-engagement results

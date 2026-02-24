@@ -32,6 +32,8 @@ This skill orchestrates a multi-step writing process:
 4. **禁止擅自兜底**: 任何命令或工具调用失败时，必须如实报告给用户，由用户决定是否采用替代方案。不得未经允许自行使用 WebSearch 或其他方式作为降级兜底。
 5. **搜索实时性**: 搜索热点/热门内容时，禁止以任何时间段（月/周/季度）为单位搜索。不搜"X月热点总结""本周趋势""近期回顾"等盘点类内容，只搜具体话题关键词获取当下实时内容。
 6. **自主模式不中断原则**: 自主模式下，AI 全程自主执行，不在任何步骤等待用户。工具或技能调用失败时，记录失败详情到 Execution Log 和 Autonomous Decision Log，跳过该环节继续后续流程。在最终摘要中汇总所有失败项，供用户事后处理。此原则覆盖 Principle #4（禁止擅自兜底）在自主模式下的行为：自主模式下，失败 → 记录 + 跳过，而非报告等待。**自主模式必须执行到 Completion Gate 全部通过才能停止，见 Autonomous Mode 章节的"Completion Gate"。**
+7. **Step Closure Gate（步骤关门协议）**: 每个 Step 的 Start 块包含对前一步的验证。开始 Step N 之前，必须确认 Step N-1 的三项已完成：(1) checkbox 全部标 `[x]`，(2) Execution Log 已填写（无 pending），(3) Corrections Log 已更新（如有纠错）。如果任何一项缺失，**立即补填后再继续**。这是自愈机制：即使步骤结束时忘了更新，下一步开始时必定补上。
+8. **Session Close Protocol（会话关闭协议）**: 用户发出结束信号（"先到这里"/"暂停"/"够了"/"到这里"/"结束"等）时，不得立即停止。先检查是否有标记为"不可跳过"的未完成步骤（流程自检+复盘）。如有，先执行再结束。响应模板："好的，在结束前我先完成[步骤名]（不可跳过），完成后就到这里。"
 
 ## Three-Level Reference System
 
@@ -309,9 +311,23 @@ Before starting the writing workflow, create a session progress tracker file. Th
 
 This log is reviewed during the 流程复盘 (retrospective) at session end to identify process issues.
 
+### Session Close Protocol（会话关闭协议）
+
+当用户发出结束信号（"先到这里"/"暂停"/"够了"/"到这里"/"结束"/"今天就到这"等）时：
+
+1. **不立即停止**。先检查当前状态：
+   - 当前 Step 是否已完成 Closure？（checkbox + Execution Log + Corrections Log）
+   - 是否有"不可跳过"的步骤尚未执行？（流程自检+复盘）
+2. **如有未完成项**，告知用户并执行：
+   > "好的，在结束前我先完成 [具体步骤]（流程要求不可跳过），完成后就到这里。"
+3. **执行未完成的强制步骤**
+4. **然后结束会话**
+
+此协议覆盖所有结束信号，不论措辞。唯一例外：用户明确说"跳过复盘直接结束"等直接否定时，记录跳过原因后结束。
+
 ### Step 1: Choose Starting Mode + Select Platform
 
-> **Start:** Read progress tracker. Update Step 1 status to in-progress.
+> **Start:** Read progress tracker. **⚠️ Closure Gate:** Verify Step 0 completed (progress file exists, environment checked). Update Step 1 status to in-progress.
 
 **1a-0. Check for Autonomous Mode:**
 
@@ -377,9 +393,14 @@ Update the progress tracker metadata (Platform, Mode, Topic) and mark Step 1 che
 
 > **If Autonomous Mode:** 跳过 Experience Check（无用户交互 = 无纠错）。记录 "Autonomous mode — no interaction"。
 
-> **End:** Update progress tracker. **Update Execution Log** (Step 1 Log: platform, mode, developed topic used or not). Proceed to Step 2.
+> **End — Step 1 Closure (complete ALL before proceeding):**
+> 1. Mark all Step 1 checkboxes `[x]` in progress tracker
+> 2. Fill Step 1 Execution Log (every field, no "pending")
+> 3. Update Corrections Log if user corrected anything this step
+> 4. **Verify**: re-read progress tracker, confirm no blanks for Step 1
+> Then proceed to Step 2.
 
-> **Start:** Read progress tracker. Update Step 2 status to in-progress.
+> **Start:** Read progress tracker. **⚠️ Closure Gate:** Verify Step 1: all checkboxes `[x]`? Execution Log filled (no "pending")? Corrections Log up to date? If anything missing → fix NOW before proceeding. Then update Step 2 status to in-progress.
 
 After understanding the user's topic/theme and target platform, search all reference sources. **Full search workflow:** Read `references/search-workflow.md` for detailed process.
 
@@ -388,19 +409,25 @@ After understanding the user's topic/theme and target platform, search all refer
 1. **Search references** (`READ:3L`): Check `references/authors/`, `references/by-element/`, `references/techniques/` for style matches, element patterns, and writing methodologies
 2. **Search benchmarks** (`READ:3L`): Check `assets/topics/benchmarks/` for viral cases
 3. **Select and record techniques** in progress tracker under "Applied References & Techniques"
-4. **【必做】Search target platform for popular content** on the same topic — **信息源仅限 X/Twitter 和小红书**（背景不足时可搜索事实性信息补充上下文，但不作为热点源）:
+4. **【必做】Search target platform for popular content** on the same topic using platform tools:
    - 小红书: Invoke xiaohongshu skill (MCP tool: `search_feeds`, keyword: "{keywords}") — returns interactInfo; sort by engagement priority (commentCount > likedCount = sharedCount > collectedCount)
+   - 抖音: WebSearch
    - X/Twitter: `bird search "{keywords}" --cookie-source chrome`
 5. **【强制】Record search results** in progress file Session Notes (platform, command, keywords, result count, top 3-5 high-engagement items, extracted patterns). See `references/search-workflow.md` for required format.
 6. **Present reference summary** to user: author style, element patterns, techniques, benchmarks
 
 > **If Autonomous Mode:** 有匹配作者风格则自动选用，无则跳过作者风格参考。搜索失败时记录失败原因到 Execution Log 并继续。不向用户呈现参考摘要，直接进入 Step 3。
 
-> **End:** Update progress tracker with all findings. **Update Execution Log** (Step 2 Log: sources searched, techniques selected, references matched, anything skipped). Proceed to Step 3.
+> **End — Step 2 Closure (complete ALL before proceeding):**
+> 1. Mark all Step 2 checkboxes `[x]` in progress tracker
+> 2. Fill Step 2 Execution Log (every field, no "pending")
+> 3. Update Corrections Log if user corrected anything this step
+> 4. **Verify**: re-read progress tracker, confirm no blanks for Step 2
+> Then proceed to Step 3.
 
 ### Step 3: Collect and Clarify (Modes 1 & 2 Only)
 
-> **Start:** Read progress tracker. Check which techniques were selected in Step 2. Update Step 3 status to in-progress.
+> **Start:** Read progress tracker. **⚠️ Closure Gate:** Verify Step 2: all checkboxes `[x]`? Execution Log filled (no "pending")? Corrections Log up to date? If anything missing → fix NOW before proceeding. Check which techniques were selected in Step 2. Then update Step 3 status to in-progress.
 
 For Modes 1 and 2, use an interactive questioning approach:
 
@@ -444,14 +471,19 @@ For Modes 1 and 2, use an interactive questioning approach:
 
 > **If Autonomous Mode:** 跳过 Experience Check（无用户交互 = 无纠错）。记录 "Autonomous mode — no interaction"。
 
-> **End:** Update progress tracker. **Update Execution Log** (Step 3 Log: questions asked, research done, technique application). Proceed to Step 4.
+> **End — Step 3 Closure (complete ALL before proceeding):**
+> 1. Mark all Step 3 checkboxes `[x]` in progress tracker
+> 2. Fill Step 3 Execution Log (every field, no "pending")
+> 3. Update Corrections Log if user corrected anything this step
+> 4. **Verify**: re-read progress tracker, confirm no blanks for Step 3
+> Then proceed to Step 4.
 - Ask 2-4 questions at a time (avoid overwhelming the user)
 - Tailor each question to the specific content provided - no fixed templates
 - Let the content guide the questions - if something is already clear, don't ask about it
 
 ### Step 4: Element-Level Reference (Title, Opening, Structure)
 
-> **Start:** Read progress tracker. Review selected techniques and target platform. Update Step 4 status to in-progress.
+> **Start:** Read progress tracker. **⚠️ Closure Gate:** Verify Step 3: all checkboxes `[x]`? Execution Log filled (no "pending")? Corrections Log up to date? If anything missing → fix NOW before proceeding. Review selected techniques and target platform. Then update Step 4 status to in-progress.
 
 Before finalizing the initial draft, use the reference library AND selected writing techniques to refine key writing elements.
 
@@ -501,11 +533,16 @@ Before finalizing the initial draft, use the reference library AND selected writ
 
 > **If Autonomous Mode:** 跳过 Experience Check（无用户交互 = 无纠错）。记录 "Autonomous mode — no interaction"。
 
-> **End:** Update progress tracker. **Update Execution Log** (Step 4 Log: title type chosen, opening technique, structure template, hook placement). Proceed to Step 5 or Step 6 with the refined elements.
+> **End — Step 4 Closure (complete ALL before proceeding):**
+> 1. Mark all Step 4 checkboxes `[x]` in progress tracker
+> 2. Fill Step 4 Execution Log (every field, no "pending")
+> 3. Update Corrections Log if user corrected anything this step
+> 4. **Verify**: re-read progress tracker, confirm no blanks for Step 4
+> Then proceed to Step 5 or Step 6 with the refined elements.
 
 ### Step 5: Process Draft (Mode 3 Only)
 
-> **Start:** Read progress tracker. Review selected techniques. Update Step 5 status to in-progress.
+> **Start:** Read progress tracker. **⚠️ Closure Gate:** Verify Step 4: all checkboxes `[x]`? Execution Log filled (no "pending")? Corrections Log up to date? If anything missing → fix NOW before proceeding. Review selected techniques. Then update Step 5 status to in-progress.
 
 For Mode 3 (Draft-Based):
 
@@ -534,7 +571,12 @@ For Mode 3 (Draft-Based):
 
 > **If Autonomous Mode:** 跳过 Experience Check（无用户交互 = 无纠错）。记录 "Autonomous mode — no interaction"。
 
-> **End:** Update progress tracker. **Update Execution Log** (Step 5 Log: what was modified, what was kept, technique application). Proceed to Step 6 with the (optionally refined) draft.
+> **End — Step 5 Closure (complete ALL before proceeding):**
+> 1. Mark all Step 5 checkboxes `[x]` in progress tracker
+> 2. Fill Step 5 Execution Log (every field, no "pending")
+> 3. Update Corrections Log if user corrected anything this step
+> 4. **Verify**: re-read progress tracker, confirm no blanks for Step 5
+> Then proceed to Step 6 with the (optionally refined) draft.
 
 ### Steps 6-10: Polish to Publish
 

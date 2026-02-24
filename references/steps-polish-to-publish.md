@@ -5,7 +5,7 @@
 
 ## Step 6: Polish the Draft
 
-> **Start:** Read progress tracker. Review selected techniques and target platform. Update Step 6 status to in-progress.
+> **Start:** Read progress tracker. **⚠️ Closure Gate:** Verify Step 5: all checkboxes `[x]`? Execution Log filled (no "pending")? Corrections Log up to date? If anything missing → fix NOW before proceeding. Review selected techniques and target platform. Then update Step 6 status to in-progress.
 
 **【强制】使用 Skill 工具调用 content-research-writer**，不得手动润色代替。
 
@@ -42,11 +42,16 @@ The polished version should have:
 
 > **Experience Check:** After presenting polished draft to user, review their feedback. Did user provide any corrections? If yes, invoke `{skill-dir}/skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
-> **End:** Update progress tracker with output filename. **Update Execution Log** (Step 6 Log: polishing instructions summary, main changes, friction). Proceed to Step 7.
+> **End — Step 6 Closure (complete ALL before proceeding):**
+> 1. Mark all Step 6 checkboxes `[x]` in progress tracker
+> 2. Fill Step 6 Execution Log (every field, no "pending")
+> 3. Update Corrections Log if user corrected anything this step
+> 4. **Verify**: re-read progress tracker, confirm no blanks for Step 6
+> Then proceed to Step 7.
 
 ## Step 7: Generate Illustrations
 
-> **Start:** Read progress tracker. Update Step 7 status to in-progress.
+> **Start:** Read progress tracker. **⚠️ Closure Gate:** Verify Step 6: all checkboxes `[x]`? Execution Log filled (no "pending")? Corrections Log up to date? If anything missing → fix NOW before proceeding. Then update Step 7 status to in-progress.
 
 **【强制】使用 Skill 工具调用 baoyu-xhs-images**，传入 polished.md 内容。技能会自动完成：内容分析 → 风格/布局选择 → outline 生成 → prompt 文件生成。然后根据 prompt 文件调用 generate-image 生成实际图片。
 
@@ -68,11 +73,16 @@ Output: Generated outline, prompts, and images
 
 > **Experience Check:** After presenting illustrations to user, review their feedback. Did user provide any corrections? If yes, invoke `{skill-dir}/skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
-> **End:** Update progress tracker. **Update Execution Log** (Step 7 Log: image count, positions, friction). Proceed to Step 8.
+> **End — Step 7 Closure (complete ALL before proceeding):**
+> 1. Mark all Step 7 checkboxes `[x]` in progress tracker
+> 2. Fill Step 7 Execution Log (every field, no "pending")
+> 3. Update Corrections Log if user corrected anything this step
+> 4. **Verify**: re-read progress tracker, confirm no blanks for Step 7
+> Then proceed to Step 8.
 
 ## Step 8: Create Final Article
 
-> **Start:** Read progress tracker. Update Step 8 status to in-progress.
+> **Start:** Read progress tracker. **⚠️ Closure Gate:** Verify Step 7: all checkboxes `[x]`? Execution Log filled (no "pending")? Corrections Log up to date? If anything missing → fix NOW before proceeding. Then update Step 8 status to in-progress.
 
 Combine the polished content with generated images:
 
@@ -94,13 +104,18 @@ Combine the polished content with generated images:
 
 > **⚠️ STOP: 不得直接跳到 Step 10。** 即使用户在此步说"发布"，也必须先执行 Step 9。Step 9 是审稿缓冲层，确保用户在发布前正式审阅最终图文排版。
 
-> **End:** Update progress tracker with output filename. **Update Execution Log** (Step 8 Log: image-text combination approach, user feedback summary, friction). Proceed to Step 9.
+> **End — Step 8 Closure (complete ALL before proceeding):**
+> 1. Mark all Step 8 checkboxes `[x]` in progress tracker
+> 2. Fill Step 8 Execution Log (every field, no "pending")
+> 3. Update Corrections Log if user corrected anything this step
+> 4. **Verify**: re-read progress tracker, confirm no blanks for Step 8
+> Then proceed to Step 9.
 
 ## Step 9: Review and Platform Adaptation
 
 > **本步骤不可跳过。** 即使用户已表达发布意图（如"发布到微信"），仍需执行 9a（呈现总结 + 问修改意见）。如果用户确认无修改，可以快速通过 9b 和 9c 直接进入 Step 10。
 
-> **Start:** Read progress tracker. Review target platform and all applied techniques. Update Step 9 status to in-progress.
+> **Start:** Read progress tracker. **⚠️ Closure Gate:** Verify Step 8: all checkboxes `[x]`? Execution Log filled (no "pending")? Corrections Log up to date? If anything missing → fix NOW before proceeding. Review target platform and all applied techniques. Then update Step 9 status to in-progress.
 
 After creating the final article, summarize the work completed and guide the user through review and optional adaptation.
 
@@ -144,11 +159,16 @@ Ask:
 
 > **Experience Check:** Review all user feedback in this step. Did user provide any corrections? If yes, invoke `{skill-dir}/skills/experience-tracker.md` and log in Corrections Log. Then proceed.
 
-> **End:** Update progress tracker. **Update Execution Log** (Step 9 Log: user revision requests, platforms adapted, publishing decision, friction). Proceed to Step 10 if publishing, or conclude session.
+> **End — Step 9 Closure (complete ALL before proceeding):**
+> 1. Mark all Step 9 checkboxes `[x]` in progress tracker
+> 2. Fill Step 9 Execution Log (every field, no "pending")
+> 3. Update Corrections Log if user corrected anything this step
+> 4. **Verify**: re-read progress tracker, confirm no blanks for Step 9
+> Then proceed to Step 10 if publishing, or conclude session.
 
 ## Step 10: Publish (Optional)
 
-> **Start:** Read progress tracker. Update Step 10 status to in-progress.
+> **Start:** Read progress tracker. **⚠️ Closure Gate:** Verify Step 9: all checkboxes `[x]`? Execution Log filled (no "pending")? Corrections Log up to date? If anything missing → fix NOW before proceeding. Then update Step 10 status to in-progress.
 
 If the user wants to publish, invoke the appropriate skill:
 
@@ -178,7 +198,11 @@ Follow the publishing skill's workflow for platform-specific requirements.
 > - 发布失败 → 记录失败原因到 Execution Log 和 Autonomous Decision Log，在执行摘要中标注"发布失败，需用户手动处理"
 > - 需要用户登录/扫码 → 跳过发布，在执行摘要中标注"发布需用户手动完成"并给出所需信息（文件路径、目标平台、所需操作）
 
-> **End:** Update progress tracker with publication result. **Update Execution Log** (Step 10 Log: platform published to, result, friction).
+> **End — Step 10 Closure (complete ALL before proceeding):**
+> 1. Mark all Step 10 checkboxes `[x]` in progress tracker
+> 2. Fill Step 10 Execution Log (every field, no "pending")
+> 3. Update Corrections Log if user corrected anything this step
+> 4. **Verify**: re-read progress tracker, confirm no blanks for Step 10
 
 **发布后数据记录提醒（不可省略）：**
 
@@ -187,6 +211,8 @@ Follow the publishing skill's workflow for platform-specific requirements.
 > "建议过几天数据稳定后，告诉我各平台数据（阅读量、点赞等），直接说「记录数据」即可。"
 
 Then proceed to **流程自检**.
+
+> **Session Close Protocol**: 此步骤（流程自检+复盘）受会话关闭协议保护。当用户发出结束信号时，如果 Step 10 已完成或跳过但流程自检尚未执行，必须先执行本步骤再结束会话。
 
 ## 流程自检 + 复盘（不可跳过）
 
